@@ -3,28 +3,76 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const authRoutes = require('./routes/auth.routes');
-
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const healthHandler = require('./middleware/health');
 
+const authRoutes = require('./routes/auth.routes');
+const contentRoutes = require('./routes/content.routes');
+const messagesRoutes = require('./routes/messages.routes');
+const resumeRoutes = require('./routes/resume.routes');
+
 const app = express();
 
-app.use(cors({
-    origin: ['http://localhost:4200'],
-    credentials: true
-}));
+// ─── Simple in-memory rate limiter (no extra deps) ────────────────────────────
+function rateLimiter(maxHits, windowMs) {
+  const map = new Map();
+  return (req, res, next) => {
+    const key = req.ip || req.headers['x-forwarded-for'] || 'anon';
+    const now = Date.now();
+    const entry = map.get(key) || { count: 0, start: now };
+    if (now - entry.start > windowMs) {
+      entry.count = 0;
+      entry.start = now;
+    }
+    entry.count++;
+    map.set(key, entry);
+    if (entry.count > maxHits) {
+      return res.status(429).json({ message: 'Too many requests. Please wait a moment.' });
+    }
+    next();
+  };
+}
 
+// ─── CORS
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+  : ['http://localhost:4200'];
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      cb(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  })
+);
+
+// ─── Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+app.use('/uploads', require('express').static(require('path').join(__dirname, 'data', 'uploads')));
+
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-    next();
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
 });
 
+// ─── Secret admin slug verifier ───────────────────────────────────────────────
+// Frontend calls this to verify the secret URL before showing the login page.
+// The actual slug is stored server-side in .env — never exposed to the browser.
+app.get('/api/admin/verify-slug/:slug', (req, res) => {
+  const expected = process.env.ADMIN_SECRET_SLUG || 'secure-portal-ar2026';
+  if (req.params.slug === expected) {
+    return res.json({ valid: true });
+  }
+  return res.status(403).json({ valid: false });
+});
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', rateLimiter(15, 15 * 60 * 1000), authRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/messages', messagesRoutes); // rate-limit applied per-method inside route
+app.use('/api/resume', resumeRoutes);
 
 app.get('/api/health', healthHandler);
 
