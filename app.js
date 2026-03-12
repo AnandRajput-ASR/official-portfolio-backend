@@ -37,15 +37,24 @@ function rateLimiter(maxHits, windowMs) {
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
   : ['http://localhost:4200'];
+
 app.use(
   cors({
-    origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      cb(new Error('Not allowed by CORS'));
+    origin: (origin, callback) => {
+      console.log(`CORS check for origin: ${origin}`);
+      // allow requests without origin (like curl / postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
     },
     credentials: true,
   })
 );
+
+app.options('*', cors());
 
 // ─── Body parsing
 app.use(express.json({ limit: '10mb' }));

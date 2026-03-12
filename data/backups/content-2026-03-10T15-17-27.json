@@ -1,0 +1,485 @@
+{
+  "hero": {
+    "name": "Anand Rajput12",
+    "title": "Angular Developer & Azure DevOps Engineer 12",
+    "subtitle": "5+ Years Building Enterprise-Grade Web Applications",
+    "bio": "$ Results-driven Angular developer at Accenture with 5+ years delivering scalable, high-performance web applications for global clients. Proficient in Angular, TypeScript, Node.js, and cloud platforms (Azure & AWS) — with 4 Microsoft Azure certifications to back it up. Available for freelance projects.",
+    "location": "Pune, India 238974",
+    "email": "anandraj.asr@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/anand--rajput/",
+    "github": "https://github.com/AnandRajput-ASR",
+    "availableForWork": true
+  },
+  "skills": [
+    {
+      "id": "angular",
+      "name": "Angular",
+      "icon": "🅰️",
+      "accentColor": "#dd0031",
+      "description": "5+ years building enterprise SPAs with Angular 8–17. Expert in RxJS reactive patterns, NgRx state management, lazy loading, accessibility, and performance optimization for large-scale applications.",
+      "tags": [
+        "Angular 8–17",
+        "TypeScript",
+        "RxJS",
+        "NgRx",
+        "JavaScript",
+        "Unit Testing"
+      ],
+      "order": 0,
+      "proficiency": 92,
+      "yearsExp": "5+"
+    },
+    {
+      "id": "cloud",
+      "name": "Azure & AWS",
+      "icon": "☁️",
+      "accentColor": "#0078d4",
+      "description": "Hands-on cloud experience across both Azure and AWS ecosystems — deploying function apps, managing containers, monitoring with CloudWatch, and architecting event-driven serverless solutions.",
+      "tags": [
+        "Azure Functions",
+        "Cosmos DB",
+        "AWS Lambda",
+        "AWS ECS",
+        "CloudWatch",
+        "SiteWise"
+      ],
+      "order": 1,
+      "proficiency": 75,
+      "yearsExp": "3+"
+    },
+    {
+      "id": "devops",
+      "name": "Azure DevOps",
+      "icon": "⚙️",
+      "accentColor": "#0072c6",
+      "description": "AZ-400 certified DevOps Engineer. Designed and maintained multi-stage CI/CD pipelines, automated releases, managed secrets rotation, and container image lifecycle for production systems.",
+      "tags": [
+        "CI/CD Pipelines",
+        "YAML Pipelines",
+        "GitHub Actions",
+        "Docker",
+        "Secrets Management",
+        "AZ-400"
+      ],
+      "order": 2,
+      "proficiency": 82,
+      "yearsExp": "3+"
+    },
+    {
+      "id": "backend",
+      "name": "Node.js & Backend",
+      "icon": "🟢",
+      "accentColor": "#68a063",
+      "description": "Built robust RESTful APIs and backend services using Node.js and Express. Experienced with DB scripting, SAP integration workflows, PostgreSQL, and Cosmos DB for enterprise supplier platforms.",
+      "tags": [
+        "Node.js",
+        "Express.js",
+        "RESTful APIs",
+        "PostgreSQL",
+        "Cosmos DB",
+        "SAP Integration"
+      ],
+      "order": 3,
+      "proficiency": 78,
+      "yearsExp": "3+"
+    }
+  ],
+  "companies": [
+    {
+      "id": "c1",
+      "name": "Accenture",
+      "role": "Packaged App Development Analyst",
+      "period": "Jan 2021 — Present",
+      "location": "Pune, India",
+      "logo": "⬡",
+      "accentColor": "#a100ff",
+      "current": true,
+      "description": "Delivered enterprise Angular applications and cloud solutions for global clients. Mentored 5–6 developers, led full-stack development, managed CI/CD pipelines, earned 4 Azure certifications. Recognized with 2× Star of the Month.",
+      "projects": [
+        {
+          "id": "cp1",
+          "number": "01",
+          "title": "BIAL – Bangalore Airport Internal Ops Portal",
+          "description": "Built a fully responsive enterprise web UI for internal airport operations at Kempegowda International Airport. Implemented robust unit testing, optimized cross-device layouts for desktop and tablet.",
+          "tech": [
+            "Angular",
+            "TypeScript",
+            "Unit Testing",
+            "Responsive UI"
+          ],
+          "link": "#",
+          "order": 0
+        },
+        {
+          "id": "cp2",
+          "number": "02",
+          "title": "Smart ACP & Hoteling – Workspace Management",
+          "description": "Led Angular development of Admin Entity, Communication, and Role Management modules. Built Azure Function App backends with Cosmos DB & SQL. Delivered stable releases via Azure DevOps CI/CD. Earned 2× Star of the Month.",
+          "tech": [
+            "Angular",
+            "Azure Functions",
+            ".NET",
+            "Cosmos DB",
+            "Azure DevOps"
+          ],
+          "link": "#",
+          "order": 1
+        },
+        {
+          "id": "cp3",
+          "number": "03",
+          "title": "True Supplier Marketplace & Supplier Hub",
+          "description": "Developed Angular UI and Node.js backend for supplier onboarding workflows. Designed DB scripts for SAP integration and multi-team approval routing. Used AWS CloudWatch, Lambda & ECS for monitoring.",
+          "tech": [
+            "Angular",
+            "Node.js",
+            "AWS Lambda",
+            "AWS ECS",
+            "PostgreSQL",
+            "SAP"
+          ],
+          "link": "#",
+          "order": 2
+        },
+        {
+          "id": "cp4",
+          "number": "04",
+          "title": "Hannover Messe – AWS IoT PoC",
+          "description": "Created a prototype using AWS SiteWise, TwinMaker, Grafana, and QuickSight to demonstrate IoT capabilities. Simulated sensor data and integrated Lambda for predictive analytics — influencing client buy-in.",
+          "tech": [
+            "AWS SiteWise",
+            "AWS TwinMaker",
+            "Grafana",
+            "QuickSight",
+            "Lambda"
+          ],
+          "link": "#",
+          "order": 3
+        }
+      ],
+      "order": 0
+    }
+  ],
+  "personalProjects": [
+    {
+      "id": "pp1",
+      "title": "This Portfolio `1",
+      "description": "Full-stack portfolio with Angular 17 frontend, Node.js/Express backend, JWT-authenticated admin CMS, contact form with email notifications, resume upload, and dark/light mode.",
+      "tech": [
+        "Angular 17",
+        "Node.js",
+        "Express",
+        "JWT",
+        "Nodemailer"
+      ],
+      "githubUrl": "https://github.com/anandrajput/portfolio",
+      "liveUrl": "#",
+      "status": "live",
+      "type": "personal",
+      "featured": true,
+      "year": "2026",
+      "order": 0
+    }
+  ],
+  "experience": [
+    {
+      "id": "e1",
+      "period": "Jan 2021 — Present",
+      "role": "Packaged App Development Analyst",
+      "company": "Accenture",
+      "location": "Pune, India",
+      "description": "Delivered enterprise-grade Angular applications and cloud solutions for global clients across aviation (BIAL), manufacturing (Hannover Messe), workspace management (Smart ACP), and supply chain (True Supplier Marketplace). Mentored 5–6 new developers, led full-stack development, managed CI/CD pipelines, and earned 4 Azure certifications while on the job. Recognized with 2× Star of the Month awards.",
+      "order": 0
+    },
+    {
+      "id": "e2",
+      "period": "2017 — 2020",
+      "role": "Master of Computer Applications (MCA)",
+      "company": "Savitribai Phule Pune University",
+      "location": "Pune, India",
+      "description": "Graduated with an MCA, building a strong foundation in software engineering, algorithms, databases, and web technologies — the launchpad for a professional career in full-stack development.",
+      "order": 1
+    }
+  ],
+  "stats": [
+    {
+      "id": "s1",
+      "value": 6,
+      "suffix": "+",
+      "label": "Years at Accenture"
+    },
+    {
+      "id": "s2",
+      "value": 4,
+      "suffix": "",
+      "label": "Azure Certifications"
+    },
+    {
+      "id": "s3",
+      "value": 4,
+      "suffix": "",
+      "label": "Enterprise Projects"
+    },
+    {
+      "id": "s4",
+      "value": 6,
+      "suffix": "+",
+      "label": "Developers Mentored"
+    }
+  ],
+  "certifications": [
+    {
+      "id": "cert1",
+      "name": "Microsoft Azure Fundamentals",
+      "code": "AZ-900",
+      "issuer": "Microsoft",
+      "level": "Fundamental",
+      "credlyUrl": "",
+      "badgeUrl": "",
+      "badgeType": "default",
+      "accentColor": "#0078d4",
+      "year": "2021",
+      "order": 0
+    },
+    {
+      "id": "cert2",
+      "name": "Microsoft Azure Administrator",
+      "code": "AZ-104",
+      "issuer": "Microsoft",
+      "level": "Associate",
+      "credlyUrl": "",
+      "badgeUrl": "",
+      "badgeType": "default",
+      "accentColor": "#0078d4",
+      "year": "2022",
+      "order": 1
+    },
+    {
+      "id": "cert3",
+      "name": "Microsoft Azure Developer Associate",
+      "code": "AZ-204",
+      "issuer": "Microsoft",
+      "level": "Associate",
+      "credlyUrl": "",
+      "badgeUrl": "",
+      "badgeType": "default",
+      "accentColor": "#0078d4",
+      "year": "2023",
+      "order": 2
+    },
+    {
+      "id": "cert4",
+      "name": "Microsoft Azure DevOps Engineer Expert",
+      "code": "AZ-400",
+      "issuer": "Microsoft",
+      "level": "Expert",
+      "credlyUrl": "",
+      "badgeUrl": "",
+      "badgeType": "default",
+      "accentColor": "#0072c6",
+      "year": "2024",
+      "order": 3
+    }
+  ],
+  "siteSettings": {
+    "openToWork": true,
+    "openToWorkText": "<b>Open to Freelance</b> &nbsp;·&nbsp; Angular &amp; Azure Engineer",
+    "sections": {
+      "hero": true,
+      "about": true,
+      "ticker": true,
+      "skills": true,
+      "companies": true,
+      "personalProjects": true,
+      "certifications": true,
+      "experience": true,
+      "testimonials": true,
+      "blog": true,
+      "stats": true,
+      "contact": true,
+      "resumeBanner": true,
+      "footer": true,
+      "analytics": true
+    },
+    "freelance": {
+      "enabled": true,
+      "ctaTitle": "Got a project in mind?",
+      "ctaSubtitle": "I take on Angular development, cloud integrations, and DevOps consulting projects. Let’s talk about what you need.",
+      "services": [
+        "Angular SPA Development",
+        "Azure Cloud Setup",
+        "CI/CD Pipeline Design",
+        "Node.js API Development",
+        "Code Review & Mentoring",
+        "Technical Consulting"
+      ],
+      "showInHero": true,
+      "showInAbout": true,
+      "showCtaSection": true,
+      "showInContact": true
+    },
+    "hero": {
+      "badgeText": "Available for Freelance · Pune, India",
+      "ctaPrimary": "Hire Me →",
+      "ctaSecondary": "See My Work",
+      "pills": [
+        "Angular 8–17",
+        "Azure AZ-400",
+        "Node.js",
+        "AWS Lambda",
+        "5+ Yrs Accenture"
+      ],
+      "cardTitle": "@ Accenture · Pune",
+      "cardStatusText": "Open to work",
+      "cardStats": [
+        {
+          "value": "5+",
+          "label": "Years"
+        },
+        {
+          "value": "4",
+          "label": "Azure Certs"
+        },
+        {
+          "value": "4",
+          "label": "Projects"
+        }
+      ],
+      "cardSkills": [
+        "Angular",
+        "TypeScript",
+        "Node.js",
+        "Azure DevOps",
+        "AWS",
+        "PostgreSQL"
+      ]
+    },
+    "about": {
+      "heading": "I build things that<br><em>enterprises trust.</em>",
+      "paragraphs": [
+        "I'm a developer at <strong>Accenture</strong> where I've spent 4+ years building mission-critical web applications for clients like Bangalore International Airport, Hannover Messe, and large-scale supplier platforms.",
+        "My work spans the full lifecycle — Angular UIs, Node.js APIs, Azure cloud infrastructure, and the DevOps pipelines that ship it all reliably. I've mentored 5–6 junior developers and earned <strong>4 Microsoft Azure certifications</strong> while delivering."
+      ],
+      "accentureBadge": {
+        "company": "Accenture",
+        "role": "Packaged App Development Analyst",
+        "period": "Jan 2021 – Present · Pune, India",
+        "award": "🏆 2× Star of the Month"
+      }
+    },
+    "contact": {
+      "heading": "Let’s build something great together.",
+      "successMessage": "Message sent! Anand will get back to you shortly."
+    },
+    "footer": {
+      "text": "Anand Rajput — Angular Developer & Azure Engineer",
+      "copy": "© 2026 · Pune, India · Built with Angular & Node.js"
+    },
+    "nav": {
+      "logoText": "AR",
+      "showResume": true
+    },
+    "ticker": {
+      "items": [
+        "Angular",
+        "TypeScript",
+        "Azure DevOps",
+        "Node.js",
+        "AWS Lambda",
+        "RxJS",
+        "NgRx",
+        "PostgreSQL",
+        "Cosmos DB",
+        "AZ-400 Expert",
+        "Accenture",
+        "CI/CD Pipelines"
+      ]
+    }
+  },
+  "testimonials": [
+    {
+      "id": "t1",
+      "name": "Priya Sharma",
+      "role": "Project Manager",
+      "company": "Accenture",
+      "avatar": "",
+      "quote": "Anand consistently delivered beyond expectations. His Angular expertise and proactive approach to problem-solving made him a key contributor on the Smart ACP project. Earned Star of the Month — well deserved.",
+      "rating": 5,
+      "visible": true,
+      "order": 0,
+      "status": "approved"
+    },
+    {
+      "id": "t2",
+      "name": "Rahul Mehta",
+      "role": "Tech Lead",
+      "company": "Accenture",
+      "avatar": "",
+      "quote": "One of the best Angular developers I have worked with. Anand took ownership of complex modules, mentored junior devs, and always kept quality first. Would work with him again in a heartbeat.",
+      "rating": 5,
+      "visible": true,
+      "order": 1,
+      "status": "approved"
+    },
+    {
+      "id": "pt_1773130607304",
+      "name": "ADASD",
+      "role": "ASD",
+      "company": "DASD",
+      "quote": "ASDAS",
+      "rating": 5,
+      "avatar": "",
+      "status": "approved",
+      "visible": true,
+      "submittedAt": "2026-03-10T08:16:47.304Z",
+      "order": 2
+    }
+  ],
+  "blogPosts": [
+    {
+      "id": "b1",
+      "title": "Building Scalable Angular Apps with NgRx: Lessons from 5 Years in Production",
+      "slug": "scalable-angular-ngrx",
+      "excerpt": "After 5 years building enterprise Angular apps at Accenture, here are the NgRx patterns that actually work at scale — and the anti-patterns that will haunt you at 3am.",
+      "content": "# Building Scalable Angular Apps with NgRx\n\nAfter 5 years building enterprise Angular applications at Accenture for clients like BIAL and True Supplier, I've learned a lot about what works and what doesn't when it comes to state management with NgRx.\n\n## The Problem with Ad-hoc State\n\nWhen projects start small, component state feels fine. But as requirements grow and teams expand, you end up with a spaghetti of `@Input()/@Output()` chains and shared services that become impossible to debug.\n\n## Key NgRx Patterns That Scale\n\n**1. Feature State over Global State**\nKeep state as close to the feature as possible. Avoid dumping everything into a root store.\n\n**2. Selector Memoization**\nAlways use `createSelector` for derived state. It memoizes automatically and makes your templates lightning fast.\n\n**3. Effects for Side Effects Only**\nEffects should only handle async operations and side effects — never business logic. Business logic belongs in reducers.\n\n## Conclusion\n\nNgRx has a steep learning curve but pays dividends in maintainability. Start with feature stores, invest in selector hygiene, and your future self will thank you.",
+      "tags": [
+        "Angular",
+        "NgRx",
+        "TypeScript",
+        "State Management"
+      ],
+      "coverImage": "",
+      "published": true,
+      "publishedAt": "2026-02-15",
+      "readingTime": 6,
+      "order": 0
+    },
+    {
+      "id": "b2",
+      "title": "Azure DevOps CI/CD for Angular: The Complete Pipeline Guide",
+      "slug": "azure-devops-angular-pipeline",
+      "excerpt": "A practical guide to setting up a multi-stage Azure DevOps pipeline for Angular apps — from build and test to staging and production deployments.",
+      "content": "# Azure DevOps CI/CD for Angular\n\nSetting up a proper CI/CD pipeline is one of the highest-ROI investments you can make on any project. Here's how I set up multi-stage pipelines for Angular apps using Azure DevOps.\n\n## Pipeline Stages\n\n1. **Build** — `npm ci`, lint, compile\n2. **Test** — unit tests with coverage gate\n3. **Stage Deploy** — deploy to staging environment\n4. **Approval Gate** — manual sign-off before production\n5. **Prod Deploy** — blue/green deployment\n\n## Key YAML Configuration\n\nThe most important thing is separating your environments with different variable groups and keeping secrets in Azure Key Vault — never in your pipeline YAML.\n\n## Lessons Learned\n\nAfter managing pipelines for 3 major projects at Accenture, the biggest lesson is: invest in your build cache. A cold build that takes 8 minutes with a warm cache takes 90 seconds.",
+      "tags": [
+        "Azure DevOps",
+        "CI/CD",
+        "Angular",
+        "DevOps"
+      ],
+      "coverImage": "",
+      "published": true,
+      "publishedAt": "2026-01-20",
+      "readingTime": 8,
+      "order": 1
+    }
+  ],
+  "analytics": {
+    "resumeDownloads": 2,
+    "contactFormViews": 0,
+    "contactFormSubmissions": 5,
+    "projectClicks": {},
+    "pageViews": 35,
+    "lastReset": ""
+  },
+  "pendingTestimonials": []
+}

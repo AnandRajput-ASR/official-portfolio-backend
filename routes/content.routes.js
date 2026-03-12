@@ -3,6 +3,9 @@ const fs = require('fs');
 const path = require('path');
 const auth = require('../middleware/auth');
 const router = express.Router();
+const sql = require('../configs/database.config');
+
+const contentService = require('../services/content.service');
 
 // Per-IP rate limiter for public endpoints (10 req/hour)
 const _rl = new Map();
@@ -44,14 +47,14 @@ function write(d) {
 }
 
 // PUBLIC
-router.get('/', (_, res) => {
-  const d = read();
-  // Strip private data from public response
-  const { _analytics, _pendingTestimonials, ...pub } = d;
-  // Also filter out hidden testimonials and draft blog posts
-  pub.testimonials = (pub.testimonials || []).filter((t) => t.visible);
-  pub.blogPosts = (pub.blogPosts || []).filter((p) => p.published);
-  return res.json(pub);
+router.get('/', async (_, res) => {
+  try {
+    const data = await contentService.getPageContent();
+    res.json(data);
+  } catch (e) {
+    console.error('Error reading content:', e);
+    return res.status(500).json({ message: 'Error reading content.' });
+  }
 });
 
 // ─── IMAGE UPLOAD (admin, saves to disk, returns /uploads/<file>) ──────────────

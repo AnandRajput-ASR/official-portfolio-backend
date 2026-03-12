@@ -1,0 +1,7 @@
+{
+  "username": "admin",
+  "passwordHash": "$2a$12$TxO12niGkP3dgdxcW4Dhuurwk4zKtHIf2GFeqp8H41NwIX1j5f6RG",
+  "email": "anandraj.asr@gmail.com",
+  "resetToken": null,
+  "resetTokenExpiry": null
+}
