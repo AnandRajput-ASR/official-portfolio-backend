@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth.routes');
 const contentRoutes = require('./routes/content.routes');
 const messagesRoutes = require('./routes/messages.routes');
 const resumeRoutes = require('./routes/resume.routes');
+const adminRoutes = require('./routes/admin.route');
 
 const app = express();
 
@@ -82,6 +83,7 @@ app.use('/api/auth', rateLimiter(15, 15 * 60 * 1000), authRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/messages', messagesRoutes); // rate-limit applied per-method inside route
 app.use('/api/resume', resumeRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', healthHandler);
 

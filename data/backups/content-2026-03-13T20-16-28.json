@@ -1,19 +1,21 @@
 {
   "hero": {
     "name": "Anand Rajput12",
-    "title": "Angular Developer & Azure DevOps Engineer 12",
+    "title": "Angular Developer & Azure DevOps Engineer",
     "subtitle": "5+ Years Building Enterprise-Grade Web Applications",
-    "bio": "$ Results-driven Angular developer at Accenture with 5+ years delivering scalable, high-performance web applications for global clients. Proficient in Angular, TypeScript, Node.js, and cloud platforms (Azure & AWS) — with 4 Microsoft Azure certifications to back it up. Available for freelance projects.",
-    "location": "Pune, India 238974",
+    "bio": "Results-driven Angular developer at Accenture with 5+ years delivering scalable, high-performance web applications for global clients. Proficient in Angular, TypeScript, Node.js, and cloud platforms (Azure & AWS) — with 4 Microsoft Azure certifications to back it up. Available for freelance projects.",
+    "location": "Pune, Maharashtra, India",
     "email": "anandraj.asr@gmail.com",
-    "linkedin": "https://www.linkedin.com/in/anand--rajput/",
-    "github": "https://github.com/AnandRajput-ASR",
-    "availableForWork": true
+    "linkedin": "https://linkedin.com/in/anandrajput",
+    "github": "https://github.com/anandrajput",
+    "availableForWork": true,
+    "id": "e9089986-4c6b-41b7-af21-2fbb191f9c34",
+    "updated_at": 1773388656621
   },
   "skills": [
     {
-      "id": "angular",
-      "name": "Angular",
+      "id": "c4c97d5f-8601-447d-b635-34070aed4769",
+      "name": "Angular12",
       "icon": "🅰️",
       "accentColor": "#dd0031",
       "description": "5+ years building enterprise SPAs with Angular 8–17. Expert in RxJS reactive patterns, NgRx state management, lazy loading, accessibility, and performance optimization for large-scale applications.",
@@ -30,7 +32,7 @@
       "yearsExp": "5+"
     },
     {
-      "id": "cloud",
+      "id": "08b05b85-a2ba-443c-9b52-3ffe03cc163d",
       "name": "Azure & AWS",
       "icon": "☁️",
       "accentColor": "#0078d4",
@@ -48,7 +50,7 @@
       "yearsExp": "3+"
     },
     {
-      "id": "devops",
+      "id": "ac5b9b0f-6b14-4f6a-9d00-398e5ec6a838",
       "name": "Azure DevOps",
       "icon": "⚙️",
       "accentColor": "#0072c6",
@@ -66,7 +68,7 @@
       "yearsExp": "3+"
     },
     {
-      "id": "backend",
+      "id": "be9e4b20-8676-47fb-bb96-d21a8c861fc0",
       "name": "Node.js & Backend",
       "icon": "🟢",
       "accentColor": "#68a063",
@@ -82,54 +84,89 @@
       "order": 3,
       "proficiency": 78,
       "yearsExp": "3+"
+    },
+    {
+      "id": "skill_1773420549845",
+      "name": "NewSKill",
+      "icon": "⚡",
+      "accentColor": "#fbae32",
+      "description": "New skill for DB create",
+      "tags": [
+        "new",
+        "skill",
+        "db",
+        "how",
+        "are",
+        "you"
+      ],
+      "proficiency": 80,
+      "yearsExp": "1+",
+      "displayOrder": 4
     }
   ],
   "companies": [
     {
-      "id": "c1",
+      "id": "eab4441b-3e79-4c9d-a434-e73ef56c4566",
       "name": "Accenture",
       "role": "Packaged App Development Analyst",
       "period": "Jan 2021 — Present",
       "location": "Pune, India",
       "logo": "⬡",
       "accentColor": "#a100ff",
-      "current": true,
       "description": "Delivered enterprise Angular applications and cloud solutions for global clients. Mentored 5–6 developers, led full-stack development, managed CI/CD pipelines, earned 4 Azure certifications. Recognized with 2× Star of the Month.",
+      "displayOrder": 0,
       "projects": [
         {
-          "id": "cp1",
+          "id": "59089556-7245-4fa4-99f5-4ca381f859c4",
           "number": "01",
           "title": "BIAL – Bangalore Airport Internal Ops Portal",
           "description": "Built a fully responsive enterprise web UI for internal airport operations at Kempegowda International Airport. Implemented robust unit testing, optimized cross-device layouts for desktop and tablet.",
+          "link": "#",
+          "displayOrder": 0,
           "tech": [
             "Angular",
             "TypeScript",
             "Unit Testing",
             "Responsive UI"
-          ],
-          "link": "#",
-          "order": 0
+          ]
         },
         {
-          "id": "cp2",
+          "id": "593feb77-8c78-4724-bf45-b6ebefa34d1b",
           "number": "02",
+          "title": "Hannover Messe – AWS IoT PoC",
+          "description": "Created a prototype using AWS SiteWise, TwinMaker, Grafana, and QuickSight to demonstrate IoT capabilities. Simulated sensor data and integrated Lambda for predictive analytics — influencing client buy-in.",
+          "link": "#",
+          "displayOrder": 1,
+          "tech": [
+            "AWS SiteWise",
+            "AWS TwinMaker",
+            "Grafana",
+            "QuickSight",
+            "Lambda"
+          ]
+        },
+        {
+          "id": "a6c47814-7089-45a5-977d-fb8eabaf84f6",
+          "number": "03",
           "title": "Smart ACP & Hoteling – Workspace Management",
           "description": "Led Angular development of Admin Entity, Communication, and Role Management modules. Built Azure Function App backends with Cosmos DB & SQL. Delivered stable releases via Azure DevOps CI/CD. Earned 2× Star of the Month.",
+          "link": "#",
+          "displayOrder": 2,
           "tech": [
             "Angular",
             "Azure Functions",
             ".NET",
             "Cosmos DB",
             "Azure DevOps"
-          ],
-          "link": "#",
-          "order": 1
+          ]
         },
         {
-          "id": "cp3",
-          "number": "03",
+          "id": "a57ad306-6828-4c5a-aaf6-522af0332bfc",
+          "number": "04",
           "title": "True Supplier Marketplace & Supplier Hub",
           "description": "Developed Angular UI and Node.js backend for supplier onboarding workflows. Designed DB scripts for SAP integration and multi-team approval routing. Used AWS CloudWatch, Lambda & ECS for monitoring.",
+          "link": "#",
+          "displayOrder": 3,
           "tech": [
             "Angular",
             "Node.js",
@@ -137,27 +174,35 @@
             "AWS ECS",
             "PostgreSQL",
             "SAP"
-          ],
-          "link": "#",
-          "order": 2
-        },
-        {
-          "id": "cp4",
-          "number": "04",
-          "title": "Hannover Messe – AWS IoT PoC",
-          "description": "Created a prototype using AWS SiteWise, TwinMaker, Grafana, and QuickSight to demonstrate IoT capabilities. Simulated sensor data and integrated Lambda for predictive analytics — influencing client buy-in.",
-          "tech": [
-            "AWS SiteWise",
-            "AWS TwinMaker",
-            "Grafana",
-            "QuickSight",
-            "Lambda"
-          ],
-          "link": "#",
-          "order": 3
+          ]
         }
-      ],
-      "order": 0
+      ]
+    },
+    {
+      "id": "3e8769ac-1397-4dd4-aec9-89d9e208a5ac",
+      "name": "New Company",
+      "role": "Intern",
+      "period": "FEB 2016",
+      "location": "Pune. India",
+      "logo": "🏢",
+      "accentColor": "#f5a623",
+      "description": "here I worked as intern",
+      "displayOrder": 1,
+      "projects": [
+        {
+          "id": "200fb751-8f04-4084-bbc6-8aa3e933ae4f",
+          "companyId": "3e8769ac-1397-4dd4-aec9-89d9e208a5ac",
+          "title": "new proiojec",
+          "description": "ajdilajlsdjalisjdi",
+          "tech": [
+            "asdja",
+            "js",
+            "ka sakda"
+          ],
+          "link": "#",
+          "displayOrder": 0
+        }
+      ]
     }
   ],
   "personalProjects": [
@@ -415,7 +460,7 @@
       "role": "Tech Lead",
       "company": "Accenture",
       "avatar": "",
-      "quote": "One of the best Angular developers I have worked with. Anand took ownership of complex modules, mentored junior devs, and always kept quality first. Would work with him again in a heartbeat.",
+      "quote": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
       "rating": 5,
       "visible": true,
       "order": 1,
@@ -478,8 +523,21 @@
     "contactFormViews": 0,
     "contactFormSubmissions": 5,
     "projectClicks": {},
-    "pageViews": 33,
+    "pageViews": 51,
     "lastReset": ""
   },
-  "pendingTestimonials": []
+  "pendingTestimonials": [
+    {
+      "id": "pt_1773155847163",
+      "name": "Anand",
+      "role": "ARjkaj",
+      "company": "QUaslkd",
+      "quote": "ajdhjlakhsdjklahnsjkldhnajlkdhjnajldasd",
+      "rating": 5,
+      "avatar": "",
+      "status": "pending",
+      "visible": false,
+      "submittedAt": "2026-03-10T15:17:27.164Z"
+    }
+  ]
 }

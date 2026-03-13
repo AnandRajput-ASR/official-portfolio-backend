@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "db:test": "node scripts/db-runner.js",
     "dev:watch": "nodemon --watch . --ext js,json server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

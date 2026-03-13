@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const auth = require('../middleware/auth');
 const router = express.Router();
-const sql = require('../configs/database.config');
+const contentController = require('../controllers/content.controller');
 
 const contentService = require('../services/content.service');
 
@@ -49,7 +49,8 @@ function write(d) {
 // PUBLIC
 router.get('/', async (_, res) => {
   try {
-    const data = await contentService.getPageContent();
+    const data = await contentService.getPag
+    eContent();
     res.json(data);
   } catch (e) {
     console.error('Error reading content:', e);
@@ -93,13 +94,13 @@ router.get('/personal-projects', (_, res) => res.json(read().personalProjects));
 router.get('/experience', (_, res) => res.json(read().experience));
 router.get('/stats', (_, res) => res.json(read().stats));
 
-// HERO
-router.put('/hero', auth, (req, res) => {
-  const d = read();
-  d.hero = { ...d.hero, ...req.body };
-  write(d);
-  res.json({ message: 'Hero updated', hero: d.hero });
-});
+// // HERO
+// router.put('/hero', auth, (req, res) => {
+//   const d = read();
+//   d.hero = { ...d.hero, ...req.body };
+//   write(d);
+//   res.json({ message: 'Hero updated', hero: d.hero });
+// });
 
 // SKILLS
 router.put('/skills', auth, (req, res) => {
@@ -518,7 +519,7 @@ router.post('/analytics/track', (req, res) => {
   write(d);
   res.json({ ok: true });
 });
-router.get('/analytics', auth, (_, res) => res.json(read().analytics || {}));
+router.get('/analytics', auth, contentController.getAnalytics);
 router.delete('/analytics/reset', auth, (req, res) => {
   const d = read();
   d.analytics = {
@@ -532,5 +533,14 @@ router.delete('/analytics/reset', auth, (req, res) => {
   write(d);
   res.json({ message: 'Analytics reset' });
 });
+
+// ---------------------------------------------------------------------------------------------------------------------------
+
+router.get('/page-content', contentController.getContent)
+
+// hero
+router.put('/hero', contentController.updateHero);
+
+// router.get('/hero', contentController.getHero);
 
 module.exports = router;
