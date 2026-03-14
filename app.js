@@ -30,14 +30,12 @@ function rateLimiter(maxHits, windowMs) {
     if (entry.count > maxHits) {
       return res.status(429).json({ message: 'Too many requests. Please wait a moment.' });
     }
-    next();
+    return next();
   };
 }
 
 // ─── CORS
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
-  : ['http://localhost:4200'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) : ['http://localhost:4200'];
 
 app.use(
   cors({

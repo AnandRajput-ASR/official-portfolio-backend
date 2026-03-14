@@ -23,7 +23,7 @@ function writeMeta(data) {
 router.get('/info', (req, res) => {
   const meta = readMeta();
   if (!meta) return res.json({ available: false });
-  res.json({
+  return res.json({
     available: true,
     fileName: meta.originalName,
     uploadedAt: meta.uploadedAt,
@@ -41,7 +41,7 @@ router.get('/download', (req, res) => {
 
   res.setHeader('Content-Disposition', `attachment; filename="${meta.originalName}"`);
   res.setHeader('Content-Type', 'application/pdf');
-  res.sendFile(filePath);
+  return res.sendFile(filePath);
 });
 
 // ─── ADMIN: Upload resume (base64 in JSON body, no multer needed) ────────────
@@ -82,7 +82,7 @@ router.post('/upload', auth, (req, res) => {
   });
 
   console.log(`[RESUME] Uploaded: ${fileName} (${(buffer.length / 1024).toFixed(1)} KB)`);
-  res.status(201).json({
+  return res.status(201).json({
     message: 'Resume uploaded successfully!',
     fileName,
     size: buffer.length,
@@ -98,7 +98,7 @@ router.delete('/', auth, (req, res) => {
   if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
   fs.unlinkSync(META_FILE);
 
-  res.json({ message: 'Resume deleted.' });
+  return res.json({ message: 'Resume deleted.' });
 });
 
 module.exports = router;

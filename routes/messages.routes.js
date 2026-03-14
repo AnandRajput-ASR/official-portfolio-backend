@@ -17,11 +17,8 @@ function contactRateLimit(req, res, next) {
   }
   e.n++;
   _rl.set(key, e);
-  if (e.n > 10)
-    return res
-      .status(429)
-      .json({ message: 'Too many messages. Please wait before sending again.' });
-  next();
+  if (e.n > 10) return res.status(429).json({ message: 'Too many messages. Please wait before sending again.' });
+  return next();
 }
 
 const MESSAGES_FILE = path.join(__dirname, '../data/messages.json');
@@ -40,10 +37,8 @@ router.post('/', contactRateLimit, async (req, res) => {
   if (!name || !email || !message) {
     return res.status(400).json({ message: 'Name, email, and message are required.' });
   }
-  if ((name || '').length > 100)
-    return res.status(400).json({ message: 'Name too long (max 100 chars).' });
-  if ((message || '').length > 2000)
-    return res.status(400).json({ message: 'Message too long (max 2000 chars).' });
+  if ((name || '').length > 100) return res.status(400).json({ message: 'Name too long (max 100 chars).' });
+  if ((message || '').length > 2000) return res.status(400).json({ message: 'Message too long (max 2000 chars).' });
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
@@ -65,7 +60,7 @@ router.post('/', contactRateLimit, async (req, res) => {
   writeMessages(messages);
 
   // Fire email notification (non-blocking)
-  sendContactNotification(newMessage).catch(() => {});
+  await sendContactNotification(newMessage).catch(() => {});
 
   console.log(`[CONTACT] New message from ${newMessage.name} <${newMessage.email}>`);
   return res.status(201).json({ message: 'Message sent successfully!' });
@@ -74,14 +69,14 @@ router.post('/', contactRateLimit, async (req, res) => {
 // ─── ADMIN: Get all messages ──────────────────────────────────────────────────
 router.get('/', auth, (req, res) => {
   const messages = readMessages();
-  const unreadCount = messages.filter((m) => !m.read).length;
+  const unreadCount = messages.filter(m => !m.read).length;
   res.json({ messages, unreadCount });
 });
 
 // ─── ADMIN: Mark all as read (must be before /:id routes) ────────────────────
 router.patch('/mark-all-read', auth, (req, res) => {
   const messages = readMessages();
-  messages.forEach((m) => (m.read = true));
+  messages.forEach(m => (m.read = true));
   writeMessages(messages);
   res.json({ message: 'All messages marked as read' });
 });
@@ -89,31 +84,31 @@ router.patch('/mark-all-read', auth, (req, res) => {
 // ─── ADMIN: Mark as read ──────────────────────────────────────────────────────
 router.patch('/:id/read', auth, (req, res) => {
   const messages = readMessages();
-  const msg = messages.find((m) => m.id === req.params.id);
+  const msg = messages.find(m => m.id === req.params.id);
   if (!msg) return res.status(404).json({ message: 'Message not found' });
   msg.read = true;
   writeMessages(messages);
-  res.json({ message: 'Marked as read', msg });
+  return res.json({ message: 'Marked as read', msg });
 });
 
 // ─── ADMIN: Toggle starred ────────────────────────────────────────────────────
 router.patch('/:id/star', auth, (req, res) => {
   const messages = readMessages();
-  const msg = messages.find((m) => m.id === req.params.id);
+  const msg = messages.find(m => m.id === req.params.id);
   if (!msg) return res.status(404).json({ message: 'Message not found' });
   msg.starred = !msg.starred;
   writeMessages(messages);
-  res.json({ message: `Message ${msg.starred ? 'starred' : 'unstarred'}`, msg });
+  return res.json({ message: `Message ${msg.starred ? 'starred' : 'unstarred'}`, msg });
 });
 
 // ─── ADMIN: Delete message ────────────────────────────────────────────────────
 router.delete('/:id', auth, (req, res) => {
   let messages = readMessages();
   const before = messages.length;
-  messages = messages.filter((m) => m.id !== req.params.id);
+  messages = messages.filter(m => m.id !== req.params.id);
   if (messages.length === before) return res.status(404).json({ message: 'Message not found' });
   writeMessages(messages);
-  res.json({ message: 'Message deleted' });
+  return res.json({ message: 'Message deleted' });
 });
 
 module.exports = router;

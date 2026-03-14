@@ -1,7 +1,7 @@
 const sql = require('../configs/database.config');
 
 async function putHeroSection({ name, title, subtitle, bio, email, linkedin, github, location }) {
-    const result = await sql`
+  const result = await sql`
     WITH hero_update AS (
       UPDATE portfolio.hero
       SET
@@ -39,11 +39,11 @@ async function putHeroSection({ name, title, subtitle, bio, email, linkedin, git
     CROSS JOIN contact_update
   `;
 
-    return result[0] || null;
+  return result[0] || null;
 }
 
 async function putSkills(skills) {
-    const result = await sql`
+  const result = await sql`
     UPDATE portfolio.skills s
     SET
         name = data.name,
@@ -79,21 +79,11 @@ async function putSkills(skills) {
         s.proficiency,
         s.years_experience AS "yearsExp";
     `;
-    return result;
+  return result;
 }
 
-async function postSkill({
-    name,
-    icon,
-    accentColor,
-    description,
-    tags,
-    proficiency,
-    yearsExp,
-    displayOrder
-}) {
-
-    const result = await sql`
+async function postSkill({ name, icon, accentColor, description, tags, proficiency, yearsExp, displayOrder }) {
+  const result = await sql`
         INSERT INTO portfolio.skills (
             name,
             icon,
@@ -126,12 +116,11 @@ async function postSkill({
             display_order AS "displayOrder";
     `;
 
-    return result[0];
+  return result[0];
 }
 
 async function deleteSkillById(id) {
-
-    const result = await sql`
+  const result = await sql`
         UPDATE portfolio.skills
         SET
             is_active = false,
@@ -149,30 +138,16 @@ async function deleteSkillById(id) {
             display_order AS "displayOrder";
     `;
 
-    return result[0] || null;
+  return result[0] || null;
 }
 
 async function putCompanies(companies) {
+  return await sql.begin(async tx => {
+    for (const company of companies) {
+      const { id, name, role, period, location, logo, accentColor, description, displayOrder, projects } = company;
 
-    return sql.begin(async (tx) => {
-
-        for (const company of companies) {
-
-            const {
-                id,
-                name,
-                role,
-                period,
-                location,
-                logo,
-                accentColor,
-                description,
-                displayOrder,
-                projects
-            } = company;
-
-            // update company
-            await tx`
+      // update company
+      await tx`
                 UPDATE portfolio.companies
                 SET
                     name = ${name},
@@ -187,22 +162,12 @@ async function putCompanies(companies) {
                 WHERE id = ${id}
             `;
 
-            // update projects
-            if (projects?.length) {
+      // update projects
+      if (projects?.length) {
+        for (const project of projects) {
+          const { id: projectId, title, description: projectDescription, tech, link, displayOrder: projectOrder, number } = project;
 
-                for (const project of projects) {
-
-                    const {
-                        id: projectId,
-                        title,
-                        description: projectDescription,
-                        tech,
-                        link,
-                        displayOrder: projectOrder,
-                        number
-                    } = project;
-
-                    await tx`
+          await tx`
                         UPDATE portfolio.company_projects
                         SET
                             title = ${title},
@@ -214,27 +179,16 @@ async function putCompanies(companies) {
                             updated_at = now()
                         WHERE id = ${projectId}
                     `;
-                }
-            }
         }
+      }
+    }
 
-        return { updated: true };
-
-    });
+    return { updated: true };
+  });
 }
 
-async function postCompany({
-    name,
-    role,
-    period,
-    location,
-    logo,
-    accentColor,
-    current,
-    description
-}) {
-
-    const result = await sql`
+async function postCompany({ name, role, period, location, logo, accentColor, current, description }) {
+  const result = await sql`
         INSERT INTO portfolio.companies (
             name,
             role,
@@ -270,15 +224,13 @@ async function postCompany({
             display_order AS "displayOrder";;
     `;
 
-    return result[0];
+  return result[0];
 }
 
 async function deleteCompanyById(companyId) {
-
-    return sql.begin(async (tx) => {
-
-        // soft delete company
-        const company = await tx`
+  return await sql.begin(async tx => {
+    // soft delete company
+    const company = await tx`
             UPDATE portfolio.companies
             SET
                 is_active = false,
@@ -290,12 +242,12 @@ async function deleteCompanyById(companyId) {
                 display_order AS "displayOrder"
         `;
 
-        if (!company.length) {
-            return null;
-        }
+    if (!company.length) {
+      return null;
+    }
 
-        // soft delete all projects under company
-        await tx`
+    // soft delete all projects under company
+    await tx`
             UPDATE portfolio.company_projects
             SET
                 is_active = false,
@@ -303,20 +255,12 @@ async function deleteCompanyById(companyId) {
             WHERE company_id = ${companyId}
         `;
 
-        return company[0];
-
-    });
+    return company[0];
+  });
 }
 
-async function postCompanyProject({
-    companyId,
-    title,
-    description,
-    tech,
-    link
-}) {
-
-    const result = await sql`
+async function postCompanyProject({ companyId, title, description, tech, link }) {
+  const result = await sql`
         INSERT INTO portfolio.company_projects (
             company_id,
             title,
@@ -347,12 +291,11 @@ async function postCompanyProject({
             display_order AS "displayOrder";
     `;
 
-    return result[0];
+  return result[0];
 }
 
 async function deleteProjectById(projectId) {
-
-    const result = await sql`
+  const result = await sql`
         UPDATE portfolio.company_projects
         SET
             is_active = false,
@@ -365,30 +308,15 @@ async function deleteProjectById(projectId) {
             display_order AS "displayOrder";
     `;
 
-    return result[0] || null;
+  return result[0] || null;
 }
 
 async function putPersonalProjects(projects) {
+  return await sql.begin(async tx => {
+    for (const project of projects) {
+      const { id, title, description, tech, githubUrl, liveUrl, status, type, featured, year, displayOrder } = project;
 
-    return sql.begin(async (tx) => {
-
-        for (const project of projects) {
-
-            const {
-                id,
-                title,
-                description,
-                tech,
-                githubUrl,
-                liveUrl,
-                status,
-                type,
-                featured,
-                year,
-                displayOrder
-            } = project;
-
-            await tx`
+      await tx`
                 UPDATE portfolio.personal_projects
                 SET
                     title = ${title},
@@ -404,26 +332,14 @@ async function putPersonalProjects(projects) {
                     updated_at = now()
                 WHERE id = ${id}
             `;
-        }
+    }
 
-        return { updated: true };
-
-    });
+    return { updated: true };
+  });
 }
 
-async function postPersonalProject({
-    title,
-    description,
-    tech,
-    githubUrl,
-    liveUrl,
-    status,
-    type,
-    featured,
-    year
-}) {
-
-    const result = await sql`
+async function postPersonalProject({ title, description, tech, githubUrl, liveUrl, status, type, featured, year }) {
+  const result = await sql`
         INSERT INTO portfolio.personal_projects (
             title,
             description,
@@ -466,12 +382,11 @@ async function postPersonalProject({
             display_order AS "displayOrder";
     `;
 
-    return result[0];
+  return result[0];
 }
 
 async function deletePersonalProjectById(id) {
-
-    const result = await sql`
+  const result = await sql`
         UPDATE portfolio.personal_projects
         SET
             is_active = false,
@@ -483,21 +398,98 @@ async function deletePersonalProjectById(id) {
             display_order AS "displayOrder";
     `;
 
-    return result[0] || null;
+  return result[0] || null;
+}
+
+async function putExperience(experiences) {
+  return await sql.begin(async tx => {
+    for (const exp of experiences) {
+      const { id, period, location, role, company, description, displayOrder } = exp;
+
+      await tx`
+                UPDATE portfolio.experience
+                SET
+                    period = ${period},
+                    location = ${location},
+                    role = ${role},
+                    organisation = ${company},
+                    description = ${description},
+                    display_order = ${displayOrder},
+                    updated_at = now()
+                WHERE id = ${id}
+            `;
+    }
+
+    return { updated: true };
+  });
+}
+
+async function postExperience({ period, location, role, company, description }) {
+  const result = await sql`
+        INSERT INTO portfolio.experience (
+            period,
+            location,
+            role,
+            organisation,
+            description,
+            display_order
+        )
+        VALUES (
+            ${period},
+            ${location},
+            ${role},
+            ${company},
+            ${description},
+            (
+                SELECT COALESCE(MAX(display_order), -1) + 1
+                FROM portfolio.experience
+                WHERE is_active = true
+            )
+        )
+        RETURNING
+            id,
+            period,
+            location,
+            role,
+            organisation AS "company",
+            description,
+            display_order AS "displayOrder";
+    `;
+
+  return result[0];
+}
+
+async function deleteExperienceById(id) {
+  const result = await sql`
+        UPDATE portfolio.experience
+        SET
+            is_active = false,
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING
+            id,
+            role,
+            organisation AS "company",
+            display_order AS "displayOrder";
+    `;
+
+  return result[0] || null;
 }
 
 module.exports = {
-    putHeroSection,
-    putSkills,
-    postSkill,
-    deleteSkillById,
-    putCompanies,
-    postCompany,
-    deleteCompanyById,
-    postCompanyProject,
-    deleteProjectById,
-    putPersonalProjects,
-    postPersonalProject,
-    deletePersonalProjectById,
-
-}
+  putHeroSection,
+  putSkills,
+  postSkill,
+  deleteSkillById,
+  putCompanies,
+  postCompany,
+  deleteCompanyById,
+  postCompanyProject,
+  deleteProjectById,
+  putPersonalProjects,
+  postPersonalProject,
+  deletePersonalProjectById,
+  putExperience,
+  postExperience,
+  deleteExperienceById,
+};

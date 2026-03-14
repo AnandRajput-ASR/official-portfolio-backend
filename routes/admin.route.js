@@ -19,4 +19,8 @@ router.put('/personal-projects', adminController.updatePersonalProject);
 router.post('/personal-projects', adminController.createPersonalProject);
 router.delete('/personal-projects/:id', adminController.deletePersonalProject);
 
+router.put('/experience', adminController.updateExperience);
+router.post('/experience', adminController.createExperience);
+router.delete('/experience/:id', adminController.deleteExperience);
+
 module.exports = router;

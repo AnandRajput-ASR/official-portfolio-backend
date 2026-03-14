@@ -21,12 +21,10 @@ function writeAdmin(d) {
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password)
-      return res.status(400).json({ message: 'Username and password required' });
+    if (!username || !password) return res.status(400).json({ message: 'Username and password required' });
 
     const admin = readAdmin();
-    if (username !== admin.username)
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (username !== admin.username) return res.status(401).json({ message: 'Invalid credentials' });
 
     const valid = await bcrypt.compare(password, admin.passwordHash);
     if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
@@ -48,10 +46,8 @@ router.get('/verify', authMiddleware, (req, res) => {
 router.put('/change-password', authMiddleware, async (req, res) => {
   try {
     const { currentPassword, newPassword, newUsername } = req.body;
-    if (!currentPassword || !newPassword)
-      return res.status(400).json({ message: 'Current and new password required' });
-    if (newPassword.length < 8)
-      return res.status(400).json({ message: 'New password must be at least 8 characters' });
+    if (!currentPassword || !newPassword) return res.status(400).json({ message: 'Current and new password required' });
+    if (newPassword.length < 8) return res.status(400).json({ message: 'New password must be at least 8 characters' });
 
     const admin = readAdmin();
     const valid = await bcrypt.compare(currentPassword, admin.passwordHash);
@@ -89,9 +85,7 @@ router.post('/forgot-password', async (req, res) => {
 
     // TODO: send email via email service when configured
     // For now, return the token in response (dev mode)
-    const emailConfigured = !!(
-      process.env.GMAIL_APP_PASSWORD && process.env.GMAIL_APP_PASSWORD !== 'xxxx-xxxx-xxxx-xxxx'
-    );
+    const emailConfigured = !!(process.env.GMAIL_APP_PASSWORD && process.env.GMAIL_APP_PASSWORD !== 'xxxx-xxxx-xxxx-xxxx');
     if (emailConfigured) {
       try {
         const emailService = require('../services/email.service');
@@ -120,18 +114,13 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-    if (!token || !newPassword)
-      return res.status(400).json({ message: 'Token and new password required' });
-    if (newPassword.length < 8)
-      return res.status(400).json({ message: 'Password must be at least 8 characters' });
+    if (!token || !newPassword) return res.status(400).json({ message: 'Token and new password required' });
+    if (newPassword.length < 8) return res.status(400).json({ message: 'Password must be at least 8 characters' });
 
     const admin = readAdmin();
-    if (!admin.resetToken || admin.resetToken !== token)
-      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    if (!admin.resetToken || admin.resetToken !== token) return res.status(400).json({ message: 'Invalid or expired reset token' });
     if (new Date(admin.resetTokenExpiry) < new Date())
-      return res
-        .status(400)
-        .json({ message: 'Reset token has expired. Please request a new one.' });
+      return res.status(400).json({ message: 'Reset token has expired. Please request a new one.' });
 
     admin.passwordHash = await bcrypt.hash(newPassword, 10);
     admin.resetToken = null;

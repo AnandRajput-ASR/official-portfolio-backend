@@ -8,7 +8,7 @@ async function run() {
 
     const schema = await sql`SHOW search_path`;
     console.log(schema);
-    
+
     const result = await sql`
       SELECT id, email
       FROM portfolio.admin_users
@@ -16,7 +16,6 @@ async function run() {
 
     console.log('Query Result:');
     console.table(result);
-
   } catch (error) {
     console.error('Database error:', error);
   } finally {

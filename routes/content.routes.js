@@ -20,7 +20,7 @@ function publicRateLimit(req, res, next) {
   e.n++;
   _rl.set(key, e);
   if (e.n > 10) return res.status(429).json({ message: 'Too many requests. Please wait a while.' });
-  next();
+  return next();
 }
 
 const DATA_FILE = path.join(__dirname, '../data/content.json');
@@ -49,9 +49,8 @@ function write(d) {
 // PUBLIC
 router.get('/', async (_, res) => {
   try {
-    const data = await contentService.getPag
-    eContent();
-    res.json(data);
+    const data = await contentService.getPageContent();
+    return res.json(data);
   } catch (e) {
     console.error('Error reading content:', e);
     return res.status(500).json({ message: 'Error reading content.' });
@@ -61,15 +60,11 @@ router.get('/', async (_, res) => {
 // ─── IMAGE UPLOAD (admin, saves to disk, returns /uploads/<file>) ──────────────
 router.post('/upload-image', auth, (req, res) => {
   const { fileName, fileData } = req.body;
-  if (!fileName || !fileData)
-    return res.status(400).json({ message: 'fileName and fileData required.' });
+  if (!fileName || !fileData) return res.status(400).json({ message: 'fileName and fileData required.' });
 
   const ext = path.extname(fileName).toLowerCase();
   const allowed = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg'];
-  if (!allowed.includes(ext))
-    return res
-      .status(400)
-      .json({ message: 'Only image files allowed (jpg, png, webp, gif, svg).' });
+  if (!allowed.includes(ext)) return res.status(400).json({ message: 'Only image files allowed (jpg, png, webp, gif, svg).' });
 
   const MAX = 2 * 1024 * 1024; // 2 MB
   const buf = Buffer.from(fileData, 'base64');
@@ -85,7 +80,7 @@ router.post('/upload-image', auth, (req, res) => {
 router.get('/uploads/:file', (req, res) => {
   const filePath = path.join(UPLOADS_DIR, path.basename(req.params.file));
   if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'Not found.' });
-  res.sendFile(filePath);
+  return res.sendFile(filePath);
 });
 router.get('/hero', (_, res) => res.json(read().hero));
 router.get('/skills', (_, res) => res.json(read().skills));
@@ -117,7 +112,7 @@ router.post('/skills', auth, (req, res) => {
 });
 router.delete('/skills/:id', auth, (req, res) => {
   const d = read();
-  d.skills = d.skills.filter((s) => s.id !== req.params.id);
+  d.skills = d.skills.filter(s => s.id !== req.params.id);
   write(d);
   res.json({ message: 'Skill deleted' });
 });
@@ -138,15 +133,15 @@ router.post('/companies', auth, (req, res) => {
 });
 router.put('/companies/:id', auth, (req, res) => {
   const d = read();
-  const idx = d.companies.findIndex((c) => c.id === req.params.id);
+  const idx = d.companies.findIndex(c => c.id === req.params.id);
   if (idx === -1) return res.status(404).json({ message: 'Company not found' });
   d.companies[idx] = { ...d.companies[idx], ...req.body };
   write(d);
-  res.json({ message: 'Company updated', company: d.companies[idx] });
+  return res.json({ message: 'Company updated', company: d.companies[idx] });
 });
 router.delete('/companies/:id', auth, (req, res) => {
   const d = read();
-  d.companies = d.companies.filter((c) => c.id !== req.params.id);
+  d.companies = d.companies.filter(c => c.id !== req.params.id);
   write(d);
   res.json({ message: 'Company deleted' });
 });
@@ -154,7 +149,7 @@ router.delete('/companies/:id', auth, (req, res) => {
 // Company projects
 router.post('/companies/:companyId/projects', auth, (req, res) => {
   const d = read();
-  const co = d.companies.find((c) => c.id === req.params.companyId);
+  const co = d.companies.find(c => c.id === req.params.companyId);
   if (!co) return res.status(404).json({ message: 'Company not found' });
   const project = {
     id: 'cp_' + Date.now(),
@@ -163,23 +158,23 @@ router.post('/companies/:companyId/projects', auth, (req, res) => {
   };
   co.projects.push(project);
   write(d);
-  res.json({ message: 'Project added', project });
+  return res.json({ message: 'Project added', project });
 });
 router.put('/companies/:companyId/projects', auth, (req, res) => {
   const d = read();
-  const co = d.companies.find((c) => c.id === req.params.companyId);
+  const co = d.companies.find(c => c.id === req.params.companyId);
   if (!co) return res.status(404).json({ message: 'Company not found' });
   co.projects = req.body;
   write(d);
-  res.json({ message: 'Projects updated' });
+  return res.json({ message: 'Projects updated' });
 });
 router.delete('/companies/:companyId/projects/:projectId', auth, (req, res) => {
   const d = read();
-  const co = d.companies.find((c) => c.id === req.params.companyId);
+  const co = d.companies.find(c => c.id === req.params.companyId);
   if (!co) return res.status(404).json({ message: 'Company not found' });
-  co.projects = co.projects.filter((p) => p.id !== req.params.projectId);
+  co.projects = co.projects.filter(p => p.id !== req.params.projectId);
   write(d);
-  res.json({ message: 'Project deleted' });
+  return res.json({ message: 'Project deleted' });
 });
 
 // PERSONAL PROJECTS
@@ -198,15 +193,15 @@ router.post('/personal-projects', auth, (req, res) => {
 });
 router.put('/personal-projects/:id', auth, (req, res) => {
   const d = read();
-  const idx = d.personalProjects.findIndex((p) => p.id === req.params.id);
+  const idx = d.personalProjects.findIndex(p => p.id === req.params.id);
   if (idx === -1) return res.status(404).json({ message: 'Project not found' });
   d.personalProjects[idx] = { ...d.personalProjects[idx], ...req.body };
   write(d);
-  res.json({ message: 'Project updated' });
+  return res.json({ message: 'Project updated' });
 });
 router.delete('/personal-projects/:id', auth, (req, res) => {
   const d = read();
-  d.personalProjects = d.personalProjects.filter((p) => p.id !== req.params.id);
+  d.personalProjects = d.personalProjects.filter(p => p.id !== req.params.id);
   write(d);
   res.json({ message: 'Project deleted' });
 });
@@ -226,7 +221,7 @@ router.post('/experience', auth, (req, res) => {
 });
 router.delete('/experience/:id', auth, (req, res) => {
   const d = read();
-  d.experience = d.experience.filter((e) => e.id !== req.params.id);
+  d.experience = d.experience.filter(e => e.id !== req.params.id);
   write(d);
   res.json({ message: 'Experience deleted' });
 });
@@ -257,15 +252,15 @@ router.post('/certifications', auth, (req, res) => {
 });
 router.put('/certifications/:id', auth, (req, res) => {
   const d = read();
-  const idx = (d.certifications || []).findIndex((c) => c.id === req.params.id);
+  const idx = (d.certifications || []).findIndex(c => c.id === req.params.id);
   if (idx === -1) return res.status(404).json({ message: 'Not found' });
   d.certifications[idx] = { ...d.certifications[idx], ...req.body };
   write(d);
-  res.json({ message: 'Updated', cert: d.certifications[idx] });
+  return res.json({ message: 'Updated', cert: d.certifications[idx] });
 });
 router.delete('/certifications/:id', auth, (req, res) => {
   const d = read();
-  d.certifications = (d.certifications || []).filter((c) => c.id !== req.params.id);
+  d.certifications = (d.certifications || []).filter(c => c.id !== req.params.id);
   write(d);
   res.json({ message: 'Deleted' });
 });
@@ -276,13 +271,13 @@ router.put('/reorder/:section', auth, (req, res) => {
   const section = req.params.section;
   const order = req.body; // [{id, order}, ...]
 
-  const applyOrder = (arr) => {
+  const applyOrder = arr => {
     const map = {};
-    order.forEach((o) => {
+    order.forEach(o => {
       map[o.id] = o.order;
     });
     return arr
-      .map((item) => ({
+      .map(item => ({
         ...item,
         order: map[item.id] !== undefined ? map[item.id] : item.order,
       }))
@@ -291,22 +286,21 @@ router.put('/reorder/:section', auth, (req, res) => {
 
   if (section === 'skills') d.skills = applyOrder(d.skills || []);
   else if (section === 'companies') d.companies = applyOrder(d.companies || []);
-  else if (section === 'personalProjects')
-    d.personalProjects = applyOrder(d.personalProjects || []);
+  else if (section === 'personalProjects') d.personalProjects = applyOrder(d.personalProjects || []);
   else if (section === 'experience') d.experience = applyOrder(d.experience || []);
   else if (section === 'certifications') d.certifications = applyOrder(d.certifications || []);
   else if (section === 'testimonials') d.testimonials = applyOrder(d.testimonials || []);
   else if (section === 'blogPosts') d.blogPosts = applyOrder(d.blogPosts || []);
   else if (section.startsWith('company-projects-')) {
     const companyId = section.replace('company-projects-', '');
-    const co = d.companies.find((c) => c.id === companyId);
+    const co = d.companies.find(c => c.id === companyId);
     if (co) co.projects = applyOrder(co.projects || []);
   } else {
     return res.status(400).json({ message: 'Unknown section: ' + section });
   }
 
   write(d);
-  res.json({ message: 'Reordered: ' + section });
+  return res.json({ message: 'Reordered: ' + section });
 });
 
 // SITE SETTINGS (feature flags + open-to-work)
@@ -340,9 +334,7 @@ router.put('/settings', auth, (req, res) => {
 // TESTIMONIALS
 router.get('/testimonials', (_, res) => {
   // Public: only approved + visible
-  const all = (read().testimonials || []).filter(
-    (t) => t.status === 'approved' && t.visible !== false
-  );
+  const all = (read().testimonials || []).filter(t => t.status === 'approved' && t.visible !== false);
   res.json(all);
 });
 // Admin: all testimonials including pending/rejected
@@ -354,14 +346,10 @@ router.get('/testimonials/all', auth, (_, res) => {
 router.post('/testimonials/submit', publicRateLimit, (req, res) => {
   const { name, role, company, quote, rating } = req.body;
   // Input validation
-  if (!name || !quote)
-    return res.status(400).json({ message: 'Name and testimonial are required.' });
-  if ((name || '').length > 100)
-    return res.status(400).json({ message: 'Name too long (max 100 chars).' });
-  if ((quote || '').length > 1000)
-    return res.status(400).json({ message: 'Testimonial too long (max 1000 chars).' });
-  if ((company || '').length > 100)
-    return res.status(400).json({ message: 'Company name too long.' });
+  if (!name || !quote) return res.status(400).json({ message: 'Name and testimonial are required.' });
+  if ((name || '').length > 100) return res.status(400).json({ message: 'Name too long (max 100 chars).' });
+  if ((quote || '').length > 1000) return res.status(400).json({ message: 'Testimonial too long (max 1000 chars).' });
+  if ((company || '').length > 100) return res.status(400).json({ message: 'Company name too long.' });
   if ((role || '').length > 100) return res.status(400).json({ message: 'Role too long.' });
   const d = read();
   if (!d.pendingTestimonials) d.pendingTestimonials = [];
@@ -379,12 +367,12 @@ router.post('/testimonials/submit', publicRateLimit, (req, res) => {
   };
   d.pendingTestimonials.push(t);
   write(d);
-  res.json({ message: 'Thank you! Your testimonial has been submitted for review.' });
+  return res.json({ message: 'Thank you! Your testimonial has been submitted for review.' });
 });
 // Admin: approve/reject a pending testimonial
 router.put('/testimonials/pending/:id/approve', auth, (req, res) => {
   const d = read();
-  const idx = (d.pendingTestimonials || []).findIndex((t) => t.id === req.params.id);
+  const idx = (d.pendingTestimonials || []).findIndex(t => t.id === req.params.id);
   if (idx === -1) return res.status(404).json({ message: 'Not found' });
   const t = {
     ...d.pendingTestimonials[idx],
@@ -395,19 +383,19 @@ router.put('/testimonials/pending/:id/approve', auth, (req, res) => {
   d.testimonials = [...(d.testimonials || []), t];
   d.pendingTestimonials.splice(idx, 1);
   write(d);
-  res.json({ message: 'Approved', testimonial: t });
+  return res.json({ message: 'Approved', testimonial: t });
 });
 router.put('/testimonials/pending/:id/reject', auth, (req, res) => {
   const d = read();
-  const idx = (d.pendingTestimonials || []).findIndex((t) => t.id === req.params.id);
+  const idx = (d.pendingTestimonials || []).findIndex(t => t.id === req.params.id);
   if (idx === -1) return res.status(404).json({ message: 'Not found' });
   d.pendingTestimonials[idx].status = 'rejected';
   write(d);
-  res.json({ message: 'Rejected' });
+  return res.json({ message: 'Rejected' });
 });
 router.delete('/testimonials/pending/:id', auth, (req, res) => {
   const d = read();
-  d.pendingTestimonials = (d.pendingTestimonials || []).filter((t) => t.id !== req.params.id);
+  d.pendingTestimonials = (d.pendingTestimonials || []).filter(t => t.id !== req.params.id);
   write(d);
   res.json({ message: 'Deleted' });
 });
@@ -433,15 +421,15 @@ router.post('/testimonials', auth, (req, res) => {
 });
 router.put('/testimonials/:id', auth, (req, res) => {
   const d = read();
-  const idx = (d.testimonials || []).findIndex((t) => t.id === req.params.id);
+  const idx = (d.testimonials || []).findIndex(t => t.id === req.params.id);
   if (idx === -1) return res.status(404).json({ message: 'Not found' });
   d.testimonials[idx] = { ...d.testimonials[idx], ...req.body };
   write(d);
-  res.json({ message: 'Updated', testimonial: d.testimonials[idx] });
+  return res.json({ message: 'Updated', testimonial: d.testimonials[idx] });
 });
 router.delete('/testimonials/:id', auth, (req, res) => {
   const d = read();
-  d.testimonials = (d.testimonials || []).filter((t) => t.id !== req.params.id);
+  d.testimonials = (d.testimonials || []).filter(t => t.id !== req.params.id);
   write(d);
   res.json({ message: 'Deleted' });
 });
@@ -451,7 +439,7 @@ router.get('/blog', (_, res) => res.json(read().blogPosts || []));
 
 // ─── Public: single blog post by slug ────────────────────────────────────────
 router.get('/blog/slug/:slug', (req, res) => {
-  const post = (read().blogPosts || []).find((p) => p.slug === req.params.slug && p.published);
+  const post = (read().blogPosts || []).find(p => p.slug === req.params.slug && p.published);
   if (!post) return res.status(404).json({ message: 'Post not found.' });
   return res.json(post);
 });
@@ -479,15 +467,15 @@ router.post('/blog', auth, (req, res) => {
 });
 router.put('/blog/:id', auth, (req, res) => {
   const d = read();
-  const idx = (d.blogPosts || []).findIndex((p) => p.id === req.params.id);
+  const idx = (d.blogPosts || []).findIndex(p => p.id === req.params.id);
   if (idx === -1) return res.status(404).json({ message: 'Not found' });
   d.blogPosts[idx] = { ...d.blogPosts[idx], ...req.body };
   write(d);
-  res.json({ message: 'Updated', post: d.blogPosts[idx] });
+  return res.json({ message: 'Updated', post: d.blogPosts[idx] });
 });
 router.delete('/blog/:id', auth, (req, res) => {
   const d = read();
-  d.blogPosts = (d.blogPosts || []).filter((p) => p.id !== req.params.id);
+  d.blogPosts = (d.blogPosts || []).filter(p => p.id !== req.params.id);
   write(d);
   res.json({ message: 'Deleted' });
 });
@@ -506,12 +494,9 @@ router.post('/analytics/track', (req, res) => {
     };
   const { event, projectId } = req.body;
   if (event === 'pageView') d.analytics.pageViews = (d.analytics.pageViews || 0) + 1;
-  if (event === 'contactView')
-    d.analytics.contactFormViews = (d.analytics.contactFormViews || 0) + 1;
-  if (event === 'contactSubmit')
-    d.analytics.contactFormSubmissions = (d.analytics.contactFormSubmissions || 0) + 1;
-  if (event === 'resumeDownload')
-    d.analytics.resumeDownloads = (d.analytics.resumeDownloads || 0) + 1;
+  if (event === 'contactView') d.analytics.contactFormViews = (d.analytics.contactFormViews || 0) + 1;
+  if (event === 'contactSubmit') d.analytics.contactFormSubmissions = (d.analytics.contactFormSubmissions || 0) + 1;
+  if (event === 'resumeDownload') d.analytics.resumeDownloads = (d.analytics.resumeDownloads || 0) + 1;
   if (event === 'projectClick' && projectId) {
     if (!d.analytics.projectClicks) d.analytics.projectClicks = {};
     d.analytics.projectClicks[projectId] = (d.analytics.projectClicks[projectId] || 0) + 1;
@@ -536,7 +521,7 @@ router.delete('/analytics/reset', auth, (req, res) => {
 
 // ---------------------------------------------------------------------------------------------------------------------------
 
-router.get('/page-content', contentController.getContent)
+router.get('/page-content', contentController.getContent);
 
 // hero
 router.put('/hero', contentController.updateHero);

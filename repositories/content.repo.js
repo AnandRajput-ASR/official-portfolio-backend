@@ -1,7 +1,7 @@
 const sql = require('../configs/database.config');
 
 async function getHero() {
-  return sql`SELECT id, name, title, subtitle, bio FROM portfolio.hero LIMIT 1`;
+  return await sql`SELECT id, name, title, subtitle, bio FROM portfolio.hero LIMIT 1`;
 }
 
 async function putHero({ id, name, title, subtitle }) {
@@ -18,7 +18,7 @@ async function putHero({ id, name, title, subtitle }) {
 }
 
 async function getContactInfo() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     email,
     linkedin_url AS "linkedin",
@@ -42,7 +42,7 @@ async function putContactInfo({ id, email, linkedin, github, location }) {
 }
 
 async function getSkills() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     name,
     icon,
@@ -58,7 +58,7 @@ async function getSkills() {
 }
 
 async function getCompanies() {
-  return sql`SELECT
+  return await sql`SELECT
     comp.id,
     comp.name,
     comp.role,
@@ -93,7 +93,7 @@ async function getCompanies() {
 }
 
 async function getPersonalProjects() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     title,
     description,
@@ -111,7 +111,7 @@ async function getPersonalProjects() {
 }
 
 async function getExperience() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     period,
     location,
@@ -125,7 +125,7 @@ async function getExperience() {
 }
 
 async function getStats() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     value,
     suffix,
@@ -134,8 +134,8 @@ async function getStats() {
   WHERE is_active = true;`;
 }
 
-async function getCertification(){
-  return sql`SELECT
+async function getCertification() {
+  return await sql`SELECT
     id,
     name,
     code,
@@ -154,7 +154,7 @@ async function getCertification(){
 }
 
 async function getTestimonials() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     name,
     role,
@@ -170,7 +170,7 @@ async function getTestimonials() {
 }
 
 async function getBlogPosts() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     title,
     slug,
@@ -188,7 +188,7 @@ async function getBlogPosts() {
 }
 
 async function getAnalytics() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     page_views AS "pageViews",
     resume_downloads AS "resumeDownloads",
@@ -203,7 +203,7 @@ async function getAnalytics() {
 }
 
 async function getPendingTestimonials() {
-  return sql`SELECT
+  return await sql`SELECT
     id,
     name,
     role,

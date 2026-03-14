@@ -1,7 +1,20 @@
 const contentRepository = require('../repositories/content.repo');
 
 async function getPageContent() {
-  const [heroData, contactInfo, skills, companies, personalProjects, experience, stats, certification, testimonials, blogPosts, analytics, pendingTestimonials] = await Promise.all([
+  const [
+    heroData,
+    contactInfo,
+    skills,
+    companies,
+    personalProjects,
+    experience,
+    stats,
+    certification,
+    testimonials,
+    blogPosts,
+    analytics,
+    pendingTestimonials,
+  ] = await Promise.all([
     contentRepository.getHero(),
     contentRepository.getContactInfo(),
     contentRepository.getSkills(),
@@ -13,7 +26,7 @@ async function getPageContent() {
     contentRepository.getTestimonials(),
     contentRepository.getBlogPosts(),
     contentRepository.getAnalytics(),
-    contentRepository.getPendingTestimonials()
+    contentRepository.getPendingTestimonials(),
   ]);
 
   const { id: heroId, ...heroRest } = heroData[0];
@@ -23,7 +36,7 @@ async function getPageContent() {
     heroId,
     contactInfoId,
     ...heroRest,
-    ...contactRest
+    ...contactRest,
   };
   return {
     hero,
@@ -36,7 +49,7 @@ async function getPageContent() {
     testimonials,
     blogPosts,
     analytics,
-    pendingTestimonials
+    pendingTestimonials,
   };
 }
 
@@ -47,56 +60,56 @@ async function getHero() {
 }
 
 async function putHero(heroContent) {
-  return contentRepository.putHero(heroContent);
+  return await contentRepository.putHero(heroContent);
 }
 
 async function getContactInfo() {
   const contactInfo = await contentRepository.getContactInfo();
-  return contactInfo[0] || null;
+  return (await contactInfo[0]) || null;
 }
 
 async function putContactInfo(contactInfo) {
-  return contentRepository.putContactInfo(contactInfo);
+  return await contentRepository.putContactInfo(contactInfo);
 }
 
 async function getSkills() {
-  return contentRepository.getSkills();
+  return await contentRepository.getSkills();
 }
 
 async function getCompanies() {
-  return contentRepository.getCompanies();
+  return await contentRepository.getCompanies();
 }
 
 async function getPersonalProjects() {
-  return contentRepository.getPersonalProjects();
+  return await contentRepository.getPersonalProjects();
 }
 
 async function getExperience() {
-  return contentRepository.getExperience();
+  return await contentRepository.getExperience();
 }
 
 async function getStats() {
-  return contentRepository.getStats();
+  return await contentRepository.getStats();
 }
 
 async function getCertification() {
-  return contentRepository.getCertification();
+  return await contentRepository.getCertification();
 }
 
 async function getTestimonials() {
-  return contentRepository.getTestimonials();
+  return await contentRepository.getTestimonials();
 }
 
 async function getBlogPosts() {
-  return contentRepository.getBlogPosts();
+  return await contentRepository.getBlogPosts();
 }
 
 async function getAnalytics() {
-  return contentRepository.getAnalytics();
+  return await contentRepository.getAnalytics();
 }
 
 async function getPendingTestimonials() {
-  return contentRepository.getPendingTestimonials();
+  return await contentRepository.getPendingTestimonials();
 }
 module.exports = {
   getPageContent,

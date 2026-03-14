@@ -1,66 +1,79 @@
 const repository = require('../repositories/admin.repository');
 
 async function updateHeroSection(heroContent) {
-    return repository.putHeroSection(heroContent);
+  return await repository.putHeroSection(heroContent);
 }
 
 async function updateSkills(skills) {
-    return repository.putSkills(skills);
+  return await repository.putSkills(skills);
 }
 
 async function createSkill(skillPayload) {
-    return repository.postSkill(skillPayload);
+  return await repository.postSkill(skillPayload);
 }
 
 async function deleteSkill(id) {
-    return repository.deleteSkillById(id);
+  return await repository.deleteSkillById(id);
 }
 
 async function updateCompanies(companies) {
-    return repository.putCompanies(companies);
+  return await repository.putCompanies(companies);
 }
 
 async function createCompany(companyPayload) {
-    return repository.postCompany(companyPayload);
+  return await repository.postCompany(companyPayload);
 }
 
 async function deleteCompany(companyId) {
-    return repository.deleteCompanyById(companyId);
+  return await repository.deleteCompanyById(companyId);
 }
 
 async function createCompanyProject(projectPayload) {
-    return repository.postCompanyProject(projectPayload);
+  return await repository.postCompanyProject(projectPayload);
 }
 
 async function deleteProject(projectId) {
-    return repository.deleteProjectById(projectId);
+  return await repository.deleteProjectById(projectId);
 }
 
 async function updatePersonalProject(projects) {
-    return repository.putPersonalProjects(projects);
+  return await repository.putPersonalProjects(projects);
 }
 
 async function createPersonalProject(project) {
-    return repository.postPersonalProject(project);
+  return await repository.postPersonalProject(project);
 }
 
 async function deletePersonalProject(id) {
-    return repository.deletePersonalProjectById(id);
+  return await repository.deletePersonalProjectById(id);
+}
+
+async function updateExperience(experiences) {
+  return await repository.putExperience(experiences);
+}
+
+async function createExperience(payload) {
+  return await repository.postExperience(payload);
+}
+
+async function deleteExperience(id) {
+  return await repository.deleteExperienceById(id);
 }
 
 module.exports = {
-    updateHeroSection,
-    updateSkills,
-    createSkill,
-    deleteSkill,
-    updateCompanies,
-    createCompany,
-    deleteCompany,
-    createCompanyProject,
-    deleteProject,
-    updatePersonalProject,
-    createPersonalProject,
-    deletePersonalProject,
-    
-
-}
+  updateHeroSection,
+  updateSkills,
+  createSkill,
+  deleteSkill,
+  updateCompanies,
+  createCompany,
+  deleteCompany,
+  createCompanyProject,
+  deleteProject,
+  updatePersonalProject,
+  createPersonalProject,
+  deletePersonalProject,
+  updateExperience,
+  createExperience,
+  deleteExperience,
+};
