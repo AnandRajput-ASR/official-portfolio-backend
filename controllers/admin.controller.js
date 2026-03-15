@@ -292,3 +292,385 @@ exports.deleteExperience = async (req, res) => {
     });
   }
 };
+
+exports.syncStats = async (req, res) => {
+  try {
+    const stats = req.body;
+
+    const result = await adminService.syncStats(stats);
+
+    return res.json({
+      success: true,
+      message: 'Stats synchronized successfully',
+      data: result,
+    });
+  } catch (err) {
+    console.error('Error syncing stats:', err);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to sync stats',
+    });
+  }
+};
+
+exports.updateCertification = async (req, res) => {
+  try {
+    const certifications = req.body;
+
+    const updated = await adminService.updateCertification(certifications);
+
+    return res.json({
+      success: true,
+      message: 'Certifications updated successfully',
+      data: updated,
+    });
+  } catch (err) {
+    console.error('Error updating certifications:', err);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update certifications',
+    });
+  }
+};
+
+exports.createCertification = async (req, res) => {
+  try {
+    const payload = req.body;
+
+    const created = await adminService.createCertification(payload);
+
+    return res.json({
+      success: true,
+      message: 'Certification created successfully',
+      data: created,
+    });
+  } catch (err) {
+    console.error('Error creating certification:', err);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to create certification',
+    });
+  }
+};
+
+exports.deleteCertification = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await adminService.deleteCertification(id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: 'Certification not found',
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Certification deleted successfully',
+      data: deleted,
+    });
+  } catch (err) {
+    console.error('Error deleting certification:', err);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete certification',
+    });
+  }
+};
+
+exports.getAllTestimonials = async (_, res) => {
+  try {
+    const testimonials = await adminService.getAllTestimonials();
+
+    res.json({
+      approved: testimonials.approved,
+      pending: testimonials.pending,
+    });
+  } catch (err) {
+    console.error('Error fetching testimonials:', err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch testimonials',
+    });
+  }
+};
+
+exports.updateTestimonial = async (req, res) => {
+  try {
+    const testimonials = req.body;
+
+    await adminService.updateTestimonials(testimonials);
+
+    return res.json({
+      success: true,
+      message: 'Testimonials updated successfully',
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update testimonials',
+    });
+  }
+};
+
+exports.createTestimonial = async (req, res) => {
+  try {
+    const testimonial = await adminService.createTestimonial(req.body);
+
+    return res.json({
+      success: true,
+      message: 'Testimonial created',
+      data: testimonial,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to create testimonial',
+    });
+  }
+};
+
+exports.enableTestimonialById = async (req, res) => {
+  try {
+    const testimonial = await adminService.enableTestimonialById(req.params.id, req.body);
+
+    return res.json({
+      success: true,
+      data: testimonial,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+    });
+  }
+};
+
+exports.deleteTestimonial = async (req, res) => {
+  try {
+    const deleted = await adminService.deleteTestimonial(req.params.id);
+
+    return res.json({
+      success: true,
+      data: deleted,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+    });
+  }
+};
+
+exports.submitTestimonial = async (req, res) => {
+  try {
+    const testimonial = await adminService.submitTestimonial(req.body);
+    console.table(req.body);
+    return res.json({
+      success: true,
+      message: 'Testimonial submitted for approval',
+      data: testimonial,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+    });
+  }
+};
+
+exports.approveTestimonial = async (req, res) => {
+  try {
+    const approved = await adminService.approveTestimonial(req.params.id);
+
+    return res.json({
+      success: true,
+      data: approved,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+    });
+  }
+};
+
+exports.rejectTestimonial = async (req, res) => {
+  try {
+    const rejected = await adminService.rejectTestimonial(req.params.id);
+
+    return res.json({
+      success: true,
+      data: rejected,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+    });
+  }
+};
+
+exports.deletePendingTestimonial = async (req, res) => {
+  try {
+    const deleted = await adminService.deletePendingTestimonial(req.params.id);
+
+    return res.json({
+      success: true,
+      data: deleted,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+    });
+  }
+};
+
+exports.updateBlogPost = async (req, res) => {
+  try {
+    const posts = req.body;
+
+    const updated = await adminService.updateBlogPost(posts);
+
+    res.json({
+      success: true,
+      message: 'Blog posts updated successfully',
+      data: updated,
+    });
+  } catch (err) {
+    console.error('Error updating blog posts:', err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update blog posts',
+    });
+  }
+};
+
+exports.createBlogPost = async (req, res) => {
+  try {
+    const post = await adminService.createBlogPost(req.body);
+
+    res.json({
+      success: true,
+      message: 'Blog post created successfully',
+      data: post,
+    });
+  } catch (err) {
+    console.error('Error creating blog post:', err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create blog post',
+    });
+  }
+};
+
+exports.updateBlogPostById = async (req, res) => {
+  try {
+    const post = await adminService.updateBlogPostById(req.params.id, req.body);
+
+    res.json({
+      success: true,
+      data: post,
+    });
+  } catch (err) {
+    console.error('Error updating blog post:', err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update blog post',
+    });
+  }
+};
+
+exports.deleteBlogPost = async (req, res) => {
+  try {
+    const deleted = await adminService.deleteBlogPost(req.params.id);
+
+    res.json({
+      success: true,
+      data: deleted,
+    });
+  } catch (err) {
+    console.error('Error deleting blog post:', err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete blog post',
+    });
+  }
+};
+
+exports.getAnalytics = async (_, res) => {
+  try {
+    const analytics = await adminService.getAnalytics();
+    console.table(analytics);
+    res.json({
+      success: true,
+      data: analytics,
+    });
+  } catch (err) {
+    console.error('Error fetching analytics:', err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch analytics',
+    });
+  }
+};
+
+exports.resetAnalytics = async (_, res) => {
+  try {
+    const result = await adminService.resetAnalytics();
+
+    res.json({
+      success: true,
+      message: 'Analytics reset successfully',
+      data: result,
+    });
+  } catch (err) {
+    console.error('Error resetting analytics:', err);
+
+    res.status(500).json({
+      success: false,
+    });
+  }
+};
+
+exports.trackAnalyticsEvent = async (req, res) => {
+  try {
+    const { type } = req.body;
+
+    const result = await adminService.trackAnalyticsEvent(type);
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    console.error('Error tracking analytics event:', err);
+
+    res.status(500).json({
+      success: false,
+    });
+  }
+};

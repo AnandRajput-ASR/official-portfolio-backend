@@ -19,7 +19,14 @@
       "icon": "🅰️",
       "accentColor": "#dd0031",
       "description": "5+ years building enterprise SPAs with Angular 8–17. Expert in RxJS reactive patterns, NgRx state management, lazy loading, accessibility, and performance optimization for large-scale applications.",
-      "tags": ["Angular 8–17", "TypeScript", "RxJS", "NgRx", "JavaScript", "Unit Testing"],
+      "tags": [
+        "Angular 8–17",
+        "TypeScript",
+        "RxJS",
+        "NgRx",
+        "JavaScript",
+        "Unit Testing"
+      ],
       "order": 0,
       "proficiency": 92,
       "yearsExp": "5+"
@@ -30,7 +37,14 @@
       "icon": "☁️",
       "accentColor": "#0078d4",
       "description": "Hands-on cloud experience across both Azure and AWS ecosystems — deploying function apps, managing containers, monitoring with CloudWatch, and architecting event-driven serverless solutions.",
-      "tags": ["Azure Functions", "Cosmos DB", "AWS Lambda", "AWS ECS", "CloudWatch", "SiteWise"],
+      "tags": [
+        "Azure Functions",
+        "Cosmos DB",
+        "AWS Lambda",
+        "AWS ECS",
+        "CloudWatch",
+        "SiteWise"
+      ],
       "order": 1,
       "proficiency": 75,
       "yearsExp": "3+"
@@ -77,7 +91,14 @@
       "icon": "⚡",
       "accentColor": "#fbae32",
       "description": "New skill for DB create",
-      "tags": ["new", "skill", "db", "how", "are", "you"],
+      "tags": [
+        "new",
+        "skill",
+        "db",
+        "how",
+        "are",
+        "you"
+      ],
       "proficiency": 80,
       "yearsExp": "1+",
       "displayOrder": 4
@@ -102,7 +123,12 @@
           "description": "Built a fully responsive enterprise web UI for internal airport operations at Kempegowda International Airport. Implemented robust unit testing, optimized cross-device layouts for desktop and tablet.",
           "link": "#",
           "displayOrder": 0,
-          "tech": ["Angular", "TypeScript", "Unit Testing", "Responsive UI"]
+          "tech": [
+            "Angular",
+            "TypeScript",
+            "Unit Testing",
+            "Responsive UI"
+          ]
         },
         {
           "id": "593feb77-8c78-4724-bf45-b6ebefa34d1b",
@@ -111,7 +137,13 @@
           "description": "Created a prototype using AWS SiteWise, TwinMaker, Grafana, and QuickSight to demonstrate IoT capabilities. Simulated sensor data and integrated Lambda for predictive analytics — influencing client buy-in.",
           "link": "#",
           "displayOrder": 1,
-          "tech": ["AWS SiteWise", "AWS TwinMaker", "Grafana", "QuickSight", "Lambda"]
+          "tech": [
+            "AWS SiteWise",
+            "AWS TwinMaker",
+            "Grafana",
+            "QuickSight",
+            "Lambda"
+          ]
         },
         {
           "id": "a6c47814-7089-45a5-977d-fb8eabaf84f6",
@@ -120,7 +152,13 @@
           "description": "Led Angular development of Admin Entity, Communication, and Role Management modules. Built Azure Function App backends with Cosmos DB & SQL. Delivered stable releases via Azure DevOps CI/CD. Earned 2× Star of the Month.",
           "link": "#",
           "displayOrder": 2,
-          "tech": ["Angular", "Azure Functions", ".NET", "Cosmos DB", "Azure DevOps"]
+          "tech": [
+            "Angular",
+            "Azure Functions",
+            ".NET",
+            "Cosmos DB",
+            "Azure DevOps"
+          ]
         },
         {
           "id": "a57ad306-6828-4c5a-aaf6-522af0332bfc",
@@ -129,7 +167,14 @@
           "description": "Developed Angular UI and Node.js backend for supplier onboarding workflows. Designed DB scripts for SAP integration and multi-team approval routing. Used AWS CloudWatch, Lambda & ECS for monitoring.",
           "link": "#",
           "displayOrder": 3,
-          "tech": ["Angular", "Node.js", "AWS Lambda", "AWS ECS", "PostgreSQL", "SAP"]
+          "tech": [
+            "Angular",
+            "Node.js",
+            "AWS Lambda",
+            "AWS ECS",
+            "PostgreSQL",
+            "SAP"
+          ]
         }
       ]
     },
@@ -149,7 +194,11 @@
           "companyId": "3e8769ac-1397-4dd4-aec9-89d9e208a5ac",
           "title": "new proiojec",
           "description": "ajdilajlsdjalisjdi",
-          "tech": ["asdja", "js", "ka sakda"],
+          "tech": [
+            "asdja",
+            "js",
+            "ka sakda"
+          ],
           "link": "#",
           "displayOrder": 0
         }
@@ -161,7 +210,13 @@
       "id": "c5384419-3dba-44b3-a92a-eee652d40564",
       "title": "This Portfolio",
       "description": "Full-stack portfolio with Angular 17 frontend, Node.js/Express backend, JWT-authenticated admin CMS, contact form with email notifications, resume upload, and dark/light mode.",
-      "tech": ["Angular 17", "Node.js", "Express", "JWT", "Nodemailer"],
+      "tech": [
+        "Angular 17",
+        "Node.js",
+        "Express",
+        "JWT",
+        "Nodemailer"
+      ],
       "githubUrl": "https://github.com/anandrajput/portfolio",
       "liveUrl": "https://github.com/anandrajput/portfolio",
       "status": "live",
@@ -173,48 +228,45 @@
   ],
   "experience": [
     {
-      "id": "e1",
+      "id": "761a7afc-9905-49cf-b7b5-20905598b147",
       "period": "Jan 2021 — Present",
+      "location": "Pune, India",
       "role": "Packaged App Development Analyst",
       "company": "Accenture",
-      "location": "Pune, India",
       "description": "Delivered enterprise-grade Angular applications and cloud solutions for global clients across aviation (BIAL), manufacturing (Hannover Messe), workspace management (Smart ACP), and supply chain (True Supplier Marketplace). Mentored 5–6 new developers, led full-stack development, managed CI/CD pipelines, and earned 4 Azure certifications while on the job. Recognized with 2× Star of the Month awards.",
-      "order": 0
-    },
-    {
-      "id": "e2",
-      "period": "2017 — 2020",
-      "role": "Master of Computer Applications (MCA)",
-      "company": "Savitribai Phule Pune University",
-      "location": "Pune, India",
-      "description": "Graduated with an MCA, building a strong foundation in software engineering, algorithms, databases, and web technologies — the launchpad for a professional career in full-stack development.",
-      "order": 1
+      "displayOrder": 0
     }
   ],
   "stats": [
     {
-      "id": "s1",
+      "id": "d41e7c19-6f85-476d-9b71-4fec8b96582e",
       "value": 6,
       "suffix": "+",
       "label": "Years at Accenture"
     },
     {
-      "id": "s2",
+      "id": "9810f5fc-e1e1-44b8-af93-1b8fb7a4f9b5",
       "value": 4,
-      "suffix": "",
+      "suffix": null,
       "label": "Azure Certifications"
     },
     {
-      "id": "s3",
+      "id": "1a7c48cb-815a-4b3c-93e9-e27da1073392",
       "value": 4,
-      "suffix": "",
+      "suffix": null,
       "label": "Enterprise Projects"
     },
     {
-      "id": "s4",
+      "id": "17d7d3cc-9788-4f47-9972-ceadf25a7f78",
       "value": 6,
       "suffix": "+",
       "label": "Developers Mentored"
+    },
+    {
+      "id": "s_1773492408628",
+      "value": 0,
+      "suffix": "+",
+      "label": "New Stat"
     }
   ],
   "certifications": [
@@ -312,7 +364,13 @@
       "badgeText": "Available for Freelance · Pune, India",
       "ctaPrimary": "Hire Me →",
       "ctaSecondary": "See My Work",
-      "pills": ["Angular 8–17", "Azure AZ-400", "Node.js", "AWS Lambda", "5+ Yrs Accenture"],
+      "pills": [
+        "Angular 8–17",
+        "Azure AZ-400",
+        "Node.js",
+        "AWS Lambda",
+        "5+ Yrs Accenture"
+      ],
       "cardTitle": "@ Accenture · Pune",
       "cardStatusText": "Open to work",
       "cardStats": [
@@ -329,7 +387,14 @@
           "label": "Projects"
         }
       ],
-      "cardSkills": ["Angular", "TypeScript", "Node.js", "Azure DevOps", "AWS", "PostgreSQL"]
+      "cardSkills": [
+        "Angular",
+        "TypeScript",
+        "Node.js",
+        "Azure DevOps",
+        "AWS",
+        "PostgreSQL"
+      ]
     },
     "about": {
       "heading": "I build things that<br><em>enterprises trust.</em>",
@@ -419,7 +484,12 @@
       "slug": "scalable-angular-ngrx",
       "excerpt": "After 5 years building enterprise Angular apps at Accenture, here are the NgRx patterns that actually work at scale — and the anti-patterns that will haunt you at 3am.",
       "content": "# Building Scalable Angular Apps with NgRx\n\nAfter 5 years building enterprise Angular applications at Accenture for clients like BIAL and True Supplier, I've learned a lot about what works and what doesn't when it comes to state management with NgRx.\n\n## The Problem with Ad-hoc State\n\nWhen projects start small, component state feels fine. But as requirements grow and teams expand, you end up with a spaghetti of `@Input()/@Output()` chains and shared services that become impossible to debug.\n\n## Key NgRx Patterns That Scale\n\n**1. Feature State over Global State**\nKeep state as close to the feature as possible. Avoid dumping everything into a root store.\n\n**2. Selector Memoization**\nAlways use `createSelector` for derived state. It memoizes automatically and makes your templates lightning fast.\n\n**3. Effects for Side Effects Only**\nEffects should only handle async operations and side effects — never business logic. Business logic belongs in reducers.\n\n## Conclusion\n\nNgRx has a steep learning curve but pays dividends in maintainability. Start with feature stores, invest in selector hygiene, and your future self will thank you.",
-      "tags": ["Angular", "NgRx", "TypeScript", "State Management"],
+      "tags": [
+        "Angular",
+        "NgRx",
+        "TypeScript",
+        "State Management"
+      ],
       "coverImage": "",
       "published": true,
       "publishedAt": "2026-02-15",
@@ -432,7 +502,12 @@
       "slug": "azure-devops-angular-pipeline",
       "excerpt": "A practical guide to setting up a multi-stage Azure DevOps pipeline for Angular apps — from build and test to staging and production deployments.",
       "content": "# Azure DevOps CI/CD for Angular\n\nSetting up a proper CI/CD pipeline is one of the highest-ROI investments you can make on any project. Here's how I set up multi-stage pipelines for Angular apps using Azure DevOps.\n\n## Pipeline Stages\n\n1. **Build** — `npm ci`, lint, compile\n2. **Test** — unit tests with coverage gate\n3. **Stage Deploy** — deploy to staging environment\n4. **Approval Gate** — manual sign-off before production\n5. **Prod Deploy** — blue/green deployment\n\n## Key YAML Configuration\n\nThe most important thing is separating your environments with different variable groups and keeping secrets in Azure Key Vault — never in your pipeline YAML.\n\n## Lessons Learned\n\nAfter managing pipelines for 3 major projects at Accenture, the biggest lesson is: invest in your build cache. A cold build that takes 8 minutes with a warm cache takes 90 seconds.",
-      "tags": ["Azure DevOps", "CI/CD", "Angular", "DevOps"],
+      "tags": [
+        "Azure DevOps",
+        "CI/CD",
+        "Angular",
+        "DevOps"
+      ],
       "coverImage": "",
       "published": true,
       "publishedAt": "2026-01-20",
@@ -445,7 +520,7 @@
     "contactFormViews": 0,
     "contactFormSubmissions": 5,
     "projectClicks": {},
-    "pageViews": 51,
+    "pageViews": 84,
     "lastReset": ""
   },
   "pendingTestimonials": [

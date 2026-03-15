@@ -60,6 +60,86 @@ async function deleteExperience(id) {
   return await repository.deleteExperienceById(id);
 }
 
+async function syncStats(stats) {
+  return await repository.syncStats(stats);
+}
+
+async function updateCertification(certifications) {
+  return await repository.putCertification(certifications);
+}
+
+async function createCertification(payload) {
+  return await repository.postCertification(payload);
+}
+
+async function deleteCertification(id) {
+  return await repository.deleteCertificationById(id);
+}
+
+async function getAllTestimonials() {
+  return await repository.getAllTestimonials();
+}
+
+async function updateTestimonials(testimonials) {
+  return await repository.updateTestimonials(testimonials);
+}
+
+async function createTestimonial(payload) {
+  return await repository.createTestimonial(payload);
+}
+
+async function enableTestimonialById(id, payload) {
+  return await repository.enableTestimonialById(id, payload);
+}
+
+async function deleteTestimonial(id) {
+  return await repository.deleteTestimonial(id);
+}
+
+async function submitTestimonial(payload) {
+  return await repository.submitTestimonial(payload);
+}
+
+async function approveTestimonial(id) {
+  return await repository.approveTestimonial(id);
+}
+
+async function rejectTestimonial(id) {
+  return await repository.rejectTestimonial(id);
+}
+
+async function deletePendingTestimonial(id) {
+  return await repository.deletePendingTestimonial(id);
+}
+
+async function updateBlogPost(posts) {
+  return await repository.updateBlogPosts(posts);
+}
+
+async function createBlogPost(post) {
+  return await repository.createBlogPost(post);
+}
+
+async function updateBlogPostById(id, post) {
+  return await repository.updateBlogPostById(id, post);
+}
+
+async function deleteBlogPost(id) {
+  return await repository.deleteBlogPost(id);
+}
+
+async function getAnalytics() {
+  return await repository.getAnalytics();
+}
+
+async function resetAnalytics() {
+  return await repository.resetAnalytics();
+}
+
+async function trackAnalyticsEvent(type) {
+  return await repository.trackAnalyticsEvent(type);
+}
+
 module.exports = {
   updateHeroSection,
   updateSkills,
@@ -76,4 +156,24 @@ module.exports = {
   updateExperience,
   createExperience,
   deleteExperience,
+  syncStats,
+  updateCertification,
+  createCertification,
+  deleteCertification,
+  getAllTestimonials,
+  updateTestimonials,
+  createTestimonial,
+  enableTestimonialById,
+  deleteTestimonial,
+  submitTestimonial,
+  approveTestimonial,
+  rejectTestimonial,
+  deletePendingTestimonial,
+  updateBlogPost,
+  createBlogPost,
+  updateBlogPostById,
+  deleteBlogPost,
+  getAnalytics,
+  resetAnalytics,
+  trackAnalyticsEvent,
 };

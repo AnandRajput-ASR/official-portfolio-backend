@@ -163,6 +163,7 @@ async function getTestimonials() {
     quote,
     rating,
     status,
+    visible,
     display_order AS "displayOrder"
   FROM portfolio.testimonials
   WHERE is_active = true AND status = 'Approved'
@@ -212,6 +213,7 @@ async function getPendingTestimonials() {
     quote,
     rating,
     status,
+    visible,
     display_order AS "displayOrder",
     created_at AS "createdAt"
   FROM portfolio.testimonials

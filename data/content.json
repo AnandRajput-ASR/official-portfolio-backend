@@ -170,28 +170,34 @@
   ],
   "stats": [
     {
-      "id": "s1",
+      "id": "d41e7c19-6f85-476d-9b71-4fec8b96582e",
       "value": 6,
       "suffix": "+",
       "label": "Years at Accenture"
     },
     {
-      "id": "s2",
+      "id": "9810f5fc-e1e1-44b8-af93-1b8fb7a4f9b5",
       "value": 4,
-      "suffix": "",
+      "suffix": null,
       "label": "Azure Certifications"
     },
     {
-      "id": "s3",
+      "id": "1a7c48cb-815a-4b3c-93e9-e27da1073392",
       "value": 4,
-      "suffix": "",
+      "suffix": null,
       "label": "Enterprise Projects"
     },
     {
-      "id": "s4",
+      "id": "17d7d3cc-9788-4f47-9972-ceadf25a7f78",
       "value": 6,
       "suffix": "+",
       "label": "Developers Mentored"
+    },
+    {
+      "id": "s_1773492408628",
+      "value": 0,
+      "suffix": "+",
+      "label": "New Stat"
     }
   ],
   "certifications": [
@@ -420,9 +426,9 @@
   "analytics": {
     "resumeDownloads": 2,
     "contactFormViews": 0,
-    "contactFormSubmissions": 5,
+    "contactFormSubmissions": 7,
     "projectClicks": {},
-    "pageViews": 52,
+    "pageViews": 85,
     "lastReset": ""
   },
   "pendingTestimonials": [

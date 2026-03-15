@@ -476,6 +476,574 @@ async function deleteExperienceById(id) {
   return result[0] || null;
 }
 
+async function syncStats(stats) {
+  return await sql.begin(async tx => {
+    const payloadIds = [];
+
+    for (const stat of stats) {
+      const { id, value, suffix, label } = stat;
+
+      const isUuid = /^[0-9a-fA-F-]{36}$/.test(id);
+
+      if (isUuid) {
+        const updated = await tx`
+                    UPDATE portfolio.stats
+                    SET
+                        value = ${value},
+                        suffix = ${suffix},
+                        label = ${label},
+                        updated_at = now()
+                    WHERE id = ${id}
+                    RETURNING id
+                `;
+
+        if (updated.length) {
+          payloadIds.push(id);
+          continue;
+        }
+      }
+
+      // insert new stat
+      const inserted = await tx`
+                INSERT INTO portfolio.stats (
+                    value,
+                    suffix,
+                    label
+                )
+                VALUES (
+                    ${value},
+                    ${suffix},
+                    ${label}
+                )
+                RETURNING id
+            `;
+
+      payloadIds.push(inserted[0].id);
+    }
+
+    // soft delete removed stats
+    await tx`
+            UPDATE portfolio.stats
+            SET
+                is_active = false,
+                updated_at = now()
+            WHERE id NOT IN ${tx(payloadIds)}
+        `;
+
+    // return fresh dataset
+    const allStats = await tx`
+            SELECT
+                id,
+                value,
+                suffix,
+                label
+            FROM portfolio.stats
+            WHERE is_active = true
+            ORDER BY created_at
+        `;
+
+    return allStats;
+  });
+}
+
+async function putCertification(certifications) {
+  return await sql.begin(async tx => {
+    for (const cert of certifications) {
+      const { id, name, code, issuer, level, issueYear, expirationYear, credlyLink, accentColor, badgeLink, badgeType, displayOrder } =
+        cert;
+
+      await tx`
+                UPDATE portfolio.certifications
+                SET
+                    name = ${name},
+                    code = ${code},
+                    issuer = ${issuer},
+                    level = ${level},
+                    issue_year = ${issueYear},
+                    expiration_year = ${expirationYear},
+                    credly_link = ${credlyLink},
+                    accent_color = ${accentColor},
+                    badge_link = ${badgeLink},
+                    badge_type = ${badgeType},
+                    display_order = ${displayOrder},
+                    updated_at = now()
+                WHERE id = ${id}
+            `;
+    }
+
+    return { updated: true };
+  });
+}
+
+async function postCertification({ name, code, issuer, level, year, credlyUrl, accentColor, badgeUrl, badgeType }) {
+  const result = await sql`
+        INSERT INTO portfolio.certifications (
+            name,
+            code,
+            issuer,
+            level,
+            issue_year,
+            credly_link,
+            accent_color,
+            badge_link,
+            badge_type,
+            display_order
+        )
+        VALUES (
+            ${name},
+            ${code},
+            ${issuer},
+            ${level},
+            ${year},
+            ${credlyUrl},
+            ${accentColor},
+            ${badgeUrl},
+            ${badgeType},
+            (
+                SELECT COALESCE(MAX(display_order), -1) + 1
+                FROM portfolio.certifications
+                WHERE is_active = true
+            )
+        )
+        RETURNING
+            id,
+            name,
+            code,
+            issuer,
+            level,
+            issue_year AS "issueYear",
+            expiration_year AS "expirationYear",
+            credly_link AS "credlyLink",
+            accent_color AS "accentColor",
+            badge_link AS "badgeLink",
+            badge_type AS "badgeType",
+            display_order AS "displayOrder";
+    `;
+
+  return result[0];
+}
+
+async function deleteCertificationById(id) {
+  const result = await sql`
+        UPDATE portfolio.certifications
+        SET
+            is_active = false,
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING
+            id,
+            name,
+            issuer,
+            display_order AS "displayOrder";
+    `;
+
+  return result[0] || null;
+}
+
+async function getAllTestimonials() {
+  const approved = await sql`
+        SELECT
+            id,
+            name,
+            role,
+            company,
+            avatar,
+            quote,
+            rating,
+            status,
+            visible,
+            display_order AS "displayOrder"
+        FROM portfolio.testimonials
+        WHERE is_active = true
+        AND status = 'Approved'
+        ORDER BY display_order
+    `;
+
+  const pending = await sql`
+        SELECT
+            id,
+            name,
+            role,
+            company,
+            avatar,
+            quote,
+            rating,
+            status,
+            visible,
+            created_at
+        FROM portfolio.testimonials
+        WHERE is_active = true
+        AND status = 'Pending'
+        ORDER BY created_at DESC
+    `;
+
+  return {
+    approved,
+    pending,
+  };
+}
+
+async function updateTestimonials(testimonials) {
+  return await sql.begin(async tx => {
+    for (const t of testimonials) {
+      const { id, name, role, company, avatar, quote, rating, displayOrder } = t;
+
+      await tx`
+                UPDATE portfolio.testimonials
+                SET
+                    name = ${name},
+                    role = ${role},
+                    company = ${company},
+                    avatar = ${avatar},
+                    quote = ${quote},
+                    rating = ${rating},
+                    display_order = ${displayOrder},
+                    updated_at = now()
+                WHERE id = ${id}
+            `;
+    }
+
+    return { updated: true };
+  });
+}
+
+async function createTestimonial({ name, role, company, avatar, quote, rating }) {
+  const result = await sql`
+        INSERT INTO portfolio.testimonials (
+            name,
+            role,
+            company,
+            avatar,
+            quote,
+            rating,
+            status,
+            display_order
+        )
+        VALUES (
+            ${name},
+            ${role},
+            ${company},
+            ${avatar},
+            ${quote},
+            ${rating},
+            'Approved',
+            (
+                SELECT COALESCE(MAX(display_order), -1) + 1
+                FROM portfolio.testimonials
+                WHERE status = 'Approved'
+            )
+        )
+        RETURNING
+            id,
+            name,
+            role,
+            company,
+            avatar,
+            quote,
+            rating,
+            status,
+            display_order AS "displayOrder"
+    `;
+
+  return result[0];
+}
+
+async function enableTestimonialById(id, { visible }) {
+  const result = await sql`
+        UPDATE portfolio.testimonials
+        SET
+            visible = ${visible},
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING
+            id,
+            name,
+            role,
+            company,
+            avatar,
+            quote,
+            rating,
+            visible
+    `;
+
+  return result[0];
+}
+
+async function deleteTestimonial(id) {
+  const result = await sql`
+        UPDATE portfolio.testimonials
+        SET
+            is_active = false,
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING id
+    `;
+
+  return result[0];
+}
+
+async function submitTestimonial({ name, role, company, quote, rating }) {
+  const result = await sql`
+        INSERT INTO portfolio.testimonials (
+            name,
+            role,
+            company,
+            quote,
+            rating,
+            status,
+            visible
+        )
+        VALUES (
+            ${name},
+            ${role},
+            ${company},
+            ${quote},
+            ${rating},
+            'Pending',
+            False
+        )
+        RETURNING
+            id,
+            name,
+            role,
+            company,
+            quote,
+            rating,
+            status,
+            visible
+    `;
+
+  return result[0];
+}
+
+async function approveTestimonial(id) {
+  const result = await sql`
+        UPDATE portfolio.testimonials
+        SET
+            status = 'Approved',
+            visible = True,
+            updated_at = now(),
+            display_order = (
+                SELECT COALESCE(MAX(display_order), -1) + 1
+                FROM portfolio.testimonials
+                WHERE status = 'Approved'
+            )
+        WHERE id = ${id}
+        RETURNING
+            id,
+            name,
+            status,
+            visible,
+            display_order AS "displayOrder"
+    `;
+
+  return result[0];
+}
+
+async function rejectTestimonial(id) {
+  const result = await sql`
+        UPDATE portfolio.testimonials
+        SET
+            status = 'Rejected',
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING id, status
+    `;
+
+  return result[0];
+}
+
+async function deletePendingTestimonial(id) {
+  const result = await sql`
+        UPDATE portfolio.testimonials
+        SET
+            is_active = false,
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING id
+    `;
+
+  return result[0];
+}
+
+async function createBlogPost({ title, slug, excerpt, content, tags, coverImage, published, readingTime }) {
+  const result = await sql`
+        INSERT INTO portfolio.blog_posts (
+            title,
+            slug,
+            excerpt,
+            content,
+            tags,
+            cover_image,
+            published,
+            published_at,
+            reading_time
+        )
+        VALUES (
+            ${title},
+            ${slug},
+            ${excerpt},
+            ${content},
+            ${tags}::text[],
+            ${coverImage},
+            ${published},
+            CASE WHEN ${published} = true THEN now() ELSE NULL END,
+            ${readingTime}
+        )
+        RETURNING
+            id,
+            title,
+            slug,
+            excerpt,
+            content,
+            tags,
+            cover_image AS "coverImage",
+            published,
+            published_at AS "publishedAt",
+            reading_time AS "readingTime"
+    `;
+
+  return result[0];
+}
+
+async function updateBlogPostById(id, { title, slug, excerpt, content, tags, coverImage, published, publishedAt, readingTime, author }) {
+  const result = await sql`
+        UPDATE portfolio.blog_posts
+        SET
+            title = ${title},
+            slug = ${slug},
+            excerpt = ${excerpt},
+            content = ${content},
+            tags = ${tags}::text[],
+            cover_image = ${coverImage},
+            published = ${published},
+            published_at = ${publishedAt},
+            reading_time = ${readingTime},
+            author = ${author},
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING
+            id,
+            title,
+            slug,
+            excerpt,
+            content,
+            tags,
+            cover_image AS "coverImage",
+            published,
+            published_at AS "publishedAt",
+            reading_time AS "readingTime",
+            author
+    `;
+
+  return result[0];
+}
+
+async function updateBlogPosts(posts) {
+  return await sql.begin(async tx => {
+    for (const post of posts) {
+      const { id, title, slug, excerpt, content, tags, coverImage, published, readingTime, author } = post;
+
+      await tx`
+                UPDATE portfolio.blog_posts
+                SET
+                    title = ${title},
+                    slug = ${slug},
+                    excerpt = ${excerpt},
+                    content = ${content},
+                    tags = ${tags}::text[],
+                    cover_image = ${coverImage},
+                    published = ${published},
+                    published_at = now(),
+                    reading_time = ${readingTime},
+                    author = ${author},
+                    updated_at = now()
+                WHERE id = ${id}
+            `;
+    }
+
+    return { updated: true };
+  });
+}
+
+async function deleteBlogPost(id) {
+  const result = await sql`
+        UPDATE portfolio.blog_posts
+        SET
+            is_active = false,
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING id
+    `;
+
+  return result[0];
+}
+
+async function getAnalytics() {
+  const result = await sql`
+        SELECT
+            page_views,
+            resume_downloads,
+            contact_form_submissions,
+            contact_form_views,
+            blog_post_views,
+            project_link_clicks,
+            social_link_clicks,
+            last_reset
+        FROM portfolio.analytics
+        WHERE single_row_lock = true
+        LIMIT 1
+    `;
+
+  return result;
+}
+
+async function resetAnalytics() {
+  const result = await sql`
+        UPDATE portfolio.analytics
+        SET
+            page_views = 0,
+            resume_downloads = 0,
+            contact_form_submissions = 0,
+            contact_form_views = 0,
+            blog_post_views = 0,
+            project_link_clicks = 0,
+            social_link_clicks = 0,
+            last_reset = now()
+        WHERE single_row_lock = true
+        RETURNING *
+    `;
+
+  return result[0];
+}
+
+async function trackAnalyticsEvent(type) {
+  const columnMap = {
+    page_view: 'page_views',
+    resume_download: 'resume_downloads',
+    contact_submit: 'contact_form_submissions',
+    contact_view: 'contact_form_views',
+    blog_view: 'blog_post_views',
+    project_click: 'project_link_clicks',
+    social_click: 'social_link_clicks',
+  };
+
+  const column = columnMap[type];
+
+  if (!column) {
+    throw new Error('Invalid analytics event type');
+  }
+
+  const result = await sql`
+        UPDATE portfolio.analytics
+        SET ${sql(column)} = ${sql(column)} + 1
+        WHERE single_row_lock = true
+        RETURNING *
+    `;
+
+  return result[0];
+}
+
 module.exports = {
   putHeroSection,
   putSkills,
@@ -492,4 +1060,24 @@ module.exports = {
   putExperience,
   postExperience,
   deleteExperienceById,
+  syncStats,
+  putCertification,
+  postCertification,
+  deleteCertificationById,
+  getAllTestimonials,
+  updateTestimonials,
+  createTestimonial,
+  enableTestimonialById,
+  deleteTestimonial,
+  submitTestimonial,
+  approveTestimonial,
+  rejectTestimonial,
+  deletePendingTestimonial,
+  createBlogPost,
+  updateBlogPostById,
+  updateBlogPosts,
+  deleteBlogPost,
+  getAnalytics,
+  resetAnalytics,
+  trackAnalyticsEvent,
 };
