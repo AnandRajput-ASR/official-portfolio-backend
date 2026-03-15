@@ -324,7 +324,7 @@
     }
   ],
   "siteSettings": {
-    "openToWork": true,
+    "openToWork": false,
     "openToWorkText": "<b>Open to Freelance</b> &nbsp;·&nbsp; Angular &amp; Azure Engineer",
     "sections": {
       "hero": true,
@@ -375,16 +375,16 @@
       "cardStatusText": "Open to work",
       "cardStats": [
         {
-          "value": "5+",
-          "label": "Years"
+          "label": "Years",
+          "value": "5+"
         },
         {
-          "value": "4",
-          "label": "Azure Certs"
+          "label": "Azure Certs",
+          "value": "4"
         },
         {
-          "value": "4",
-          "label": "Projects"
+          "label": "Projects",
+          "value": "4"
         }
       ],
       "cardSkills": [
@@ -518,9 +518,9 @@
   "analytics": {
     "resumeDownloads": 2,
     "contactFormViews": 0,
-    "contactFormSubmissions": 6,
+    "contactFormSubmissions": 7,
     "projectClicks": {},
-    "pageViews": 85,
+    "pageViews": 118,
     "lastReset": ""
   },
   "pendingTestimonials": [

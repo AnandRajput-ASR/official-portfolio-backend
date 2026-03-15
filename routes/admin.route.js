@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin.controller');
 
+router.get('/page-content', adminController.getContent);
+
 router.put('/heroSection', adminController.updateHeroSection);
 
 router.put('/skills', adminController.updateSkills);
@@ -28,6 +30,8 @@ router.put('/stats', adminController.syncStats);
 router.put('/certifications', adminController.updateCertification);
 router.post('/certifications', adminController.createCertification);
 router.delete('/certifications/:id', adminController.deleteCertification);
+
+router.put('/settings', adminController.updateSettings);
 
 router.get('/testimonials/all', adminController.getAllTestimonials);
 router.put('/testimonials', adminController.updateTestimonial);

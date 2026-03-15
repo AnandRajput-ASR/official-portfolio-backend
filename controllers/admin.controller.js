@@ -1,4 +1,15 @@
 const adminService = require('../services/admin.service');
+const settingsService = require('../services/settings.service');
+
+exports.getContent = async (_, res) => {
+  try {
+    const data = await adminService.getPageContent();
+    return res.json(data);
+  } catch (err) {
+    console.error('Error in getPageContent:', err);
+    return res.status(500).json({ message: 'Error reading content.' });
+  }
+};
 
 exports.updateHeroSection = async (req, res) => {
   try {
@@ -381,6 +392,22 @@ exports.deleteCertification = async (req, res) => {
       success: false,
       message: 'Failed to delete certification',
     });
+  }
+};
+
+exports.updateSettings = async (req, res) => {
+  try {
+    const settings = req.body;
+
+    const updated = await settingsService.updateSiteSettings(settings);
+
+    res.json({
+      message: 'Settings updated successfully',
+      siteSettings: updated,
+    });
+  } catch (err) {
+    console.error('Error updating settings:', err);
+    res.status(500).json({ message: 'Failed to update settings' });
   }
 };
 

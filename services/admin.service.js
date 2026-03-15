@@ -1,4 +1,61 @@
 const repository = require('../repositories/admin.repository');
+const settingsRepository = require('../repositories/settings.repository');
+
+async function getPageContent() {
+  const [
+    heroData,
+    contactInfo,
+    skills,
+    companies,
+    personalProjects,
+    experience,
+    stats,
+    certifications,
+    siteSettings,
+    testimonials,
+    blogPosts,
+    analytics,
+    pendingTestimonials,
+  ] = await Promise.all([
+    settingsRepository.getHero(),
+    settingsRepository.getContactInfo(),
+    settingsRepository.getSkills(),
+    settingsRepository.getCompanies(),
+    settingsRepository.getPersonalProjects(),
+    settingsRepository.getExperience(),
+    settingsRepository.getStats(),
+    settingsRepository.getCertification(),
+    settingsRepository.getSiteSettings(),
+    settingsRepository.getTestimonials(),
+    settingsRepository.getBlogPosts(),
+    settingsRepository.getAnalytics(),
+    settingsRepository.getPendingTestimonials(),
+  ]);
+
+  const { id: heroId, ...heroRest } = heroData[0];
+  const { id: contactInfoId, ...contactRest } = contactInfo[0];
+
+  const hero = {
+    heroId,
+    contactInfoId,
+    ...heroRest,
+    ...contactRest,
+  };
+  return {
+    hero,
+    skills,
+    companies,
+    personalProjects,
+    experience,
+    stats,
+    certifications,
+    siteSettings,
+    testimonials,
+    blogPosts,
+    analytics,
+    pendingTestimonials,
+  };
+}
 
 async function updateHeroSection(heroContent) {
   return await repository.putHeroSection(heroContent);
@@ -141,6 +198,7 @@ async function trackAnalyticsEvent(type) {
 }
 
 module.exports = {
+  getPageContent,
   updateHeroSection,
   updateSkills,
   createSkill,

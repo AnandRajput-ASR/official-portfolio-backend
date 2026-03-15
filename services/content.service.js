@@ -1,4 +1,5 @@
 const contentRepository = require('../repositories/content.repo');
+const settingsRepository = require('../repositories/settings.repository');
 
 async function getPageContent() {
   const [
@@ -10,6 +11,7 @@ async function getPageContent() {
     experience,
     stats,
     certifications,
+    siteSettings,
     testimonials,
     blogPosts,
     analytics,
@@ -23,6 +25,7 @@ async function getPageContent() {
     contentRepository.getExperience(),
     contentRepository.getStats(),
     contentRepository.getCertification(),
+    settingsRepository.getSiteSettings(),
     contentRepository.getTestimonials(),
     contentRepository.getBlogPosts(),
     contentRepository.getAnalytics(),
@@ -46,6 +49,7 @@ async function getPageContent() {
     experience,
     stats,
     certifications,
+    siteSettings,
     testimonials,
     blogPosts,
     analytics,
