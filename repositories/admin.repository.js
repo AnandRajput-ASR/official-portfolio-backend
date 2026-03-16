@@ -198,7 +198,7 @@ async function postCompany({ name, role, period, location, logo, accentColor, cu
             brand_color,
             currently_working,
             description,
-            dispaly_order
+            display_order
         )
         VALUES (
             ${name},
@@ -209,7 +209,7 @@ async function postCompany({ name, role, period, location, logo, accentColor, cu
             ${accentColor},
             ${current},
             ${description},
-            (SELECT COALESCE(MAX(dispaly_order), -1) + 1 FROM portfolio.companies)
+            (SELECT COALESCE(MAX(display_order), -1) + 1 FROM portfolio.companies)
         )
         RETURNING
             id,
@@ -221,7 +221,7 @@ async function postCompany({ name, role, period, location, logo, accentColor, cu
             brand_color AS "accentColor",
             currently_working AS "current",
             description,
-            display_order AS "displayOrder";;
+            display_order AS "displayOrder";
     `;
 
   return result[0];
@@ -575,7 +575,7 @@ async function putCertification(certifications) {
   });
 }
 
-async function postCertification({ name, code, issuer, level, year, credlyUrl, accentColor, badgeUrl, badgeType }) {
+async function postCertification({ name, code, issuer, level, issueYear, credlyLink, accentColor, badgeLink, badgeType }) {
   const result = await sql`
         INSERT INTO portfolio.certifications (
             name,
@@ -594,10 +594,10 @@ async function postCertification({ name, code, issuer, level, year, credlyUrl, a
             ${code},
             ${issuer},
             ${level},
-            ${year},
-            ${credlyUrl},
+            ${issueYear},
+            ${credlyLink},
             ${accentColor},
-            ${badgeUrl},
+            ${badgeLink},
             ${badgeType},
             (
                 SELECT COALESCE(MAX(display_order), -1) + 1
@@ -866,7 +866,7 @@ async function deletePendingTestimonial(id) {
   return result[0];
 }
 
-async function createBlogPost({ title, slug, excerpt, content, tags, coverImage, published, readingTime }) {
+async function createBlogPost({ title, slug, excerpt, content, tags, coverImage, published, readingTime, displayOrder }) {
   const result = await sql`
         INSERT INTO portfolio.blog_posts (
             title,
@@ -877,7 +877,8 @@ async function createBlogPost({ title, slug, excerpt, content, tags, coverImage,
             cover_image,
             published,
             published_at,
-            reading_time
+            reading_time,
+            display_order
         )
         VALUES (
             ${title},
@@ -888,7 +889,8 @@ async function createBlogPost({ title, slug, excerpt, content, tags, coverImage,
             ${coverImage},
             ${published},
             CASE WHEN ${published} = true THEN now() ELSE NULL END,
-            ${readingTime}
+            ${readingTime},
+            COALESCE(${displayOrder}, 0)
         )
         RETURNING
             id,
@@ -900,13 +902,14 @@ async function createBlogPost({ title, slug, excerpt, content, tags, coverImage,
             cover_image AS "coverImage",
             published,
             published_at AS "publishedAt",
-            reading_time AS "readingTime"
+            reading_time AS "readingTime",
+            display_order AS "displayOrder"
     `;
 
   return result[0];
 }
 
-async function updateBlogPostById(id, { title, slug, excerpt, content, tags, coverImage, published, publishedAt, readingTime, author }) {
+async function updateBlogPostById(id, { title, slug, excerpt, content, tags, coverImage, published, publishedAt, readingTime, author, displayOrder }) {
   const result = await sql`
         UPDATE portfolio.blog_posts
         SET
@@ -920,6 +923,7 @@ async function updateBlogPostById(id, { title, slug, excerpt, content, tags, cov
             published_at = ${publishedAt},
             reading_time = ${readingTime},
             author = ${author},
+            display_order = COALESCE(${displayOrder}, display_order),
             updated_at = now()
         WHERE id = ${id}
         RETURNING
@@ -933,7 +937,8 @@ async function updateBlogPostById(id, { title, slug, excerpt, content, tags, cov
             published,
             published_at AS "publishedAt",
             reading_time AS "readingTime",
-            author
+            author,
+            display_order AS "displayOrder"
     `;
 
   return result[0];
@@ -942,7 +947,7 @@ async function updateBlogPostById(id, { title, slug, excerpt, content, tags, cov
 async function updateBlogPosts(posts) {
   return await sql.begin(async tx => {
     for (const post of posts) {
-      const { id, title, slug, excerpt, content, tags, coverImage, published, readingTime, author } = post;
+      const { id, title, slug, excerpt, content, tags, coverImage, published, readingTime, author, displayOrder } = post;
 
       await tx`
                 UPDATE portfolio.blog_posts
@@ -957,6 +962,7 @@ async function updateBlogPosts(posts) {
                     published_at = now(),
                     reading_time = ${readingTime},
                     author = ${author},
+                    display_order = COALESCE(${displayOrder}, display_order),
                     updated_at = now()
                 WHERE id = ${id}
             `;
@@ -980,22 +986,38 @@ async function deleteBlogPost(id) {
 }
 
 async function getAnalytics() {
-  const result = await sql`
+  const [analyticsResult, clicksResult] = await Promise.all([
+    sql`
         SELECT
-            page_views,
-            resume_downloads,
-            contact_form_submissions,
-            contact_form_views,
-            blog_post_views,
-            project_link_clicks,
-            social_link_clicks,
-            last_reset
+            page_views AS "pageViews",
+            resume_downloads AS "resumeDownloads",
+            contact_form_submissions AS "contactFormSubmissions",
+            contact_form_views AS "contactFormViews",
+            blog_post_views AS "blogPostViews",
+            project_link_clicks AS "projectLinkClicks",
+            social_link_clicks AS "socialLinkClicks",
+            last_reset AS "lastReset"
         FROM portfolio.analytics
         WHERE single_row_lock = true
         LIMIT 1
-    `;
+    `,
+    sql`
+        SELECT project_name, clicks
+        FROM portfolio.project_clicks
+        ORDER BY clicks DESC
+    `,
+  ]);
 
-  return result;
+  const analytics = analyticsResult[0] || null;
+  if (analytics) {
+    const projectClicks = {};
+    for (const row of clicksResult) {
+      projectClicks[row.project_name] = row.clicks;
+    }
+    analytics.projectClicks = projectClicks;
+  }
+
+  return analytics;
 }
 
 async function resetAnalytics() {
@@ -1014,10 +1036,16 @@ async function resetAnalytics() {
         RETURNING *
     `;
 
+  // Also reset per-project click counters
+  await sql`DELETE FROM portfolio.project_clicks`;
+
   return result[0];
 }
 
-async function trackAnalyticsEvent(type) {
+async function trackAnalyticsEvent(type, { projectName } = {}) {
+  // Normalise camelCase (frontend) → snake_case (DB column map)
+  const normalised = type.replace(/([A-Z])/g, '_$1').toLowerCase();
+
   const columnMap = {
     page_view: 'page_views',
     resume_download: 'resume_downloads',
@@ -1028,10 +1056,10 @@ async function trackAnalyticsEvent(type) {
     social_click: 'social_link_clicks',
   };
 
-  const column = columnMap[type];
+  const column = columnMap[normalised];
 
   if (!column) {
-    throw new Error('Invalid analytics event type');
+    throw new Error(`Invalid analytics event type: ${type}`);
   }
 
   const result = await sql`
@@ -1040,6 +1068,17 @@ async function trackAnalyticsEvent(type) {
         WHERE single_row_lock = true
         RETURNING *
     `;
+
+  // Track per-project click when project name is provided
+  if (normalised === 'project_click' && projectName) {
+    await sql`
+        INSERT INTO portfolio.project_clicks (project_name, clicks, last_clicked_at)
+        VALUES (${projectName}, 1, now())
+        ON CONFLICT (project_name)
+        DO UPDATE SET clicks = portfolio.project_clicks.clicks + 1,
+                      last_clicked_at = now()
+    `;
+  }
 
   return result[0];
 }
