@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
 const adminController = require('../controllers/admin.controller');
+
+// ─── Public endpoints (no auth required) ──────────────────────────────────────
+router.post('/testimonials/submit', adminController.submitTestimonial);
+router.post('/analytics/event', adminController.trackAnalyticsEvent);
+
+// ─── Protected endpoints (auth required) ──────────────────────────────────────
+router.use(auth);
 
 router.get('/page-content', adminController.getContent);
 
@@ -39,18 +47,16 @@ router.post('/testimonials', adminController.createTestimonial);
 router.put('/testimonials/:id', adminController.enableTestimonialById);
 router.delete('/testimonials/:id', adminController.deleteTestimonial);
 
-router.post('/testimonials/submit', adminController.submitTestimonial);
 router.put('/testimonials/pending/:id/approve', adminController.approveTestimonial);
 router.put('/testimonials/pending/:id/reject', adminController.rejectTestimonial);
 router.delete('/testimonials/pending/:id', adminController.deletePendingTestimonial);
 
 router.put('/blog', adminController.updateBlogPost);
 router.post('/blog', adminController.createBlogPost);
-router.put('/blog/:id', adminController.updateBlogPostById); //didnt find
+router.put('/blog/:id', adminController.updateBlogPostById);
 router.delete('/blog/:id', adminController.deleteBlogPost);
 
 router.get('/analytics', adminController.getAnalytics);
 router.delete('/analytics/reset', adminController.resetAnalytics);
-router.post('/analytics/event', adminController.trackAnalyticsEvent); // need to check
 
 module.exports = router;
