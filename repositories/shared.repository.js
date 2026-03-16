@@ -1,19 +1,12 @@
+/**
+ * Shared read-only repository for portfolio content queries.
+ * Used by both content (public) and admin (authenticated) services
+ * to avoid duplicating identical SQL queries.
+ */
 const sql = require('../configs/database.config');
 
 async function getHero() {
   return await sql`SELECT id, name, title, subtitle, bio FROM portfolio.hero LIMIT 1`;
-}
-
-async function putHero({ id, name, title, subtitle }) {
-  const result = await sql`
-    UPDATE portfolio.hero
-    SET name = ${name},
-        title = ${title},
-        subtitle = ${subtitle}
-    WHERE id = ${id}
-    RETURNING id, name, title, subtitle
-  `;
-  return result[0] || null;
 }
 
 async function getContactInfo() {
@@ -25,19 +18,6 @@ async function getContactInfo() {
     location
   FROM portfolio.contact_information
   LIMIT 1`;
-}
-
-async function putContactInfo({ id, email, linkedin, github, location }) {
-  const result = await sql`
-    UPDATE portfolio.contact_information
-    SET email = ${email},
-        linkedin_url = ${linkedin},
-        github_url = ${github},
-        location = ${location}
-    WHERE id = ${id}
-    RETURNING id, email, linkedin_url AS "linkedin", github_url AS "github", location
-  `;
-  return result[0] || null;
 }
 
 async function getSkills() {
@@ -133,7 +113,7 @@ async function getStats() {
   WHERE is_active = true;`;
 }
 
-async function getCertification() {
+async function getCertifications() {
   return await sql`SELECT
     id,
     name,
@@ -150,6 +130,14 @@ async function getCertification() {
   FROM portfolio.certifications
   WHERE is_active = true
   ORDER BY display_order, issue_year DESC;`;
+}
+
+async function getSiteSettings() {
+  const result = await sql`SELECT config
+    FROM portfolio.site_config
+    WHERE key = 'site_settings'`;
+
+  return result[0]?.config;
 }
 
 async function getTestimonials() {
@@ -184,7 +172,7 @@ async function getBlogPosts() {
     author,
     display_order AS "displayOrder"
   FROM portfolio.blog_posts
-  -- WHERE is_active = true AND published = true
+  WHERE is_active = true
   ORDER BY display_order, published_at DESC;`;
 }
 
@@ -220,6 +208,7 @@ async function getPendingTestimonials() {
   WHERE is_active = true AND status = 'Pending'
   ORDER BY created_at DESC;`;
 }
+
 module.exports = {
   getHero,
   getContactInfo,
@@ -228,11 +217,10 @@ module.exports = {
   getPersonalProjects,
   getExperience,
   getStats,
-  getCertification,
+  getCertifications,
+  getSiteSettings,
   getTestimonials,
   getBlogPosts,
   getAnalytics,
   getPendingTestimonials,
-  putHero,
-  putContactInfo,
 };
