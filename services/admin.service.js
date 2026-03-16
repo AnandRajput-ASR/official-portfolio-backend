@@ -1,5 +1,8 @@
+/**
+ * Admin service — protected write operations + aggregated page content.
+ */
 const repository = require('../repositories/admin.repository');
-const settingsRepository = require('../repositories/settings.repository');
+const sharedRepo = require('../repositories/shared.repository');
 
 async function getPageContent() {
   const [
@@ -17,19 +20,19 @@ async function getPageContent() {
     analytics,
     pendingTestimonials,
   ] = await Promise.all([
-    settingsRepository.getHero(),
-    settingsRepository.getContactInfo(),
-    settingsRepository.getSkills(),
-    settingsRepository.getCompanies(),
-    settingsRepository.getPersonalProjects(),
-    settingsRepository.getExperience(),
-    settingsRepository.getStats(),
-    settingsRepository.getCertification(),
-    settingsRepository.getSiteSettings(),
-    settingsRepository.getTestimonials(),
-    settingsRepository.getBlogPosts(),
-    settingsRepository.getAnalytics(),
-    settingsRepository.getPendingTestimonials(),
+    sharedRepo.getHero(),
+    sharedRepo.getContactInfo(),
+    sharedRepo.getSkills(),
+    sharedRepo.getCompanies(),
+    sharedRepo.getPersonalProjects(),
+    sharedRepo.getExperience(),
+    sharedRepo.getStats(),
+    sharedRepo.getCertifications(),
+    sharedRepo.getSiteSettings(),
+    sharedRepo.getTestimonials(),
+    sharedRepo.getBlogPosts(),
+    sharedRepo.getAnalytics(),
+    sharedRepo.getPendingTestimonials(),
   ]);
 
   const { id: heroId, ...heroRest } = heroData[0];

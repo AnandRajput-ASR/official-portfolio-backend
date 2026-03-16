@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { escapeHtml } = require('../utils/sanitize');
 
 // ─── Lazy-create transporter so missing config doesn't crash the server ────────
 let _transporter = null;
@@ -58,11 +59,11 @@ async function sendContactNotification(message) {
         <div class="body">
           <div class="field">
             <div class="label">From</div>
-            <div class="value">${message.name}</div>
+            <div class="value">${escapeHtml(message.name)}</div>
           </div>
           <div class="field">
             <div class="label">Email</div>
-            <div class="value"><a href="mailto:${message.email}" style="color:#f5a623;">${message.email}</a></div>
+            <div class="value"><a href="mailto:${encodeURI(message.email)}" style="color:#f5a623;">${escapeHtml(message.email)}</a></div>
           </div>
           <div class="field">
             <div class="label">Received</div>
@@ -70,10 +71,10 @@ async function sendContactNotification(message) {
           </div>
           <div class="field">
             <div class="label">Message</div>
-            <div class="message-box">${message.message}</div>
+            <div class="message-box">${escapeHtml(message.message)}</div>
           </div>
           <div class="cta">
-            <a href="mailto:${message.email}?subject=Re: Your message on my portfolio">Reply Now →</a>
+            <a href="mailto:${encodeURI(message.email)}?subject=Re: Your message on my portfolio">Reply Now →</a>
           </div>
         </div>
         <div class="footer">anandraj.asr@gmail.com · Anand Rajput Portfolio</div>

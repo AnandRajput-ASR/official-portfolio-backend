@@ -1,5 +1,7 @@
-const contentRepository = require('../repositories/content.repo');
-const settingsRepository = require('../repositories/settings.repository');
+/**
+ * Content service — public-facing read operations + hero/contact writes.
+ */
+const contentRepository = require('../repositories/content.repository');
 
 async function getPageContent() {
   const [
@@ -24,8 +26,8 @@ async function getPageContent() {
     contentRepository.getPersonalProjects(),
     contentRepository.getExperience(),
     contentRepository.getStats(),
-    contentRepository.getCertification(),
-    settingsRepository.getSiteSettings(),
+    contentRepository.getCertifications(),
+    contentRepository.getSiteSettings(),
     contentRepository.getTestimonials(),
     contentRepository.getBlogPosts(),
     contentRepository.getAnalytics(),
@@ -41,6 +43,7 @@ async function getPageContent() {
     ...heroRest,
     ...contactRest,
   };
+
   return {
     hero,
     skills,
@@ -57,7 +60,6 @@ async function getPageContent() {
   };
 }
 
-// Hero
 async function getHero() {
   const heroData = await contentRepository.getHero();
   return heroData[0] || null;
@@ -69,7 +71,7 @@ async function putHero(heroContent) {
 
 async function getContactInfo() {
   const contactInfo = await contentRepository.getContactInfo();
-  return (await contactInfo[0]) || null;
+  return contactInfo[0] || null;
 }
 
 async function putContactInfo(contactInfo) {
@@ -97,7 +99,7 @@ async function getStats() {
 }
 
 async function getCertification() {
-  return await contentRepository.getCertification();
+  return await contentRepository.getCertifications();
 }
 
 async function getTestimonials() {
@@ -115,6 +117,19 @@ async function getAnalytics() {
 async function getPendingTestimonials() {
   return await contentRepository.getPendingTestimonials();
 }
+
+async function getSiteSettings() {
+  return await contentRepository.getSiteSettings();
+}
+
+async function trackAnalyticsEvent(eventName, metadata) {
+  return await contentRepository.trackAnalyticsEvent(eventName, metadata);
+}
+
+async function reorderSection(section, items) {
+  return await contentRepository.reorderSection(section, items);
+}
+
 module.exports = {
   getPageContent,
   getHero,
@@ -131,4 +146,7 @@ module.exports = {
   getPendingTestimonials,
   putHero,
   putContactInfo,
+  getSiteSettings,
+  trackAnalyticsEvent,
+  reorderSection,
 };

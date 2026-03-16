@@ -1,160 +1,91 @@
 const contentService = require('../services/content.service');
+const asyncHandler = require('../utils/asyncHandler');
 
-exports.getContent = async (_, res) => {
-  try {
-    const data = await contentService.getPageContent();
-    return res.json(data);
-  } catch (err) {
-    console.error('Error in getPageContent:', err);
-    return res.status(500).json({ message: 'Error reading content.' });
-  }
-};
+exports.getContent = asyncHandler(async (_, res) => {
+  const data = await contentService.getPageContent();
+  return res.json(data);
+});
 
-// Hero
-exports.getHero = async (_, res) => {
-  try {
-    const hero = await contentService.getHero();
-    return res.json(hero);
-  } catch (err) {
-    console.error('Error reading hero content:', err);
-    return res.status(500).json({ message: 'Error reading hero content.' });
-  }
-};
+exports.getHero = asyncHandler(async (_, res) => {
+  const hero = await contentService.getHero();
+  return res.json(hero);
+});
 
-exports.updateHero = async (req, res) => {
-  try {
-    const { heroId, name, title, subtitle } = req.body;
-    const updatedHero = await contentService.putHero({ id: heroId, name, title, subtitle });
-    return res.json(updatedHero);
-  } catch (err) {
-    console.error('Error updating hero content:', err);
-    return res.status(500).json({ message: 'Error updating hero content.' });
-  }
-};
+exports.updateHero = asyncHandler(async (req, res) => {
+  const { heroId, name, title, subtitle } = req.body;
+  const updatedHero = await contentService.putHero({ id: heroId, name, title, subtitle });
+  return res.json(updatedHero);
+});
 
-exports.getContactInfo = async (_, res) => {
-  try {
-    const contactInfo = await contentService.getContactInfo();
-    return res.json(contactInfo);
-  } catch (err) {
-    console.error('Error reading contact information:', err);
-    return res.status(500).json({ message: 'Error reading contact information.' });
-  }
-};
+exports.getContactInfo = asyncHandler(async (_, res) => {
+  const contactInfo = await contentService.getContactInfo();
+  return res.json(contactInfo);
+});
 
-exports.updateContactInfo = async (req, res) => {
-  try {
-    const { contactInfoId, email, linkedin, github, location } = req.body;
-    const updatedContactInfo = await contentService.putContactInfo({
-      id: contactInfoId,
-      email,
-      linkedin,
-      github,
-      location,
-    });
-    return res.json(updatedContactInfo);
-  } catch (err) {
-    console.error('Error updating contact information:', err);
-    return res.status(500).json({ message: 'Error updating contact information.' });
-  }
-};
+exports.updateContactInfo = asyncHandler(async (req, res) => {
+  const { contactInfoId, email, linkedin, github, location } = req.body;
+  const updatedContactInfo = await contentService.putContactInfo({
+    id: contactInfoId, email, linkedin, github, location,
+  });
+  return res.json(updatedContactInfo);
+});
 
-exports.getSkills = async (_, res) => {
-  try {
-    const skills = await contentService.getSkills();
-    return res.json(skills);
-  } catch (err) {
-    console.error('Error reading skills:', err);
-    return res.status(500).json({ message: 'Error reading skills.' });
-  }
-};
+exports.getSkills = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getSkills());
+});
 
-exports.getCompanies = async (_, res) => {
-  try {
-    const companies = await contentService.getCompanies();
-    return res.json(companies);
-  } catch (err) {
-    console.error('Error reading companies:', err);
-    return res.status(500).json({ message: 'Error reading companies.' });
-  }
-};
+exports.getCompanies = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getCompanies());
+});
 
-exports.getPersonalProjects = async (_, res) => {
-  try {
-    const personalProjects = await contentService.getPersonalProjects();
-    return res.json(personalProjects);
-  } catch (err) {
-    console.error('Error reading personal projects:', err);
-    return res.status(500).json({ message: 'Error reading personal projects.' });
-  }
-};
+exports.getPersonalProjects = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getPersonalProjects());
+});
 
-exports.getExperience = async (_, res) => {
-  try {
-    const experience = await contentService.getExperience();
-    return res.json(experience);
-  } catch (err) {
-    console.error('Error reading experience:', err);
-    return res.status(500).json({ message: 'Error reading experience.' });
-  }
-};
+exports.getExperience = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getExperience());
+});
 
-exports.getStats = async (_, res) => {
-  try {
-    const stats = await contentService.getStats();
-    return res.json(stats);
-  } catch (err) {
-    console.error('Error reading stats:', err);
-    return res.status(500).json({ message: 'Error reading stats.' });
-  }
-};
+exports.getStats = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getStats());
+});
 
-exports.getCertification = async (_, res) => {
-  try {
-    const certification = await contentService.getCertification();
-    return res.json(certification);
-  } catch (err) {
-    console.error('Error reading certifications:', err);
-    return res.status(500).json({ message: 'Error reading certifications.' });
-  }
-};
+exports.getCertification = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getCertification());
+});
 
-exports.getTestimonials = async (_, res) => {
-  try {
-    const testimonials = await contentService.getTestimonials();
-    return res.json(testimonials);
-  } catch (err) {
-    console.error('Error reading testimonials:', err);
-    return res.status(500).json({ message: 'Error reading testimonials.' });
-  }
-};
+exports.getTestimonials = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getTestimonials());
+});
 
-exports.getBlogPosts = async (_, res) => {
-  try {
-    const blogPosts = await contentService.getBlogPosts();
-    return res.json(blogPosts);
-  } catch (err) {
-    console.error('Error reading blog posts:', err);
-    return res.status(500).json({ message: 'Error reading blog posts.' });
-  }
-};
+exports.getBlogPosts = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getBlogPosts());
+});
 
-exports.getAnalytics = async (_, res) => {
-  try {
-    const analytics = await contentService.getAnalytics();
-    return res.json(analytics);
-  } catch (err) {
-    console.error('Error reading analytics:', err);
-    return res.status(500).json({ message: 'Error reading analytics.' });
-  }
-};
+exports.getAnalytics = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getAnalytics());
+});
 
-exports.getPendingTestimonials = async (_, res) => {
-  try {
-    const pendingTestimonials = await contentService.getPendingTestimonials();
-    return res.json(pendingTestimonials);
-  } catch (err) {
-    console.error('Error reading pending testimonials:', err);
-    return res.status(500).json({ message: 'Error reading pending testimonials.' });
-  }
-};
+exports.getPendingTestimonials = asyncHandler(async (_, res) => {
+  return res.json(await contentService.getPendingTestimonials());
+});
+
+exports.getSettings = asyncHandler(async (_, res) => {
+  const settings = await contentService.getSiteSettings();
+  return res.json(settings);
+});
+
+exports.trackAnalyticsEvent = asyncHandler(async (req, res) => {
+  const { event, projectName, projectId } = req.body;
+  if (!event) return res.status(400).json({ message: 'event is required' });
+  const result = await contentService.trackAnalyticsEvent(event, { projectName: projectName || projectId });
+  return res.json({ success: true, data: result });
+});
+
+exports.reorderSection = asyncHandler(async (req, res) => {
+  const { section } = req.params;
+  const items = req.body;
+  if (!Array.isArray(items)) return res.status(400).json({ message: 'Body must be an array of { id, displayOrder }' });
+  const result = await contentService.reorderSection(section, items);
+  return res.json({ success: true, ...result });
+});
