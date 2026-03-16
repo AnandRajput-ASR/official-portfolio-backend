@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "db:test": "node scripts/db-runner.js",
+    "db:setup": "node scripts/db-setup.js",
     "dev:watch": "nodemon --watch . --ext js,json server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -23,7 +24,6 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^8.0.1",
-    "pg": "^8.20.0",
     "postgres": "^3.4.8"
   },
   "devDependencies": {
@@ -51,8 +51,15 @@
   "nodemonConfig": {
     "watch": [
       "server.js",
+      "app.js",
+      "configs/",
+      "controllers/",
+      "middleware/",
+      "repositories/",
       "routes/",
-      "controllers/"
+      "services/",
+      "utils/",
+      "validators/"
     ],
     "ext": "js,json",
     "ignore": [

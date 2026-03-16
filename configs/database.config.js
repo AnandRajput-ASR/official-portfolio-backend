@@ -15,7 +15,11 @@ const sql = postgres(connectionString, {
 });
 
 async function init() {
-  await sql`SET search_path TO portfolio,public`;
+  try {
+    await sql`SET search_path TO portfolio,public`;
+  } catch (err) {
+    console.error('[DB] Failed to set search_path:', err.message);
+  }
 }
 
 init();
