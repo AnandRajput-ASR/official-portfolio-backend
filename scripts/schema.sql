@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS portfolio.analytics (
   contact_form_submissions  INTEGER     NOT NULL DEFAULT 0,
   contact_form_views        INTEGER     NOT NULL DEFAULT 0,
   blog_post_views           INTEGER     NOT NULL DEFAULT 0,
-  project_link_clicks       INTEGER     NOT NULL,
+  project_link_clicks       INTEGER     NOT NULL DEFAULT 0,
   social_link_clicks        INTEGER     NOT NULL DEFAULT 0,
   last_reset                TIMESTAMPTZ,
   single_row_lock           BOOLEAN     DEFAULT true,
