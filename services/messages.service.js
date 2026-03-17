@@ -1,7 +1,20 @@
 const repository = require('../repositories/messages.repository');
+const { sendContactNotification } = require('./email.service');
 
 async function sendMessage(payload) {
-  return await repository.createMessage(payload);
+  const saved = await repository.createMessage(payload);
+
+  // Fire-and-forget email notification (don't block the response)
+  sendContactNotification({
+    name: payload.name,
+    email: payload.email,
+    message: payload.message,
+    receivedAt: saved?.received_at || new Date().toISOString(),
+  })
+    .then(() => repository.markNotified(saved.id))
+    .catch(() => {}); // already logged inside email.service
+
+  return saved;
 }
 
 async function getMessages() {

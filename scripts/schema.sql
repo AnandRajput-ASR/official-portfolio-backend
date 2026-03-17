@@ -286,6 +286,7 @@ CREATE TABLE IF NOT EXISTS portfolio.messages (
   read        BOOLEAN     NOT NULL DEFAULT false,
   starred     BOOLEAN     NOT NULL DEFAULT false,
   replied_at  TIMESTAMPTZ,
+  notified_at TIMESTAMPTZ,
   received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   is_deleted  BOOLEAN     NOT NULL DEFAULT false,
   deleted_at  TIMESTAMPTZ,
