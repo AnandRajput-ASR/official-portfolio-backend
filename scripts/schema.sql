@@ -307,6 +307,19 @@ CREATE TABLE IF NOT EXISTS portfolio.admin_users (
   CONSTRAINT admin_users_username_key UNIQUE (username)
 );
 
+-- ─── resume_meta (single-row) ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS portfolio.resume_meta (
+  id              UUID        NOT NULL DEFAULT gen_random_uuid(),
+  original_name   TEXT        NOT NULL,
+  stored_name     TEXT        NOT NULL,
+  size            INTEGER     NOT NULL DEFAULT 0,
+  uploaded_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  single_row_lock BOOLEAN     DEFAULT true,
+
+  CONSTRAINT resume_meta_pkey PRIMARY KEY (id),
+  CONSTRAINT resume_meta_single_row_lock_key UNIQUE (single_row_lock)
+);
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- 3. INDEXES (beyond PKs and unique constraints)
 -- ════════════════════════════════════════════════════════════════════════════
