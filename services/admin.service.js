@@ -157,7 +157,11 @@ async function deleteTestimonial(id) {
 }
 
 async function submitTestimonial(payload) {
-  return await repository.submitTestimonial(payload);
+  const testimonial = await repository.submitTestimonial(payload);
+  // Fire-and-forget email notification (non-blocking)
+  const { sendTestimonialNotification } = require('./email.service');
+  sendTestimonialNotification({ ...payload, ...testimonial }).catch(() => {});
+  return testimonial;
 }
 
 async function approveTestimonial(id) {

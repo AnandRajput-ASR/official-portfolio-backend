@@ -183,7 +183,7 @@ exports.deleteTestimonial = asyncHandler(async (req, res) => {
 });
 
 exports.submitTestimonial = asyncHandler(async (req, res) => {
-  const { name, role, company, quote, rating, avatar } = req.body;
+  const { name, role, company, quote, rating, avatar, email } = req.body;
 
   // Avatar is stored as base64 directly in the DB (no filesystem writes —
   // ephemeral disks on most hosting platforms would lose files on restart).
@@ -199,6 +199,7 @@ exports.submitTestimonial = asyncHandler(async (req, res) => {
     quote,
     rating: rating ?? 5,
     avatar: avatar || null,
+    email: email?.trim().toLowerCase() || null,
   });
   return ok(res, testimonial, 'Testimonial submitted for approval');
 });

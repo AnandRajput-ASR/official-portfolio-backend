@@ -1,6 +1,18 @@
 const app = require('./app');
+const sql = require('./configs/database.config');
 
 const PORT = process.env.PORT || 3000;
+
+// ─── Auto-migrations: safe to run on every startup (idempotent) ───────────────
+async function runMigrations() {
+  try {
+    await sql`ALTER TABLE portfolio.testimonials ADD COLUMN IF NOT EXISTS submitter_email TEXT`;
+    console.log('[DB] Migrations OK');
+  } catch (err) {
+    console.error('[DB] Migration warning:', err.message);
+  }
+}
+runMigrations();
 
 const server = app.listen(PORT, () => {
   console.log(`\n🚀  Portfolio API  →  http://localhost:${PORT}`);

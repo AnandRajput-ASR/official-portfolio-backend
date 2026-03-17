@@ -789,7 +789,7 @@ async function deleteTestimonial(id) {
   return result[0];
 }
 
-async function submitTestimonial({ name, role, company, quote, rating, avatar }) {
+async function submitTestimonial({ name, role, company, quote, rating, avatar, email }) {
   const result = await sql`
         INSERT INTO portfolio.testimonials (
             name,
@@ -799,7 +799,8 @@ async function submitTestimonial({ name, role, company, quote, rating, avatar })
             quote,
             rating,
             status,
-            visible
+            visible,
+            submitter_email
         )
         VALUES (
             ${name},
@@ -809,7 +810,8 @@ async function submitTestimonial({ name, role, company, quote, rating, avatar })
             ${quote},
             ${rating},
             'Pending',
-            False
+            False,
+            ${email || null}
         )
         RETURNING
             id,
@@ -820,7 +822,8 @@ async function submitTestimonial({ name, role, company, quote, rating, avatar })
             quote,
             rating,
             status,
-            visible
+            visible,
+            submitter_email AS "submitterEmail"
     `;
 
   return result[0];
