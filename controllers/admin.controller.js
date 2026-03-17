@@ -192,6 +192,11 @@ exports.submitTestimonial = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: 'Avatar image must be under 2 MB.' });
   }
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !EMAIL_REGEX.test(email.trim())) {
+    return res.status(400).json({ success: false, message: 'A valid email address is required.' });
+  }
+
   const testimonial = await adminService.submitTestimonial({
     name,
     role,
@@ -199,7 +204,7 @@ exports.submitTestimonial = asyncHandler(async (req, res) => {
     quote,
     rating: rating ?? 5,
     avatar: avatar || null,
-    email: email?.trim().toLowerCase() || null,
+    email: email.trim().toLowerCase(),
   });
   return ok(res, testimonial, 'Testimonial submitted for approval');
 });

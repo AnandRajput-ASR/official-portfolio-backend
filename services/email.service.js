@@ -185,7 +185,7 @@ async function sendTestimonialNotification(t) {
       to,
       subject: `⭐ New testimonial from ${t.name} — needs your review`,
       html,
-      text: `New testimonial from ${t.name}\nEmail: ${t.email || 'not provided'}\nRating: ${t.rating}/5\n\n"${t.quote}"`,
+      text: `New testimonial from ${t.name}\nEmail: ${t.email}\nRating: ${t.rating}/5\n\n"${t.quote}"`,
     });
     console.log(`[EMAIL] Testimonial notification sent for ${t.name}`);
   } catch (err) {

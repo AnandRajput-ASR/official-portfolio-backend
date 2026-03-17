@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS portfolio.testimonials (
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   visible          BOOLEAN     NOT NULL DEFAULT false,
-  submitter_email  TEXT,
+  submitter_email  TEXT        NOT NULL,
 
   CONSTRAINT testimonials_pkey PRIMARY KEY (id),
   CONSTRAINT chk_testimonial_status CHECK (status IN ('Pending', 'Approved', 'Rejected')),
