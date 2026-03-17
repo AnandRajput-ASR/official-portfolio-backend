@@ -126,6 +126,10 @@ async function trackAnalyticsEvent(eventName, metadata) {
   return await contentRepository.trackAnalyticsEvent(eventName, metadata);
 }
 
+async function saveResumeLead({ email, ip, ua }) {
+  return await contentRepository.saveResumeLead({ email, ip, ua });
+}
+
 async function reorderSection(section, items) {
   return await contentRepository.reorderSection(section, items);
 }
@@ -148,5 +152,6 @@ module.exports = {
   putContactInfo,
   getSiteSettings,
   trackAnalyticsEvent,
+  saveResumeLead,
   reorderSection,
 };

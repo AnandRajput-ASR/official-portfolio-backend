@@ -193,4 +193,57 @@ async function sendTestimonialNotification(t) {
   }
 }
 
-module.exports = { sendContactNotification, sendResetEmail, sendTestimonialNotification };
+// ─── Send notification when someone downloads the resume ─────────────────────
+async function sendResumeLeadNotification(lead) {
+  const transporter = getTransporter();
+  if (!transporter) return;
+  const to = process.env.NOTIFY_EMAIL || process.env.GMAIL_USER;
+  const when = new Date(lead.downloadedAt).toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata', dateStyle: 'full', timeStyle: 'short',
+  });
+  const html = `
+    <!DOCTYPE html><html><head>
+    <style>
+      body{font-family:'Segoe UI',sans-serif;background:#0d0d0d;color:#f0ede8;margin:0;padding:0;}
+      .wrapper{max-width:520px;margin:40px auto;}
+      .header{background:#f5a623;padding:24px 32px;}
+      .header h1{margin:0;font-size:20px;color:#0d0d0d;}
+      .body{background:#141414;padding:32px;border:1px solid #252525;border-top:none;}
+      .field{margin-bottom:18px;}
+      .label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7a7570;margin-bottom:5px;}
+      .value{font-size:15px;color:#f0ede8;}
+      .cta{margin-top:1.5rem;}
+      .cta a{display:inline-block;background:#f5a623;color:#0d0d0d;text-decoration:none;
+             padding:12px 24px;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;}
+      .footer{padding:16px;font-size:11px;color:#7a7570;text-align:center;}
+    </style></head><body>
+    <div class="wrapper">
+      <div class="header"><h1>📄 Resume Downloaded</h1></div>
+      <div class="body">
+        <div class="field">
+          <div class="label">Email</div>
+          <div class="value"><a href="mailto:${encodeURI(lead.email)}" style="color:#f5a623;">${escapeHtml(lead.email)}</a></div>
+        </div>
+        <div class="field"><div class="label">When</div><div class="value">${when}</div></div>
+        ${lead.ipAddress ? `<div class="field"><div class="label">IP</div><div class="value">${escapeHtml(lead.ipAddress)}</div></div>` : ''}
+        <div class="cta">
+          <a href="mailto:${encodeURI(lead.email)}?subject=Following up — saw you downloaded my resume">Follow Up →</a>
+        </div>
+      </div>
+      <div class="footer">anandraj.asr@gmail.com · Anand Rajput Portfolio</div>
+    </div></body></html>`;
+  try {
+    await transporter.sendMail({
+      from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
+      to,
+      subject: `📄 Resume downloaded by ${lead.email}`,
+      html,
+      text: `Resume downloaded\n\nEmail: ${lead.email}\nWhen: ${when}${lead.ipAddress ? '\nIP: ' + lead.ipAddress : ''}`,
+    });
+    console.log(`[EMAIL] Resume lead notification sent for ${lead.email}`);
+  } catch (err) {
+    console.error('[EMAIL] Resume lead notification failed:', err.message);
+  }
+}
+
+module.exports = { sendContactNotification, sendResetEmail, sendTestimonialNotification, sendResumeLeadNotification };

@@ -75,6 +75,18 @@ module.exports = {
   },
 
   /**
+   * Save a resume-gate lead (email + metadata) to the DB.
+   */
+  async saveResumeLead({ email, ip, ua }) {
+    const result = await sql`
+      INSERT INTO portfolio.resume_leads (email, ip_address, user_agent)
+      VALUES (${email}, ${ip || null}, ${ua || null})
+      RETURNING id, email, ip_address AS "ipAddress", user_agent AS "userAgent", downloaded_at AS "downloadedAt"
+    `;
+    return result[0];
+  },
+
+  /**
    * Generic reorder — update display_order for a batch of items in a section.
    * @param {string} section  - e.g. 'skills', 'experience', 'certifications'
    * @param {{ id: string, displayOrder: number }[]} items

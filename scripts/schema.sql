@@ -321,6 +321,23 @@ CREATE TABLE IF NOT EXISTS portfolio.resume_meta (
   CONSTRAINT resume_meta_single_row_lock_key UNIQUE (single_row_lock)
 );
 
+-- ─── resume_leads (one row per resume download) ──────────────────────────────
+CREATE TABLE IF NOT EXISTS portfolio.resume_leads (
+  id           UUID        NOT NULL DEFAULT gen_random_uuid(),
+  email        TEXT        NOT NULL,
+  ip_address   TEXT,
+  user_agent   TEXT,
+  downloaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT resume_leads_pkey PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_resume_leads_email
+  ON portfolio.resume_leads (email);
+
+CREATE INDEX IF NOT EXISTS idx_resume_leads_downloaded_at
+  ON portfolio.resume_leads (downloaded_at DESC);
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- 3. INDEXES (beyond PKs and unique constraints)
 -- ════════════════════════════════════════════════════════════════════════════

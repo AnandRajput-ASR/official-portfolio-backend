@@ -63,6 +63,21 @@ exports.trackAnalyticsEvent = asyncHandler(async (req, res) => {
   return res.json({ success: true, data: result });
 });
 
+exports.trackResumeLead = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !EMAIL_REGEX.test(email.trim())) {
+    return res.status(400).json({ success: false, message: 'A valid email address is required.' });
+  }
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || null;
+  const ua = req.headers['user-agent'] || null;
+  const lead = await contentService.saveResumeLead({ email: email.trim().toLowerCase(), ip, ua });
+  // Fire-and-forget notification email — don't block the response
+  const { sendResumeLeadNotification } = require('../services/email.service');
+  sendResumeLeadNotification(lead).catch(() => {});
+  return res.json({ success: true, message: 'Lead recorded' });
+});
+
 exports.reorderSection = asyncHandler(async (req, res) => {
   const { section } = req.params;
   const items = req.body;

@@ -28,6 +28,9 @@ router.get('/settings', contentController.getSettings);
 // ─── PUBLIC: Analytics tracking ────────────────────────────────────────────────
 router.post('/analytics/track', contentController.trackAnalyticsEvent);
 
+// ─── PUBLIC: Resume lead capture ───────────────────────────────────────────────
+router.post('/resume-lead', contentController.trackResumeLead);
+
 // ─── ADMIN: Reorder any section ────────────────────────────────────────────────
 router.put('/reorder/:section', auth, contentController.reorderSection);
 
