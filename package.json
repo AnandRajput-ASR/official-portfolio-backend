@@ -18,7 +18,7 @@
     "verify": "npm run lint && npm run test:ci",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky install"
+    "prepare": "node -e \"try{require.resolve('husky/package.json');require('child_process').execSync('husky install',{stdio:'inherit'});}catch(_){console.log('Husky skipped (production/CI).');}\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.99.2",
