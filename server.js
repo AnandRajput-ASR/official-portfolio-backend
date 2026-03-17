@@ -1,16 +1,17 @@
 const app = require('./app');
+const env = require('./configs/env.config');
 
-const PORT = process.env.PORT || 3000;
+const PORT = env.port;
 
 const server = app.listen(PORT, () => {
   console.log(`\n🚀  Portfolio API  →  http://localhost:${PORT}`);
   console.log(`    Health         →  http://localhost:${PORT}/api/health`);
-  console.log(`    Environment    →  ${process.env.NODE_ENV || 'development'}`);
+  console.log(`    Environment    →  ${env.nodeEnv}`);
   const emailOk = process.env.GMAIL_APP_PASSWORD && process.env.GMAIL_APP_PASSWORD !== 'xxxx-xxxx-xxxx-xxxx';
   console.log(
     `    Email alerts   →  ${emailOk ? '✅ Enabled (' + process.env.GMAIL_USER + ')' : '⚠️  Disabled (add GMAIL_APP_PASSWORD to .env)'}`
   );
-  console.log(`    Admin slug     →  ${process.env.ADMIN_SECRET_SLUG ? '✅ Configured' : '⚠️  Using default'}\n`);
+  console.log(`    Admin slug     →  ✅ Configured\n`);
 });
 
 // ─── Graceful shutdown ────────────────────────────────────────────────────────

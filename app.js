@@ -1,9 +1,9 @@
-require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const compression = require('compression');
+const helmet = require('helmet');
+const env = require('./configs/env.config');
 
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const healthHandler = require('./middleware/health');
@@ -20,25 +20,30 @@ const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
-// ─── CORS
-const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) : ['http://localhost:4200'];
+app.set('trust proxy', env.trustProxy);
 
 app.use(
-  cors({
-    origin: (origin, callback) => {
-      // allow requests without origin (like curl / postman)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(null, false);
-    },
-    credentials: true,
-  })
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: false,
+  }),
 );
 
-app.options('*', cors());
+// ─── CORS
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (env.allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false);
+  },
+  credentials: true,
+};
+
+app.use(
+  cors(corsOptions),
+);
+
+app.options('*', cors(corsOptions));
 
 // ─── Compression (gzip/brotli)
 app.use(compression());
@@ -55,8 +60,7 @@ app.use(requestLogger);
 // Frontend calls this to verify the secret URL before showing the login page.
 // The actual slug is stored server-side in .env — never exposed to the browser.
 app.get('/api/admin/verify-slug/:slug', (req, res) => {
-  const expected = process.env.ADMIN_SECRET_SLUG || 'secure-portal-ar2026';
-  if (req.params.slug === expected) {
+  if (req.params.slug === env.adminSecretSlug) {
     return res.json({ valid: true });
   }
   return res.status(403).json({ valid: false });
@@ -86,7 +90,7 @@ app.get('/api/health', healthHandler);
 
 app.get('/robots.txt', asyncHandler(async (req, res) => {
   const settings = await sharedRepository.getSiteSettings();
-  const siteUrl = (settings?.siteUrl || 'https://anandrajput.dev').replace(/\/$/, '');
+  const siteUrl = (settings?.siteUrl || env.siteUrl).replace(/\/$/, '');
   res.set('Content-Type', 'text/plain');
   res.set('Cache-Control', 'public, max-age=3600');
   res.send(
@@ -96,7 +100,7 @@ app.get('/robots.txt', asyncHandler(async (req, res) => {
 
 app.get('/sitemap.xml', asyncHandler(async (req, res) => {
   const settings = await sharedRepository.getSiteSettings();
-  const siteUrl = (settings?.siteUrl || 'https://anandrajput.dev').replace(/\/$/, '');
+  const siteUrl = (settings?.siteUrl || env.siteUrl).replace(/\/$/, '');
   const blogPosts = await sharedRepository.getBlogPosts();
 
   const blogEntries = (blogPosts || [])

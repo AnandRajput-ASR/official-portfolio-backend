@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const { escapeHtml } = require('../utils/sanitize');
+const env = require('../configs/env.config');
 
 // ─── Lazy-create transporter so missing config doesn't crash the server ────────
 let _transporter = null;
@@ -106,9 +107,9 @@ async function sendResetEmail(toEmail, resetToken) {
   }
 
   const resetUrl =
-    (process.env.SITE_URL || 'http://localhost:4200') +
+    env.siteUrl +
     '/' +
-    (process.env.ADMIN_SECRET_SLUG || 'secure-portal-ar2026') +
+    env.adminSecretSlug +
     '?reset=' +
     resetToken;
 

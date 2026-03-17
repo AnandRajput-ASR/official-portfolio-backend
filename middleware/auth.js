@@ -1,10 +1,5 @@
 const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'portfolio_secret_key_2026';
-
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  console.warn('[AUTH] WARNING: Using default JWT secret in production. Set JWT_SECRET in .env!');
-}
+const { jwtSecret } = require('../configs/env.config');
 
 module.exports = function authMiddleware(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -14,7 +9,7 @@ module.exports = function authMiddleware(req, res, next) {
   if (!token) return res.status(401).json({ message: 'Invalid token format' });
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, jwtSecret);
     req.user = decoded;
     return next();
   } catch (_err) {

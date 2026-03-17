@@ -21,7 +21,7 @@ A production-ready **Node.js / Express REST API** that powers the [Official Port
 
 ## Project Structure
 
-```
+```text
 official-portfolio-backend/
 ├── app.js                  # Express app setup (CORS, body parsing, routes, middleware)
 ├── server.js               # HTTP server boot + graceful shutdown
@@ -231,7 +231,7 @@ npm start
 
 You should see:
 
-```
+```text
 🚀  Portfolio API  →  http://localhost:3000
     Health         →  http://localhost:3000/api/health
     Environment    →  development

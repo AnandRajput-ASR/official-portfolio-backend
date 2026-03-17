@@ -6,13 +6,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sql = require('../configs/database.config');
+const { jwtSecret } = require('../configs/env.config');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'portfolio_secret_key_2026';
 const TOKEN_EXPIRY = '8h';
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
 function signToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+  return jwt.sign(payload, jwtSecret, { expiresIn: TOKEN_EXPIRY });
 }
 
 async function getAdmin() {

@@ -25,7 +25,7 @@ function rateLimiter(maxHits, windowMs, message = 'Too many requests. Please wai
   }
 
   return (req, res, next) => {
-    const key = req.ip || req.headers['x-forwarded-for'] || 'anon';
+    const key = req.ip || req.socket?.remoteAddress || 'anon';
     const now = Date.now();
     const entry = map.get(key) || { count: 0, start: now };
 
@@ -38,7 +38,9 @@ function rateLimiter(maxHits, windowMs, message = 'Too many requests. Please wai
     map.set(key, entry);
 
     if (entry.count > maxHits) {
-      return res.status(429).json({ message });
+      const retryAfterSeconds = Math.max(1, Math.ceil((entry.start + windowMs - now) / 1000));
+      res.set('Retry-After', String(retryAfterSeconds));
+      return res.status(429).json({ message, retryAfterSeconds });
     }
 
     return next();
