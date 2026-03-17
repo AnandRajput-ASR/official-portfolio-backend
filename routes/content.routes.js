@@ -9,7 +9,6 @@ const UPLOADS_DIR = path.join(__dirname, '../data/uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 // ─── PUBLIC: Full page content from DB ─────────────────────────────────────────
-router.get('/', contentController.getContent);
 router.get('/page-content', contentController.getContent);
 
 // ─── PUBLIC: Individual sections from DB ───────────────────────────────────────
@@ -28,9 +27,6 @@ router.get('/settings', contentController.getSettings);
 
 // ─── PUBLIC: Analytics tracking ────────────────────────────────────────────────
 router.post('/analytics/track', contentController.trackAnalyticsEvent);
-
-// ─── ADMIN: Hero update ────────────────────────────────────────────────────────
-router.put('/hero', auth, contentController.updateHero);
 
 // ─── ADMIN: Reorder any section ────────────────────────────────────────────────
 router.put('/reorder/:section', auth, contentController.reorderSection);

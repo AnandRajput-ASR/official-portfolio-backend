@@ -5,7 +5,6 @@ const adminController = require('../controllers/admin.controller');
 
 // ─── Public endpoints (no auth required) ──────────────────────────────────────
 router.post('/testimonials/submit', adminController.submitTestimonial);
-router.post('/analytics/event', adminController.trackAnalyticsEvent);
 
 // ─── Protected endpoints (auth required) ──────────────────────────────────────
 router.use(auth);

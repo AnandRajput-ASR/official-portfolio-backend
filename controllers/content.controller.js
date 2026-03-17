@@ -11,25 +11,6 @@ exports.getHero = asyncHandler(async (_, res) => {
   return res.json(hero);
 });
 
-exports.updateHero = asyncHandler(async (req, res) => {
-  const { heroId, name, title, subtitle } = req.body;
-  const updatedHero = await contentService.putHero({ id: heroId, name, title, subtitle });
-  return res.json(updatedHero);
-});
-
-exports.getContactInfo = asyncHandler(async (_, res) => {
-  const contactInfo = await contentService.getContactInfo();
-  return res.json(contactInfo);
-});
-
-exports.updateContactInfo = asyncHandler(async (req, res) => {
-  const { contactInfoId, email, linkedin, github, location } = req.body;
-  const updatedContactInfo = await contentService.putContactInfo({
-    id: contactInfoId, email, linkedin, github, location,
-  });
-  return res.json(updatedContactInfo);
-});
-
 exports.getSkills = asyncHandler(async (_, res) => {
   return res.json(await contentService.getSkills());
 });
