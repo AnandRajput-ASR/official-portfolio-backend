@@ -1,14 +1,29 @@
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function validateContact(data) {
-  if (!data.name || data.name.length < 2) {
-    return 'Name is required';
+  // Honeypot: bots fill this hidden field; silently flag them
+  if (data._hp && data._hp.trim().length > 0) {
+    return '__honeypot__';
   }
 
-  if (!data.email || !data.email.includes('@')) {
-    return 'Valid email required';
+  if (!data.name || data.name.trim().length < 2) {
+    return 'Name is required (min 2 characters).';
   }
 
-  if (!data.message || data.message.length < 5) {
-    return 'Message must be at least 5 characters';
+  if (data.name.length > 100) {
+    return 'Name too long (max 100 characters).';
+  }
+
+  if (!data.email || !EMAIL_REGEX.test(data.email)) {
+    return 'A valid email address is required.';
+  }
+
+  if (!data.message || data.message.trim().length < 5) {
+    return 'Message must be at least 5 characters.';
+  }
+
+  if (data.message.length > 2000) {
+    return 'Message too long (max 2000 characters).';
   }
 
   return null;

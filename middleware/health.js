@@ -1,7 +1,8 @@
-const healthHandler = (req, res) => {
-  res.json({
+const healthHandler = (_req, res) => {
+  return res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
+    uptime: Math.floor(process.uptime()),
     node: process.version,
   });
 };

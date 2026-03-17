@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'portfolio_secret_key_2026';
+const { jwtSecret } = require('../configs/env.config');
 
 module.exports = function authMiddleware(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -9,9 +9,9 @@ module.exports = function authMiddleware(req, res, next) {
   if (!token) return res.status(401).json({ message: 'Invalid token format' });
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, jwtSecret);
     req.user = decoded;
-    next();
+    return next();
   } catch (_err) {
     return res.status(403).json({ message: 'Token invalid or expired' });
   }

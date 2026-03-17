@@ -1,0 +1,2493 @@
+-- 1. ALL TABLES + COLUMNS + DEFAULTS + CONSTRAINTS
+[
+  {
+    "table_name": "admin_users",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "admin_users",
+    "column_name": "username",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "admin_users",
+    "column_name": "password_hash",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "admin_users",
+    "column_name": "email",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "admin_users",
+    "column_name": "reset_token",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "admin_users",
+    "column_name": "reset_token_expiry",
+    "ordinal_position": 6,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "admin_users",
+    "column_name": "last_login_at",
+    "ordinal_position": 7,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "admin_users",
+    "column_name": "created_at",
+    "ordinal_position": 8,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "page_views",
+    "ordinal_position": 2,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "resume_downloads",
+    "ordinal_position": 3,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "contact_form_submissions",
+    "ordinal_position": 4,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "contact_form_views",
+    "ordinal_position": 5,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "blog_post_views",
+    "ordinal_position": 6,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "project_link_clicks",
+    "ordinal_position": 7,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "social_link_clicks",
+    "ordinal_position": 8,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "last_reset",
+    "ordinal_position": 9,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "analytics",
+    "column_name": "single_row_lock",
+    "ordinal_position": 10,
+    "data_type": "BOOLEAN",
+    "is_nullable": "YES",
+    "column_default": "true"
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "title",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "slug",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "excerpt",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "content",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": "''::text"
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "tags",
+    "ordinal_position": 6,
+    "data_type": "_text[]",
+    "is_nullable": "NO",
+    "column_default": "'{}'::text[]"
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "cover_image",
+    "ordinal_position": 7,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "published",
+    "ordinal_position": 8,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "false"
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "published_at",
+    "ordinal_position": 9,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "reading_time",
+    "ordinal_position": 10,
+    "data_type": "INTEGER",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "author",
+    "ordinal_position": 11,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": "'Anand Rajput'::text"
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "is_active",
+    "ordinal_position": 12,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "created_at",
+    "ordinal_position": 13,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "blog_posts",
+    "column_name": "updated_at",
+    "ordinal_position": 14,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "name",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "code",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "issuer",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "level",
+    "ordinal_position": 5,
+    "data_type": "VARCHAR(20)",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "issue_year",
+    "ordinal_position": 6,
+    "data_type": "INTEGER",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "expiration_year",
+    "ordinal_position": 7,
+    "data_type": "INTEGER",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "credly_link",
+    "ordinal_position": 8,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "accent_color",
+    "ordinal_position": 9,
+    "data_type": "VARCHAR(20)",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "badge_link",
+    "ordinal_position": 10,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "badge_type",
+    "ordinal_position": 11,
+    "data_type": "VARCHAR(20)",
+    "is_nullable": "YES",
+    "column_default": "'auto'::character varying"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "display_order",
+    "ordinal_position": 12,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "is_active",
+    "ordinal_position": 13,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "created_at",
+    "ordinal_position": 14,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "certifications",
+    "column_name": "updated_at",
+    "ordinal_position": 15,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "companies",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "companies",
+    "column_name": "name",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "companies",
+    "column_name": "role",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "companies",
+    "column_name": "period",
+    "ordinal_position": 4,
+    "data_type": "VARCHAR(40)",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "companies",
+    "column_name": "location",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "companies",
+    "column_name": "logo",
+    "ordinal_position": 6,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "companies",
+    "column_name": "brand_color",
+    "ordinal_position": 7,
+    "data_type": "VARCHAR(20)",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "companies",
+    "column_name": "currently_working",
+    "ordinal_position": 8,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "false"
+  },
+  {
+    "table_name": "companies",
+    "column_name": "description",
+    "ordinal_position": 9,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "companies",
+    "column_name": "display_order",
+    "ordinal_position": 10,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "companies",
+    "column_name": "is_active",
+    "ordinal_position": 11,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "companies",
+    "column_name": "created_at",
+    "ordinal_position": 12,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "companies",
+    "column_name": "updated_at",
+    "ordinal_position": 13,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "company_id",
+    "ordinal_position": 2,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "number",
+    "ordinal_position": 3,
+    "data_type": "VARCHAR(10)",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "title",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "description",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "technologies",
+    "ordinal_position": 6,
+    "data_type": "_text[]",
+    "is_nullable": "NO",
+    "column_default": "'{}'::text[]"
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "link",
+    "ordinal_position": 7,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": "'#'::text"
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "display_order",
+    "ordinal_position": 8,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "is_active",
+    "ordinal_position": 9,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "created_at",
+    "ordinal_position": 10,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "company_projects",
+    "column_name": "updated_at",
+    "ordinal_position": 11,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "contact_information",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "contact_information",
+    "column_name": "email",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "contact_information",
+    "column_name": "linkedin_url",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "contact_information",
+    "column_name": "github_url",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "contact_information",
+    "column_name": "location",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "contact_information",
+    "column_name": "single_row_lock",
+    "ordinal_position": 6,
+    "data_type": "BOOLEAN",
+    "is_nullable": "YES",
+    "column_default": "true"
+  },
+  {
+    "table_name": "contact_information",
+    "column_name": "created_at",
+    "ordinal_position": 7,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "contact_information",
+    "column_name": "updated_at",
+    "ordinal_position": 8,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "experience",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "experience",
+    "column_name": "period",
+    "ordinal_position": 2,
+    "data_type": "VARCHAR(40)",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "experience",
+    "column_name": "location",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "experience",
+    "column_name": "role",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "experience",
+    "column_name": "organisation",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "experience",
+    "column_name": "description",
+    "ordinal_position": 6,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "experience",
+    "column_name": "display_order",
+    "ordinal_position": 7,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "experience",
+    "column_name": "is_active",
+    "ordinal_position": 8,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "experience",
+    "column_name": "created_at",
+    "ordinal_position": 9,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "experience",
+    "column_name": "updated_at",
+    "ordinal_position": 10,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "hero",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "hero",
+    "column_name": "name",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "hero",
+    "column_name": "title",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "hero",
+    "column_name": "subtitle",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "hero",
+    "column_name": "bio",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "hero",
+    "column_name": "single_row_lock",
+    "ordinal_position": 6,
+    "data_type": "BOOLEAN",
+    "is_nullable": "YES",
+    "column_default": "true"
+  },
+  {
+    "table_name": "hero",
+    "column_name": "created_at",
+    "ordinal_position": 7,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "hero",
+    "column_name": "updated_at",
+    "ordinal_position": 8,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "messages",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "messages",
+    "column_name": "name",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "messages",
+    "column_name": "email",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "messages",
+    "column_name": "message",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "messages",
+    "column_name": "read",
+    "ordinal_position": 5,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "false"
+  },
+  {
+    "table_name": "messages",
+    "column_name": "starred",
+    "ordinal_position": 6,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "false"
+  },
+  {
+    "table_name": "messages",
+    "column_name": "replied_at",
+    "ordinal_position": 7,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "messages",
+    "column_name": "received_at",
+    "ordinal_position": 8,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "messages",
+    "column_name": "is_deleted",
+    "ordinal_position": 9,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "false"
+  },
+  {
+    "table_name": "messages",
+    "column_name": "deleted_at",
+    "ordinal_position": 10,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "title",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "description",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "technologies",
+    "ordinal_position": 4,
+    "data_type": "_text[]",
+    "is_nullable": "NO",
+    "column_default": "'{}'::text[]"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "github_link",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": "'#'::text"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "live_link",
+    "ordinal_position": 6,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": "'#'::text"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "status",
+    "ordinal_position": 7,
+    "data_type": "VARCHAR(20)",
+    "is_nullable": "YES",
+    "column_default": "'Completed'::character varying"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "type",
+    "ordinal_position": 8,
+    "data_type": "VARCHAR(30)",
+    "is_nullable": "YES",
+    "column_default": "'Personal'::character varying"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "featured",
+    "ordinal_position": 9,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "false"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "year",
+    "ordinal_position": 10,
+    "data_type": "INTEGER",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "display_order",
+    "ordinal_position": 11,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "is_active",
+    "ordinal_position": 12,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "created_at",
+    "ordinal_position": 13,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "personal_projects",
+    "column_name": "updated_at",
+    "ordinal_position": 14,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "project_clicks",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "project_clicks",
+    "column_name": "project_name",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "project_clicks",
+    "column_name": "clicks",
+    "ordinal_position": 3,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "project_clicks",
+    "column_name": "last_clicked_at",
+    "ordinal_position": 4,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "site_config",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "site_config",
+    "column_name": "key",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "site_config",
+    "column_name": "config",
+    "ordinal_position": 3,
+    "data_type": "JSONB",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "site_config",
+    "column_name": "updated_at",
+    "ordinal_position": 4,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "YES",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "skills",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "skills",
+    "column_name": "name",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "skills",
+    "column_name": "icon",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "skills",
+    "column_name": "accent_color",
+    "ordinal_position": 4,
+    "data_type": "VARCHAR(20)",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "skills",
+    "column_name": "description",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "skills",
+    "column_name": "proficiency",
+    "ordinal_position": 6,
+    "data_type": "SMALLINT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "skills",
+    "column_name": "years_experience",
+    "ordinal_position": 7,
+    "data_type": "VARCHAR(10)",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "skills",
+    "column_name": "tags",
+    "ordinal_position": 8,
+    "data_type": "_text[]",
+    "is_nullable": "NO",
+    "column_default": "'{}'::text[]"
+  },
+  {
+    "table_name": "skills",
+    "column_name": "display_order",
+    "ordinal_position": 9,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "skills",
+    "column_name": "is_active",
+    "ordinal_position": 10,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "skills",
+    "column_name": "created_at",
+    "ordinal_position": 11,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "skills",
+    "column_name": "updated_at",
+    "ordinal_position": 12,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "stats",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "stats",
+    "column_name": "value",
+    "ordinal_position": 2,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "stats",
+    "column_name": "suffix",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "stats",
+    "column_name": "label",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "stats",
+    "column_name": "is_active",
+    "ordinal_position": 5,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "stats",
+    "column_name": "created_at",
+    "ordinal_position": 6,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "stats",
+    "column_name": "updated_at",
+    "ordinal_position": 7,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "id",
+    "ordinal_position": 1,
+    "data_type": "UUID",
+    "is_nullable": "NO",
+    "column_default": "gen_random_uuid()"
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "name",
+    "ordinal_position": 2,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "role",
+    "ordinal_position": 3,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "company",
+    "ordinal_position": 4,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "avatar",
+    "ordinal_position": 5,
+    "data_type": "TEXT",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "quote",
+    "ordinal_position": 6,
+    "data_type": "TEXT",
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "rating",
+    "ordinal_position": 7,
+    "data_type": "SMALLINT",
+    "is_nullable": "YES",
+    "column_default": "5"
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "status",
+    "ordinal_position": 8,
+    "data_type": "VARCHAR(20)",
+    "is_nullable": "NO",
+    "column_default": "'Pending'::character varying"
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "display_order",
+    "ordinal_position": 9,
+    "data_type": "INTEGER",
+    "is_nullable": "NO",
+    "column_default": "0"
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "is_active",
+    "ordinal_position": 10,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "true"
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "created_at",
+    "ordinal_position": 11,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "updated_at",
+    "ordinal_position": 12,
+    "data_type": "TIMESTAMP WITH TIME ZONE",
+    "is_nullable": "NO",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "testimonials",
+    "column_name": "visible",
+    "ordinal_position": 13,
+    "data_type": "BOOLEAN",
+    "is_nullable": "NO",
+    "column_default": "false"
+  }
+]
+
+-- 2. PRIMARY KEYS
+[
+  {
+    "table_name": "admin_users",
+    "constraint_name": "admin_users_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "analytics_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "blog_posts_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "certifications_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "companies_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "company_projects_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "contact_information",
+    "constraint_name": "contact_information_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "experience",
+    "constraint_name": "experience_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "hero",
+    "constraint_name": "hero_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "messages_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "personal_projects_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "project_clicks",
+    "constraint_name": "project_clicks_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "site_config",
+    "constraint_name": "site_config_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "skills_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "stats",
+    "constraint_name": "stats_pkey",
+    "pk_columns": "id"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "testimonials_pkey",
+    "pk_columns": "id"
+  }
+]
+
+-- 3. FOREIGN KEYS
+[
+  {
+    "from_table": "company_projects",
+    "from_column": "company_id",
+    "to_table": "companies",
+    "to_column": "id",
+    "constraint_name": "company_projects_company_id_fkey",
+    "update_rule": "NO ACTION",
+    "delete_rule": "CASCADE"
+  }
+]
+
+-- 4. UNIQUE CONSTRAINTS
+[
+  {
+    "table_name": "admin_users",
+    "constraint_name": "admin_users_username_key",
+    "unique_columns": "username"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "analytics_single_row_lock_key",
+    "unique_columns": "single_row_lock"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "blog_posts_slug_key",
+    "unique_columns": "slug"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "companies_display_order_unique",
+    "unique_columns": "display_order"
+  },
+  {
+    "table_name": "contact_information",
+    "constraint_name": "contact_information_single_row_lock_key",
+    "unique_columns": "single_row_lock"
+  },
+  {
+    "table_name": "hero",
+    "constraint_name": "hero_single_row_lock_key",
+    "unique_columns": "single_row_lock"
+  },
+  {
+    "table_name": "project_clicks",
+    "constraint_name": "project_clicks_project_name_key",
+    "unique_columns": "project_name"
+  },
+  {
+    "table_name": "site_config",
+    "constraint_name": "site_config_key_key",
+    "unique_columns": "key"
+  }
+]
+
+-- 5. CHECK CONSTRAINTS
+[
+  {
+    "table_name": "admin_users",
+    "constraint_name": "18815_19034_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "admin_users",
+    "constraint_name": "18815_19034_8_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "admin_users",
+    "constraint_name": "18815_19034_3_not_null",
+    "check_clause": "password_hash IS NOT NULL"
+  },
+  {
+    "table_name": "admin_users",
+    "constraint_name": "18815_19034_2_not_null",
+    "check_clause": "username IS NOT NULL"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "18815_18993_3_not_null",
+    "check_clause": "resume_downloads IS NOT NULL"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "18815_18993_4_not_null",
+    "check_clause": "contact_form_submissions IS NOT NULL"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "18815_18993_5_not_null",
+    "check_clause": "contact_form_views IS NOT NULL"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "18815_18993_6_not_null",
+    "check_clause": "blog_post_views IS NOT NULL"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "18815_18993_7_not_null",
+    "check_clause": "project_link_clicks IS NOT NULL"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "18815_18993_8_not_null",
+    "check_clause": "social_link_clicks IS NOT NULL"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "18815_18993_2_not_null",
+    "check_clause": "page_views IS NOT NULL"
+  },
+  {
+    "table_name": "analytics",
+    "constraint_name": "18815_18993_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_14_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_12_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_11_not_null",
+    "check_clause": "author IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_8_not_null",
+    "check_clause": "published IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_6_not_null",
+    "check_clause": "tags IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_5_not_null",
+    "check_clause": "content IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_3_not_null",
+    "check_clause": "slug IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_2_not_null",
+    "check_clause": "title IS NOT NULL"
+  },
+  {
+    "table_name": "blog_posts",
+    "constraint_name": "18815_18973_13_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "18815_18941_13_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "18815_18941_12_not_null",
+    "check_clause": "display_order IS NOT NULL"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "18815_18941_4_not_null",
+    "check_clause": "issuer IS NOT NULL"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "18815_18941_2_not_null",
+    "check_clause": "name IS NOT NULL"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "18815_18941_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "18815_18941_15_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "chk_expiration_year",
+    "check_clause": "((expiration_year IS NULL) OR (expiration_year >= issue_year))"
+  },
+  {
+    "table_name": "certifications",
+    "constraint_name": "18815_18941_14_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "18815_18860_11_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "18815_18860_8_not_null",
+    "check_clause": "currently_working IS NOT NULL"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "18815_18860_3_not_null",
+    "check_clause": "role IS NOT NULL"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "18815_18860_2_not_null",
+    "check_clause": "name IS NOT NULL"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "18815_18860_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "18815_18860_13_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "18815_18860_12_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "companies",
+    "constraint_name": "18815_18860_10_not_null",
+    "check_clause": "display_order IS NOT NULL"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "18815_18875_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "18815_18875_8_not_null",
+    "check_clause": "display_order IS NOT NULL"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "18815_18875_9_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "18815_18875_10_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "18815_18875_11_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "18815_18875_6_not_null",
+    "check_clause": "technologies IS NOT NULL"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "18815_18875_4_not_null",
+    "check_clause": "title IS NOT NULL"
+  },
+  {
+    "table_name": "company_projects",
+    "constraint_name": "18815_18875_2_not_null",
+    "check_clause": "company_id IS NOT NULL"
+  },
+  {
+    "table_name": "contact_information",
+    "constraint_name": "18815_18831_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "contact_information",
+    "constraint_name": "18815_18831_2_not_null",
+    "check_clause": "email IS NOT NULL"
+  },
+  {
+    "table_name": "contact_information",
+    "constraint_name": "18815_18831_7_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "contact_information",
+    "constraint_name": "18815_18831_8_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "experience",
+    "constraint_name": "18815_18916_4_not_null",
+    "check_clause": "role IS NOT NULL"
+  },
+  {
+    "table_name": "experience",
+    "constraint_name": "18815_18916_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "experience",
+    "constraint_name": "18815_18916_5_not_null",
+    "check_clause": "organisation IS NOT NULL"
+  },
+  {
+    "table_name": "experience",
+    "constraint_name": "18815_18916_10_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "experience",
+    "constraint_name": "18815_18916_9_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "experience",
+    "constraint_name": "18815_18916_8_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "experience",
+    "constraint_name": "18815_18916_7_not_null",
+    "check_clause": "display_order IS NOT NULL"
+  },
+  {
+    "table_name": "hero",
+    "constraint_name": "18815_18817_2_not_null",
+    "check_clause": "name IS NOT NULL"
+  },
+  {
+    "table_name": "hero",
+    "constraint_name": "18815_18817_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "hero",
+    "constraint_name": "18815_18817_3_not_null",
+    "check_clause": "title IS NOT NULL"
+  },
+  {
+    "table_name": "hero",
+    "constraint_name": "18815_18817_7_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "hero",
+    "constraint_name": "18815_18817_8_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "18815_19020_9_not_null",
+    "check_clause": "is_deleted IS NOT NULL"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "18815_19020_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "18815_19020_2_not_null",
+    "check_clause": "name IS NOT NULL"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "18815_19020_3_not_null",
+    "check_clause": "email IS NOT NULL"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "18815_19020_4_not_null",
+    "check_clause": "message IS NOT NULL"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "18815_19020_5_not_null",
+    "check_clause": "read IS NOT NULL"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "18815_19020_6_not_null",
+    "check_clause": "starred IS NOT NULL"
+  },
+  {
+    "table_name": "messages",
+    "constraint_name": "18815_19020_8_not_null",
+    "check_clause": "received_at IS NOT NULL"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "18815_18896_14_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "18815_18896_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "18815_18896_2_not_null",
+    "check_clause": "title IS NOT NULL"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "18815_18896_4_not_null",
+    "check_clause": "technologies IS NOT NULL"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "18815_18896_9_not_null",
+    "check_clause": "featured IS NOT NULL"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "18815_18896_11_not_null",
+    "check_clause": "display_order IS NOT NULL"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "18815_18896_12_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "personal_projects",
+    "constraint_name": "18815_18896_13_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "project_clicks",
+    "constraint_name": "18815_19009_2_not_null",
+    "check_clause": "project_name IS NOT NULL"
+  },
+  {
+    "table_name": "project_clicks",
+    "constraint_name": "18815_19009_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "project_clicks",
+    "constraint_name": "18815_19009_3_not_null",
+    "check_clause": "clicks IS NOT NULL"
+  },
+  {
+    "table_name": "site_config",
+    "constraint_name": "18815_22723_3_not_null",
+    "check_clause": "config IS NOT NULL"
+  },
+  {
+    "table_name": "site_config",
+    "constraint_name": "18815_22723_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "site_config",
+    "constraint_name": "18815_22723_2_not_null",
+    "check_clause": "key IS NOT NULL"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "18815_18845_8_not_null",
+    "check_clause": "tags IS NOT NULL"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "18815_18845_2_not_null",
+    "check_clause": "name IS NOT NULL"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "18815_18845_10_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "18815_18845_9_not_null",
+    "check_clause": "display_order IS NOT NULL"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "skills_proficiency_check",
+    "check_clause": "((proficiency >= 1) AND (proficiency <= 100))"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "18815_18845_11_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "18815_18845_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "skills",
+    "constraint_name": "18815_18845_12_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "stats",
+    "constraint_name": "18815_18929_2_not_null",
+    "check_clause": "value IS NOT NULL"
+  },
+  {
+    "table_name": "stats",
+    "constraint_name": "18815_18929_7_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "stats",
+    "constraint_name": "18815_18929_6_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "stats",
+    "constraint_name": "18815_18929_5_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "stats",
+    "constraint_name": "18815_18929_4_not_null",
+    "check_clause": "label IS NOT NULL"
+  },
+  {
+    "table_name": "stats",
+    "constraint_name": "18815_18929_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_2_not_null",
+    "check_clause": "name IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_8_not_null",
+    "check_clause": "status IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_6_not_null",
+    "check_clause": "quote IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_13_not_null",
+    "check_clause": "visible IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_12_not_null",
+    "check_clause": "updated_at IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_11_not_null",
+    "check_clause": "created_at IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_10_not_null",
+    "check_clause": "is_active IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_9_not_null",
+    "check_clause": "display_order IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "chk_testimonial_status",
+    "check_clause": "((status)::text = ANY ((ARRAY['Pending'::character varying, 'Approved'::character varying, 'Rejected'::character varying])::text[]))"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "testimonials_rating_check",
+    "check_clause": "((rating >= 1) AND (rating <= 5))"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_4_not_null",
+    "check_clause": "company IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_1_not_null",
+    "check_clause": "id IS NOT NULL"
+  },
+  {
+    "table_name": "testimonials",
+    "constraint_name": "18815_18956_3_not_null",
+    "check_clause": "role IS NOT NULL"
+  }
+]
+
+-- 6. INDEXES (including partial indexes and expressions)
+[
+  {
+    "schemaname": "portfolio",
+    "tablename": "admin_users",
+    "indexname": "admin_users_pkey",
+    "indexdef": "CREATE UNIQUE INDEX admin_users_pkey ON portfolio.admin_users USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "admin_users",
+    "indexname": "admin_users_username_key",
+    "indexdef": "CREATE UNIQUE INDEX admin_users_username_key ON portfolio.admin_users USING btree (username)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "analytics",
+    "indexname": "analytics_pkey",
+    "indexdef": "CREATE UNIQUE INDEX analytics_pkey ON portfolio.analytics USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "analytics",
+    "indexname": "analytics_single_row_lock_key",
+    "indexdef": "CREATE UNIQUE INDEX analytics_single_row_lock_key ON portfolio.analytics USING btree (single_row_lock)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "blog_posts",
+    "indexname": "blog_posts_pkey",
+    "indexdef": "CREATE UNIQUE INDEX blog_posts_pkey ON portfolio.blog_posts USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "blog_posts",
+    "indexname": "blog_posts_slug_key",
+    "indexdef": "CREATE UNIQUE INDEX blog_posts_slug_key ON portfolio.blog_posts USING btree (slug)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "blog_posts",
+    "indexname": "idx_blog_posts_published",
+    "indexdef": "CREATE INDEX idx_blog_posts_published ON portfolio.blog_posts USING btree (published, published_at DESC)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "blog_posts",
+    "indexname": "idx_blog_posts_slug",
+    "indexdef": "CREATE INDEX idx_blog_posts_slug ON portfolio.blog_posts USING btree (slug)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "certifications",
+    "indexname": "certifications_pkey",
+    "indexdef": "CREATE UNIQUE INDEX certifications_pkey ON portfolio.certifications USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "companies",
+    "indexname": "companies_display_order_unique",
+    "indexdef": "CREATE UNIQUE INDEX companies_display_order_unique ON portfolio.companies USING btree (display_order)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "companies",
+    "indexname": "companies_pkey",
+    "indexdef": "CREATE UNIQUE INDEX companies_pkey ON portfolio.companies USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "company_projects",
+    "indexname": "company_projects_pkey",
+    "indexdef": "CREATE UNIQUE INDEX company_projects_pkey ON portfolio.company_projects USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "company_projects",
+    "indexname": "idx_company_projects_company_id",
+    "indexdef": "CREATE INDEX idx_company_projects_company_id ON portfolio.company_projects USING btree (company_id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "contact_information",
+    "indexname": "contact_information_pkey",
+    "indexdef": "CREATE UNIQUE INDEX contact_information_pkey ON portfolio.contact_information USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "contact_information",
+    "indexname": "contact_information_single_row_lock_key",
+    "indexdef": "CREATE UNIQUE INDEX contact_information_single_row_lock_key ON portfolio.contact_information USING btree (single_row_lock)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "experience",
+    "indexname": "experience_pkey",
+    "indexdef": "CREATE UNIQUE INDEX experience_pkey ON portfolio.experience USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "hero",
+    "indexname": "hero_pkey",
+    "indexdef": "CREATE UNIQUE INDEX hero_pkey ON portfolio.hero USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "hero",
+    "indexname": "hero_single_row_lock_key",
+    "indexdef": "CREATE UNIQUE INDEX hero_single_row_lock_key ON portfolio.hero USING btree (single_row_lock)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "messages",
+    "indexname": "idx_messages_is_deleted",
+    "indexdef": "CREATE INDEX idx_messages_is_deleted ON portfolio.messages USING btree (is_deleted)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "messages",
+    "indexname": "idx_messages_received_at",
+    "indexdef": "CREATE INDEX idx_messages_received_at ON portfolio.messages USING btree (received_at DESC)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "messages",
+    "indexname": "messages_pkey",
+    "indexdef": "CREATE UNIQUE INDEX messages_pkey ON portfolio.messages USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "personal_projects",
+    "indexname": "personal_projects_pkey",
+    "indexdef": "CREATE UNIQUE INDEX personal_projects_pkey ON portfolio.personal_projects USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "project_clicks",
+    "indexname": "project_clicks_pkey",
+    "indexdef": "CREATE UNIQUE INDEX project_clicks_pkey ON portfolio.project_clicks USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "project_clicks",
+    "indexname": "project_clicks_project_name_key",
+    "indexdef": "CREATE UNIQUE INDEX project_clicks_project_name_key ON portfolio.project_clicks USING btree (project_name)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "site_config",
+    "indexname": "site_config_key_key",
+    "indexdef": "CREATE UNIQUE INDEX site_config_key_key ON portfolio.site_config USING btree (key)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "site_config",
+    "indexname": "site_config_pkey",
+    "indexdef": "CREATE UNIQUE INDEX site_config_pkey ON portfolio.site_config USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "skills",
+    "indexname": "skills_pkey",
+    "indexdef": "CREATE UNIQUE INDEX skills_pkey ON portfolio.skills USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "stats",
+    "indexname": "stats_pkey",
+    "indexdef": "CREATE UNIQUE INDEX stats_pkey ON portfolio.stats USING btree (id)"
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "testimonials",
+    "indexname": "testimonials_pkey",
+    "indexdef": "CREATE UNIQUE INDEX testimonials_pkey ON portfolio.testimonials USING btree (id)"
+  }
+]
+
+-- 7. TRIGGERS
+[
+  {
+    "trigger_name": "blog_posts_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "blog_posts",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "certifications_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "certifications",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "companies_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "companies",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "company_projects_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "company_projects",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "contact_information_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "contact_information",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "experience_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "experience",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "hero_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "hero",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "personal_projects_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "personal_projects",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "skills_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "skills",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "stats_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "stats",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  },
+  {
+    "trigger_name": "testimonials_updated_at",
+    "event_manipulation": "UPDATE",
+    "event_object_table": "testimonials",
+    "action_timing": "BEFORE",
+    "action_statement": "EXECUTE FUNCTION portfolio.set_updated_at()",
+    "action_orientation": "ROW"
+  }
+]
+
+-- 8. FUNCTIONS used by triggers (in portfolio schema)
+[
+  {
+    "function_name": "set_updated_at",
+    "function_definition": "CREATE OR REPLACE FUNCTION portfolio.set_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\r\nBEGIN\r\n  NEW.updated_at = now();\r\n  RETURN NEW;\r\nEND;\r\n$function$\n"
+  }
+]
+
+-- 9. SEQUENCES
+Success. No rows returned
+
+-- 10. ENUM TYPES (if any custom types)
+Success. No rows returned
+
+-- 11. RLS POLICIES (Supabase Row Level Security)
+[
+  {
+    "schemaname": "portfolio",
+    "tablename": "admin_users",
+    "policyname": "Allow backend to read admins",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "analytics",
+    "policyname": "public_read_analytics",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "blog_posts",
+    "policyname": "public_read_blog_posts",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "((published = true) AND (is_active = true))",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "certifications",
+    "policyname": "public_read_certifications",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "companies",
+    "policyname": "public_read_companies",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "company_projects",
+    "policyname": "public_read_company_projects",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "contact_information",
+    "policyname": "public_read_contact",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "experience",
+    "policyname": "public_read_experience",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "hero",
+    "policyname": "public_read_hero",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "personal_projects",
+    "policyname": "public_read_personal_projects",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "skills",
+    "policyname": "public_read_skills",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "stats",
+    "policyname": "public_read_stats",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "portfolio",
+    "tablename": "testimonials",
+    "policyname": "public_read_testimonials",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(((status)::text = 'Approved'::text) AND (is_active = true))",
+    "with_check": null
+  }
+]
+
+-- 12. TABLE RLS STATUS
+[
+  {
+    "table_name": "admin_users",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "analytics",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "blog_posts",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "certifications",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "companies",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "company_projects",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "contact_information",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "experience",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "hero",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "messages",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "personal_projects",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "project_clicks",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "site_config",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "skills",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "stats",
+    "rls_enabled": true,
+    "rls_forced": false
+  },
+  {
+    "table_name": "testimonials",
+    "rls_enabled": true,
+    "rls_forced": false
+  }
+]

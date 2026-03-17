@@ -8,19 +8,29 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "db:test": "node scripts/db-runner.js",
+    "db:setup": "node scripts/db-setup.js",
     "dev:watch": "nodemon --watch . --ext js,json server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test": "node --test",
+    "test:ci": "node --test",
+    "verify": "npm run lint && npm run test:ci",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "husky install"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.99.2",
     "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^8.0.1"
+    "nodemailer": "^8.0.1",
+    "postgres": "^3.4.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -28,7 +38,10 @@
     "@eslint/markdown": "^7.5.1",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.24.0",
     "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-promise": "^7.2.1",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.2",
@@ -44,8 +57,15 @@
   "nodemonConfig": {
     "watch": [
       "server.js",
+      "app.js",
+      "configs/",
+      "controllers/",
+      "middleware/",
+      "repositories/",
       "routes/",
-      "controllers/"
+      "services/",
+      "utils/",
+      "validators/"
     ],
     "ext": "js,json",
     "ignore": [
