@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const compression = require('compression');
 
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const healthHandler = require('./middleware/health');
@@ -37,6 +38,9 @@ app.use(
 
 app.options('*', cors());
 
+// ─── Compression (gzip/brotli)
+app.use(compression());
+
 // ─── Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -57,6 +61,14 @@ app.get('/api/admin/verify-slug/:slug', (req, res) => {
 });
 
 app.use('/api/auth', rateLimiter(15, 15 * 60 * 1000), authRoutes);
+
+// ─── Cache-Control for public content (5 min, serve stale while revalidating)
+app.use('/api/content', (req, res, next) => {
+  if (req.method === 'GET') {
+    res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+  }
+  next();
+});
 app.use('/api/content', contentRoutes);
 app.use('/api/messages', messagesRoutes); // rate-limit applied per-method inside route
 app.use('/api/resume', resumeRoutes);
