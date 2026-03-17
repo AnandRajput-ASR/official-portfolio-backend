@@ -58,9 +58,13 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     }
   }
 
-  // Dev fallback: return token directly
+  // Dev fallback: NEVER expose token in production
+  if (process.env.NODE_ENV === 'production') {
+    return res.json({ message: 'Email is not configured on this server. Contact the administrator.', emailSent: false });
+  }
+
   return res.json({
-    message: 'Reset token generated (email not configured — use token directly)',
+    message: 'Reset token generated (email not configured — use token directly in dev only)',
     resetToken: token,
     expiresAt: expiry,
     emailSent: false,
