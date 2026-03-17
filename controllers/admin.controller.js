@@ -11,7 +11,14 @@ exports.getContent = asyncHandler(async (_, res) => {
 exports.updateHeroSection = asyncHandler(async (req, res) => {
   const { name, title, subtitle, bio, email, linkedin, github, location } = req.body;
   const updatedHero = await adminService.updateHeroSection({
-    name, title, subtitle, bio, email, linkedin, github, location,
+    name,
+    title,
+    subtitle,
+    bio,
+    email,
+    linkedin,
+    github,
+    location,
   });
   return ok(res, updatedHero, 'Hero section updated successfully');
 });
@@ -24,7 +31,14 @@ exports.updateSkills = asyncHandler(async (req, res) => {
 exports.createSkill = asyncHandler(async (req, res) => {
   const { name, icon, accentColor, description, tags, proficiency, yearsExp, displayOrder } = req.body;
   const skill = await adminService.createSkill({
-    name, icon, accentColor, description, tags, proficiency, yearsExp, displayOrder,
+    name,
+    icon,
+    accentColor,
+    description,
+    tags,
+    proficiency,
+    yearsExp,
+    displayOrder,
   });
   return ok(res, skill, 'Skill created successfully');
 });
@@ -43,7 +57,15 @@ exports.updateCompanies = asyncHandler(async (req, res) => {
 exports.createCompany = asyncHandler(async (req, res) => {
   const { name, role, period, location, logo, accentColor, current, description, projects } = req.body;
   const company = await adminService.createCompany({
-    name, role, period, location, logo, accentColor, current, description, projects,
+    name,
+    role,
+    period,
+    location,
+    logo,
+    accentColor,
+    current,
+    description,
+    projects,
   });
   return ok(res, company, 'Company created successfully');
 });
@@ -58,7 +80,11 @@ exports.createCompanyProject = asyncHandler(async (req, res) => {
   const { companyId } = req.params;
   const { title, description, tech, link } = req.body;
   const project = await adminService.createCompanyProject({
-    companyId, title, description, tech, link,
+    companyId,
+    title,
+    description,
+    tech,
+    link,
   });
   return ok(res, project, 'Project created successfully');
 });
@@ -157,7 +183,23 @@ exports.deleteTestimonial = asyncHandler(async (req, res) => {
 });
 
 exports.submitTestimonial = asyncHandler(async (req, res) => {
-  const testimonial = await adminService.submitTestimonial(req.body);
+  const { name, role, company, quote, rating, avatar } = req.body;
+
+  // Avatar is stored as base64 directly in the DB (no filesystem writes —
+  // ephemeral disks on most hosting platforms would lose files on restart).
+  // Validate size: reject payloads where the base64 string exceeds ~2 MB.
+  if (avatar && avatar.length > 2.8 * 1024 * 1024) {
+    return res.status(400).json({ success: false, message: 'Avatar image must be under 2 MB.' });
+  }
+
+  const testimonial = await adminService.submitTestimonial({
+    name,
+    role,
+    company,
+    quote,
+    rating: rating ?? 5,
+    avatar: avatar || null,
+  });
   return ok(res, testimonial, 'Testimonial submitted for approval');
 });
 
@@ -204,9 +246,4 @@ exports.getAnalytics = asyncHandler(async (_, res) => {
 exports.resetAnalytics = asyncHandler(async (_, res) => {
   const result = await adminService.resetAnalytics();
   return ok(res, result, 'Analytics reset successfully');
-});
-
-exports.trackAnalyticsEvent = asyncHandler(async (req, res) => {
-  const result = await adminService.trackAnalyticsEvent(req.body.type);
-  return ok(res, result);
 });

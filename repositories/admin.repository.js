@@ -686,7 +686,14 @@ async function getAllTestimonials() {
 async function updateTestimonials(testimonials) {
   return await sql.begin(async tx => {
     for (const t of testimonials) {
-      const { id, name, role, company, avatar, quote, rating, displayOrder } = t;
+      const id = t.id;
+      const name = t.name ?? null;
+      const role = t.role ?? null;
+      const company = t.company ?? null;
+      const avatar = t.avatar ?? null;
+      const quote = t.quote ?? null;
+      const rating = t.rating ?? 5;
+      const displayOrder = t.displayOrder ?? 0;
 
       await tx`
                 UPDATE portfolio.testimonials
@@ -782,12 +789,13 @@ async function deleteTestimonial(id) {
   return result[0];
 }
 
-async function submitTestimonial({ name, role, company, quote, rating }) {
+async function submitTestimonial({ name, role, company, quote, rating, avatar }) {
   const result = await sql`
         INSERT INTO portfolio.testimonials (
             name,
             role,
             company,
+            avatar,
             quote,
             rating,
             status,
@@ -797,6 +805,7 @@ async function submitTestimonial({ name, role, company, quote, rating }) {
             ${name},
             ${role},
             ${company},
+            ${avatar || null},
             ${quote},
             ${rating},
             'Pending',
@@ -807,6 +816,7 @@ async function submitTestimonial({ name, role, company, quote, rating }) {
             name,
             role,
             company,
+            avatar,
             quote,
             rating,
             status,
@@ -832,6 +842,11 @@ async function approveTestimonial(id) {
         RETURNING
             id,
             name,
+            role,
+            company,
+            avatar,
+            quote,
+            rating,
             status,
             visible,
             display_order AS "displayOrder"
@@ -909,7 +924,10 @@ async function createBlogPost({ title, slug, excerpt, content, tags, coverImage,
   return result[0];
 }
 
-async function updateBlogPostById(id, { title, slug, excerpt, content, tags, coverImage, published, publishedAt, readingTime, author, displayOrder }) {
+async function updateBlogPostById(
+  id,
+  { title, slug, excerpt, content, tags, coverImage, published, publishedAt, readingTime, author, displayOrder }
+) {
   const result = await sql`
         UPDATE portfolio.blog_posts
         SET
