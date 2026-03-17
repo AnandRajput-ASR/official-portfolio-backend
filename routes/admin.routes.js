@@ -1,10 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const rateLimiter = require('../middleware/rateLimiter');
 const adminController = require('../controllers/admin.controller');
 
 // ─── Public endpoints (no auth required) ──────────────────────────────────────
-router.post('/testimonials/submit', adminController.submitTestimonial);
+// 5 testimonial submissions per IP per hour
+router.post(
+  '/testimonials/submit',
+  rateLimiter(5, 3600000, 'Too many submissions. Please try again later.'),
+  adminController.submitTestimonial,
+);
 
 // ─── Protected endpoints (auth required) ──────────────────────────────────────
 router.use(auth);

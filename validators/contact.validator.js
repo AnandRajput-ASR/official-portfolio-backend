@@ -1,6 +1,11 @@
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateContact(data) {
+  // Honeypot: bots fill this hidden field; silently flag them
+  if (data._hp && data._hp.trim().length > 0) {
+    return '__honeypot__';
+  }
+
   if (!data.name || data.name.trim().length < 2) {
     return 'Name is required (min 2 characters).';
   }

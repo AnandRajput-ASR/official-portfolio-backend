@@ -3,9 +3,13 @@ const asyncHandler = require('../utils/asyncHandler');
 const { validateContact } = require('../validators/contact.validator');
 
 exports.sendMessage = asyncHandler(async (req, res) => {
-  const { name, email, message } = req.body;
+  const { name, email, message, _hp } = req.body;
 
-  const validationError = validateContact({ name, email, message });
+  const validationError = validateContact({ name, email, message, _hp });
+  // Honeypot triggered: silently succeed so bots don't know they were caught
+  if (validationError === '__honeypot__') {
+    return res.status(201).json({ message: 'Message sent successfully!' });
+  }
   if (validationError) {
     return res.status(400).json({ message: validationError });
   }
