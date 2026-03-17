@@ -28,6 +28,9 @@ router.get('/settings', contentController.getSettings);
 // ─── PUBLIC: Analytics tracking ────────────────────────────────────────────────
 router.post('/analytics/track', contentController.trackAnalyticsEvent);
 
+// ─── PUBLIC: Visitor count (for public hero/footer widget) ─────────────────────
+router.get('/analytics/visitor-count', contentController.getVisitorCount);
+
 // ─── PUBLIC: Resume lead capture ───────────────────────────────────────────────
 router.post('/resume-lead', contentController.trackResumeLead);
 

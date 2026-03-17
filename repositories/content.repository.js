@@ -37,8 +37,9 @@ module.exports = {
    * Track a public analytics event (pageView, resumeDownload, etc.).
    * Accepts both camelCase (frontend) and snake_case names.
    * When tracking a projectClick, also upserts into project_clicks if projectName is provided.
+   * When tracking a pageView, also inserts into page_visit_log for time-series charts.
    */
-  async trackAnalyticsEvent(eventName, { projectName } = {}) {
+  async trackAnalyticsEvent(eventName, { projectName, ipHash } = {}) {
     const normalised = eventName.replace(/([A-Z])/g, '_$1').toLowerCase();
 
     const columnMap = {
@@ -60,6 +61,11 @@ module.exports = {
       WHERE single_row_lock = true
       RETURNING *`;
 
+    // Log page views to time-series table
+    if (normalised === 'page_view') {
+      await sql`INSERT INTO portfolio.page_visit_log (ip_hash) VALUES (${ipHash || null})`;
+    }
+
     // Track per-project click when project name is provided
     if (normalised === 'project_click' && projectName) {
       await sql`
@@ -72,6 +78,36 @@ module.exports = {
     }
 
     return result[0];
+  },
+
+  /**
+   * Returns daily visit counts for the last N days, zero-filled.
+   */
+  async getDailyVisits(days = 30) {
+    const rows = await sql`
+      SELECT
+        (date_trunc('day', visited_at AT TIME ZONE 'UTC'))::date::text AS date,
+        COUNT(*)::int AS count
+      FROM portfolio.page_visit_log
+      WHERE visited_at >= now() - (${days} * INTERVAL '1 day')
+      GROUP BY 1
+      ORDER BY 1 ASC
+    `;
+    return rows;
+  },
+
+  /**
+   * Returns this-month and last-month visitor counts from page_visit_log.
+   */
+  async getVisitorCounts() {
+    const rows = await sql`
+      SELECT
+        COUNT(*) FILTER (WHERE visited_at >= date_trunc('month', now()))::int            AS "thisMonth",
+        COUNT(*) FILTER (WHERE visited_at >= date_trunc('month', now() - INTERVAL '1 month')
+                           AND visited_at <  date_trunc('month', now()))::int            AS "lastMonth"
+      FROM portfolio.page_visit_log
+    `;
+    return rows[0] || { thisMonth: 0, lastMonth: 0 };
   },
 
   /**

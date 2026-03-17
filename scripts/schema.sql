@@ -339,6 +339,17 @@ CREATE INDEX IF NOT EXISTS idx_resume_leads_email
 CREATE INDEX IF NOT EXISTS idx_resume_leads_downloaded_at
   ON portfolio.resume_leads (downloaded_at DESC);
 
+-- ─── page_visit_log (time-series log for charts & public visitor counter) ────
+CREATE TABLE IF NOT EXISTS portfolio.page_visit_log (
+  id            UUID        DEFAULT gen_random_uuid() NOT NULL,
+  visited_at    TIMESTAMPTZ DEFAULT now()             NOT NULL,
+  ip_hash       TEXT,
+  CONSTRAINT page_visit_log_pkey PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_visit_log_visited_at
+  ON portfolio.page_visit_log (visited_at DESC);
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- 3. INDEXES (beyond PKs and unique constraints)
 -- ════════════════════════════════════════════════════════════════════════════
@@ -424,6 +435,7 @@ ALTER TABLE portfolio.testimonials        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.blog_posts          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.analytics           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.project_clicks      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE portfolio.page_visit_log      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.site_config         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.messages            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.admin_users         ENABLE ROW LEVEL SECURITY;
@@ -466,6 +478,10 @@ CREATE POLICY public_read_blog_posts
 
 CREATE POLICY public_read_analytics
   ON portfolio.analytics FOR SELECT TO public USING (true);
+
+-- page_visit_log: backend inserts (service_role), no public read
+CREATE POLICY "service_role_insert_page_visit_log"
+  ON portfolio.page_visit_log FOR INSERT TO public WITH CHECK (true);
 
 CREATE POLICY "Allow backend to read admins"
   ON portfolio.admin_users FOR SELECT TO public USING (true);

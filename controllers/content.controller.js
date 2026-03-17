@@ -59,8 +59,17 @@ exports.getSettings = asyncHandler(async (_, res) => {
 exports.trackAnalyticsEvent = asyncHandler(async (req, res) => {
   const { event, projectName, projectId } = req.body;
   if (!event) return res.status(400).json({ message: 'event is required' });
-  const result = await contentService.trackAnalyticsEvent(event, { projectName: projectName || projectId });
+  // Anonymously hash the visitor IP for time-series deduplication
+  const crypto = require('crypto');
+  const rawIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || '';
+  const ipHash = rawIp ? crypto.createHash('sha256').update(rawIp).digest('hex').slice(0, 16) : null;
+  const result = await contentService.trackAnalyticsEvent(event, { projectName: projectName || projectId, ipHash });
   return res.json({ success: true, data: result });
+});
+
+exports.getVisitorCount = asyncHandler(async (_req, res) => {
+  const counts = await contentService.getVisitorCount();
+  return res.json(counts);
 });
 
 exports.trackResumeLead = asyncHandler(async (req, res) => {

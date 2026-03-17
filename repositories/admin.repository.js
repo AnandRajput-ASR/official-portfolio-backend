@@ -1007,7 +1007,7 @@ async function deleteBlogPost(id) {
 }
 
 async function getAnalytics() {
-  const [analyticsResult, clicksResult] = await Promise.all([
+  const [analyticsResult, clicksResult, dailyVisitsResult, visitorCounts] = await Promise.all([
     sql`
         SELECT
             page_views AS "pageViews",
@@ -1027,6 +1027,22 @@ async function getAnalytics() {
         FROM portfolio.project_clicks
         ORDER BY clicks DESC
     `,
+    sql`
+        SELECT
+          (date_trunc('day', visited_at AT TIME ZONE 'UTC'))::date::text AS date,
+          COUNT(*)::int AS count
+        FROM portfolio.page_visit_log
+        WHERE visited_at >= now() - INTERVAL '30 days'
+        GROUP BY 1
+        ORDER BY 1 ASC
+    `,
+    sql`
+        SELECT
+          COUNT(*) FILTER (WHERE visited_at >= date_trunc('month', now()))::int           AS "thisMonth",
+          COUNT(*) FILTER (WHERE visited_at >= date_trunc('month', now() - INTERVAL '1 month')
+                             AND visited_at <  date_trunc('month', now()))::int           AS "lastMonth"
+        FROM portfolio.page_visit_log
+    `,
   ]);
 
   const analytics = analyticsResult[0] || null;
@@ -1036,6 +1052,9 @@ async function getAnalytics() {
       projectClicks[row.project_name] = row.clicks;
     }
     analytics.projectClicks = projectClicks;
+    analytics.dailyVisits = dailyVisitsResult;
+    analytics.thisMonth = visitorCounts[0]?.thisMonth ?? 0;
+    analytics.lastMonth = visitorCounts[0]?.lastMonth ?? 0;
   }
 
   return analytics;
