@@ -33,17 +33,21 @@ async function uploadResume(buffer, storedName) {
 
 /**
  * Generate a short-lived signed URL for downloading the resume.
- * The URL expires in `expiresIn` seconds (default 120s — enough for any download to start).
+ * Passing `download` makes Supabase add Content-Disposition: attachment so the
+ * browser downloads the file instead of opening it inline.
  * @param {string} storedName
- * @param {number} expiresIn  seconds
+ * @param {string} originalName  — shown as the filename in the browser save dialog
+ * @param {number} expiresIn  seconds (default 120s)
  * @returns {Promise<string>}  signed URL
  */
-async function getSignedUrl(storedName, expiresIn = 120) {
+async function getSignedUrl(storedName, originalName, expiresIn = 120) {
   if (!supabase) throw new Error('[Storage] Supabase not configured.');
 
   const { data, error } = await supabase.storage
     .from(BUCKET)
-    .createSignedUrl(storedName, expiresIn);
+    .createSignedUrl(storedName, expiresIn, {
+      download: originalName || true, // true = use storedName, string = custom filename
+    });
 
   if (error) throw new Error(`[Storage] Signed URL failed: ${error.message}`);
   return data.signedUrl;
