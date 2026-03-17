@@ -313,6 +313,7 @@ CREATE TABLE IF NOT EXISTS portfolio.resume_meta (
   id              UUID        NOT NULL DEFAULT gen_random_uuid(),
   original_name   TEXT        NOT NULL,
   stored_name     TEXT        NOT NULL,
+  download_name   TEXT,
   size            INTEGER     NOT NULL DEFAULT 0,
   uploaded_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   single_row_lock BOOLEAN     DEFAULT true,

@@ -5,6 +5,7 @@ async function getMeta() {
     SELECT
       original_name AS "originalName",
       stored_name   AS "storedName",
+      download_name AS "downloadName",
       size,
       uploaded_at   AS "uploadedAt"
     FROM portfolio.resume_meta
@@ -26,14 +27,30 @@ async function upsertMeta({ originalName, storedName, size }) {
     RETURNING
       original_name AS "originalName",
       stored_name   AS "storedName",
+      download_name AS "downloadName",
       size,
       uploaded_at   AS "uploadedAt"
   `;
   return rows[0];
 }
 
+async function updateDownloadName(downloadName) {
+  const rows = await sql`
+    UPDATE portfolio.resume_meta
+    SET download_name = ${downloadName || null}
+    WHERE single_row_lock = true
+    RETURNING
+      original_name AS "originalName",
+      stored_name   AS "storedName",
+      download_name AS "downloadName",
+      size,
+      uploaded_at   AS "uploadedAt"
+  `;
+  return rows[0] || null;
+}
+
 async function deleteMeta() {
   await sql`DELETE FROM portfolio.resume_meta`;
 }
 
-module.exports = { getMeta, upsertMeta, deleteMeta };
+module.exports = { getMeta, upsertMeta, updateDownloadName, deleteMeta };

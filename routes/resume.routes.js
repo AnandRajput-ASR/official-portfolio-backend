@@ -27,7 +27,10 @@ router.get(
     const meta = await resumeRepo.getMeta();
     if (!meta) return res.status(404).json({ message: 'No resume uploaded yet.' });
 
-    const signedUrl = await storageService.getSignedUrl(meta.storedName, meta.originalName);
+    const signedUrl = await storageService.getSignedUrl(
+      meta.storedName,
+      meta.downloadName || meta.originalName
+    );
     // Redirect — Supabase CDN serves the file with Content-Disposition: attachment
     return res.redirect(302, signedUrl);
   })
