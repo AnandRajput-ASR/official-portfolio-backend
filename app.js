@@ -9,6 +9,8 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const healthHandler = require('./middleware/health');
 const rateLimiter = require('./middleware/rateLimiter');
 const requestLogger = require('./middleware/logger');
+const asyncHandler = require('./utils/asyncHandler');
+const sharedRepository = require('./repositories/shared.repository');
 
 const authRoutes = require('./routes/auth.routes');
 const contentRoutes = require('./routes/content.routes');
@@ -62,9 +64,11 @@ app.get('/api/admin/verify-slug/:slug', (req, res) => {
 
 app.use('/api/auth', rateLimiter(15, 15 * 60 * 1000), authRoutes);
 
-// ─── Cache-Control for public content (5 min, serve stale while revalidating)
+// ─── Cache-Control for individual content sections (5 min).
+// Excludes /page-content — it aggregates all data so it must reflect
+// admin updates immediately (no stale browser cache).
 app.use('/api/content', (req, res, next) => {
-  if (req.method === 'GET') {
+  if (req.method === 'GET' && !req.path.startsWith('/page-content')) {
     res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
   }
   next();
@@ -75,6 +79,40 @@ app.use('/api/resume', resumeRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', healthHandler);
+
+// ─── Dynamic SEO files ─────────────────────────────────────────────────────────────────
+// siteUrl is stored in site_settings in the DB and editable from the admin dashboard.
+// Changing it there instantly updates both files — no redeploy needed.
+
+app.get('/robots.txt', asyncHandler(async (req, res) => {
+  const settings = await sharedRepository.getSiteSettings();
+  const siteUrl = (settings?.siteUrl || 'https://anandrajput.dev').replace(/\/$/, '');
+  res.set('Content-Type', 'text/plain');
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.send(
+    `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: ${siteUrl}/sitemap.xml\n`,
+  );
+}));
+
+app.get('/sitemap.xml', asyncHandler(async (req, res) => {
+  const settings = await sharedRepository.getSiteSettings();
+  const siteUrl = (settings?.siteUrl || 'https://anandrajput.dev').replace(/\/$/, '');
+  const blogPosts = await sharedRepository.getBlogPosts();
+
+  const blogEntries = (blogPosts || [])
+    .filter((p) => p.published)
+    .map(
+      (p) =>
+        `  <url>\n    <loc>${siteUrl}/blog/${p.slug}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`,
+    )
+    .join('\n');
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${siteUrl}/</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>${blogEntries ? '\n' + blogEntries : ''}\n</urlset>\n`;
+
+  res.set('Content-Type', 'application/xml');
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.send(xml);
+}));
 
 app.use(notFoundHandler);
 
