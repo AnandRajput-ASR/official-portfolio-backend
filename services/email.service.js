@@ -157,12 +157,48 @@ async function sendMailWithRetry(transporter, options, tag) {
   }
 }
 
+async function sendViaResend({ to, subject, html, text, tag }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return false;
+
+  const from = process.env.RESEND_FROM || 'onboarding@resend.dev';
+  const recipients = Array.isArray(to) ? to : [to];
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: recipients,
+      subject,
+      html,
+      text,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Resend API ${response.status}: ${body}`);
+  }
+
+  const result = await response.json().catch(() => null);
+  console.log(
+    `[EMAIL] ${tag} sent via Resend${result?.id ? ` id=${result.id}` : ''}`,
+  );
+  return true;
+}
+
 // ─── Send notification when a contact form message arrives ────────────────────
 async function sendContactNotification(message) {
   const transporter = getTransporter();
   if (!transporter) return;
 
   const to = process.env.NOTIFY_EMAIL || process.env.GMAIL_USER;
+  const subject = `📬 New message from ${message.name} — Portfolio`;
+  const text = `New portfolio message\n\nFrom: ${message.name}\nEmail: ${message.email}\nMessage:\n${message.message}`;
 
   const html = `
     <!DOCTYPE html>
@@ -217,14 +253,16 @@ async function sendContactNotification(message) {
     </html>
   `;
 
+  const mailOptions = {
+    from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
+    to,
+    subject,
+    html,
+    text,
+  };
+
   try {
-    await sendMailWithRetry(transporter, {
-      from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
-      to,
-      subject: `📬 New message from ${message.name} — Portfolio`,
-      html,
-      text: `New portfolio message\n\nFrom: ${message.name}\nEmail: ${message.email}\nMessage:\n${message.message}`,
-    }, 'Contact notification');
+    await sendMailWithRetry(transporter, mailOptions, 'Contact notification');
     console.log(`[EMAIL] Notification sent to ${to} for message from ${message.name}`);
   } catch (err) {
     console.error(
@@ -233,6 +271,23 @@ async function sendContactNotification(message) {
       `code=${err.code || 'UNKNOWN'}`,
       `command=${err.command || 'N/A'}`,
     );
+
+    try {
+      const resendSent = await sendViaResend({
+        to,
+        subject,
+        html,
+        text,
+        tag: 'Contact notification fallback',
+      });
+
+      if (resendSent) {
+        return;
+      }
+    } catch (resendErr) {
+      console.error('[EMAIL] Resend fallback failed:', resendErr.message);
+    }
+
     throw err;
   }
 }

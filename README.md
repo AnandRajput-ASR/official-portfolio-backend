@@ -206,6 +206,15 @@ cp .env.example .env
 | `GMAIL_USER` | Gmail address for sending emails | `you@gmail.com` |
 | `GMAIL_APP_PASSWORD` | Gmail app password (not your login password) | `xxxx-xxxx-xxxx-xxxx` |
 | `NOTIFY_EMAIL` | Email address to receive contact notifications | `you@gmail.com` |
+| `SMTP_HOST` | SMTP host (defaults to Gmail) | `smtp.gmail.com` |
+| `SMTP_PORT` | SMTP port (`587` STARTTLS / `465` SSL) | `587` |
+| `SMTP_SECURE` | Use SSL from connect (`true` for `465`, `false` for `587`) | `false` |
+| `SMTP_CONNECTION_TIMEOUT` | SMTP socket connect timeout (ms) | `30000` |
+| `SMTP_GREETING_TIMEOUT` | SMTP greeting timeout (ms) | `30000` |
+| `SMTP_SOCKET_TIMEOUT` | SMTP inactivity timeout (ms) | `60000` |
+| `SMTP_DISABLE_PORT_FALLBACK` | Disable automatic `587`/`465` failover retry | `false` |
+| `RESEND_API_KEY` | Optional Resend API key (HTTPS fallback when SMTP fails) | `re_xxx` |
+| `RESEND_FROM` | Verified sender for Resend (or `onboarding@resend.dev`) | `onboarding@resend.dev` |
 
 > **Note:** If your database password contains special characters (`@`, `$`, `^`, `&`), URL-encode them in the connection string.
 
