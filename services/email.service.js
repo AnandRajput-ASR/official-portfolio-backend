@@ -7,6 +7,7 @@ const env = require('../configs/env.config');
 let _transporter = null;
 let _smtpConfigLogged = false;
 let _dnsOrderConfigured = false;
+let _smtpConfig = null;
 
 function asNumber(raw, fallback) {
   const parsed = Number(raw);
@@ -44,21 +45,8 @@ function getSmtpConfig() {
   };
 }
 
-function getTransporter() {
-  if (_transporter) return _transporter;
-
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
-
-  if (!user || !pass || pass === 'xxxx-xxxx-xxxx-xxxx') {
-    console.warn('[EMAIL] Gmail credentials not configured — email notifications disabled.');
-    return null;
-  }
-
-  ensureIpv4FirstDns();
-  const smtp = getSmtpConfig();
-
-  _transporter = nodemailer.createTransport({
+function createTransporter(user, pass, smtp) {
+  return nodemailer.createTransport({
     host: smtp.host,
     port: smtp.port,
     secure: smtp.secure,
@@ -72,6 +60,49 @@ function getTransporter() {
     },
     auth: { user, pass },
   });
+}
+
+function getAlternateTransporter() {
+  if (!_smtpConfig) return null;
+
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+
+  if (!user || !pass || pass === 'xxxx-xxxx-xxxx-xxxx') {
+    return null;
+  }
+
+  const altPort = _smtpConfig.port === 465 ? 587 : 465;
+  const altSecure = altPort === 465;
+  const altConfig = {
+    ..._smtpConfig,
+    port: altPort,
+    secure: altSecure,
+  };
+
+  console.warn(
+    `[EMAIL] Trying alternate SMTP endpoint host=${altConfig.host} port=${altConfig.port} secure=${altConfig.secure}`,
+  );
+
+  return createTransporter(user, pass, altConfig);
+}
+
+function getTransporter() {
+  if (_transporter) return _transporter;
+
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+
+  if (!user || !pass || pass === 'xxxx-xxxx-xxxx-xxxx') {
+    console.warn('[EMAIL] Gmail credentials not configured — email notifications disabled.');
+    return null;
+  }
+
+  ensureIpv4FirstDns();
+  const smtp = getSmtpConfig();
+  _smtpConfig = smtp;
+
+  _transporter = createTransporter(user, pass, smtp);
 
   if (!_smtpConfigLogged) {
     console.log(
@@ -84,11 +115,14 @@ function getTransporter() {
 }
 
 async function sendMailWithRetry(transporter, options, tag) {
-  const maxAttempts = 2;
+  const maxAttemptsPerTransport = 2;
+  let activeTransporter = transporter;
+  let attempt = 1;
+  let triedAlternateTransporter = false;
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+  while (true) {
     try {
-      await transporter.sendMail(options);
+      await activeTransporter.sendMail(options);
       return;
     } catch (err) {
       const isRetryable =
@@ -97,7 +131,20 @@ async function sendMailWithRetry(transporter, options, tag) {
         err?.code === 'ECONNECTION' ||
         /timeout/i.test(String(err?.message || ''));
 
-      if (!isRetryable || attempt === maxAttempts) {
+      if (!isRetryable || attempt === maxAttemptsPerTransport) {
+        if (
+          !triedAlternateTransporter
+          && process.env.SMTP_DISABLE_PORT_FALLBACK !== 'true'
+        ) {
+          const alternateTransporter = getAlternateTransporter();
+          if (alternateTransporter) {
+            triedAlternateTransporter = true;
+            activeTransporter = alternateTransporter;
+            attempt = 1;
+            continue;
+          }
+        }
+
         throw err;
       }
 
@@ -105,6 +152,7 @@ async function sendMailWithRetry(transporter, options, tag) {
         `[EMAIL] ${tag} attempt ${attempt} failed (${err.code || 'UNKNOWN'}: ${err.message}) — retrying once`,
       );
       await new Promise((resolve) => setTimeout(resolve, 1500));
+      attempt += 1;
     }
   }
 }
