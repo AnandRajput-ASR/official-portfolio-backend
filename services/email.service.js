@@ -46,6 +46,13 @@ function getSmtpConfig() {
 }
 
 function createTransporter(user, pass, smtp) {
+  // Custom DNS lookup that filters out IPv6 (important for Railway, which has no IPv6 support)
+  const customLookup = (hostname, options, callback) => {
+    // Resolution options: 0 = IPv4 + IPv6, 4 = IPv4 only, 6 = IPv6 only
+    const opts = { ...options, family: 4 }; // Force IPv4 only
+    dns.lookup(hostname, opts, callback);
+  };
+
   return nodemailer.createTransport({
     host: smtp.host,
     port: smtp.port,
@@ -54,6 +61,7 @@ function createTransporter(user, pass, smtp) {
     connectionTimeout: smtp.connectionTimeout,
     greetingTimeout: smtp.greetingTimeout,
     socketTimeout: smtp.socketTimeout,
+    lookup: customLookup, // Use IPv4-only DNS lookup
     tls: {
       minVersion: 'TLSv1.2',
       servername: smtp.host,
