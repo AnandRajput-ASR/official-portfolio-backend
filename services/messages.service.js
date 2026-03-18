@@ -5,14 +5,19 @@ async function sendMessage(payload) {
   const saved = await repository.createMessage(payload);
 
   // Fire-and-forget email notification (don't block the response)
-  sendContactNotification({
-    name: payload.name,
-    email: payload.email,
-    message: payload.message,
-    receivedAt: saved?.received_at || new Date().toISOString(),
-  })
-    .then(() => repository.markNotified(saved.id))
-    .catch(() => {}); // already logged inside email.service
+  void (async () => {
+    try {
+      await sendContactNotification({
+        name: payload.name,
+        email: payload.email,
+        message: payload.message,
+        receivedAt: saved?.received_at || new Date().toISOString(),
+      });
+      await repository.markNotified(saved.id);
+    } catch (err) {
+      console.error('[EMAIL] Contact notification failed for message', saved.id, err.message);
+    }
+  })();
 
   return saved;
 }

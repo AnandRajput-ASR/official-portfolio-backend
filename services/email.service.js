@@ -95,6 +95,7 @@ async function sendContactNotification(message) {
     console.log(`[EMAIL] Notification sent to ${to} for message from ${message.name}`);
   } catch (err) {
     console.error('[EMAIL] Failed to send notification:', err.message);
+    throw err;
   }
 }
 
