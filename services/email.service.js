@@ -199,11 +199,92 @@ async function sendViaResend({ to, subject, html, text, tag }) {
   return true;
 }
 
+// ─── Brevo HTTP API (HTTPS-based, works where SMTP is blocked) ─────────────────
+async function sendViaBrevo({ to, subject, html, text, tag }) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) return false;
+
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.GMAIL_USER;
+  const senderName  = process.env.BREVO_SENDER_NAME  || 'Portfolio Bot';
+  const recipients  = Array.isArray(to) ? to.map((e) => ({ email: e })) : [{ email: to }];
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender:      { name: senderName, email: senderEmail },
+      to:          recipients,
+      subject,
+      htmlContent: html,
+      textContent: text,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Brevo API ${response.status}: ${body}`);
+  }
+
+  const result = await response.json().catch(() => null);
+  console.log(`[EMAIL] ${tag} sent via Brevo${result?.messageId ? ` id=${result.messageId}` : ''}`);
+  return true;
+}
+
+// ─── Provider resolver ────────────────────────────────────────────────────────
+// EMAIL_PROVIDER=brevo  → always use Brevo HTTP API
+// EMAIL_PROVIDER=gmail  → always use Gmail SMTP + Resend fallback
+// (default)             → use Brevo if BREVO_API_KEY is present, else Gmail
+function resolveProvider() {
+  const explicit = (process.env.EMAIL_PROVIDER || '').toLowerCase().trim();
+  if (explicit === 'brevo') return 'brevo';
+  if (explicit === 'gmail') return 'gmail';
+  return process.env.BREVO_API_KEY ? 'brevo' : 'gmail';
+}
+
+// ─── Central email dispatcher ─────────────────────────────────────────────────
+async function dispatchEmail({ to, from, subject, html, text, tag }) {
+  const provider = resolveProvider();
+
+  if (provider === 'brevo') {
+    console.log(`[EMAIL] Provider=brevo — dispatching ${tag}`);
+    await sendViaBrevo({ to, subject, html, text, tag });
+    return;
+  }
+
+  // ── Gmail SMTP path (with retry, port failover and Resend fallback) ───────
+  console.log(`[EMAIL] Provider=gmail — dispatching ${tag}`);
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn('[EMAIL] Gmail not configured and Brevo not set — skipping.');
+    return;
+  }
+
+  try {
+    await sendMailWithRetry(transporter, { from, to, subject, html, text }, tag);
+  } catch (err) {
+    console.error(
+      `[EMAIL] ${tag} failed: ${err.message}`,
+      `code=${err.code || 'UNKNOWN'}`,
+      `command=${err.command || 'N/A'}`,
+    );
+
+    // Resend HTTPS fallback (last resort)
+    try {
+      const resendSent = await sendViaResend({ to, subject, html, text, tag: `${tag} fallback` });
+      if (resendSent) return;
+    } catch (resendErr) {
+      console.error(`[EMAIL] Resend fallback failed: ${resendErr.message}`);
+    }
+
+    throw err;
+  }
+}
+
 // ─── Send notification when a contact form message arrives ────────────────────
 async function sendContactNotification(message) {
-  const transporter = getTransporter();
-  if (!transporter) return;
-
   const to = process.env.NOTIFY_EMAIL || process.env.GMAIL_USER;
   const subject = `📬 New message from ${message.name} — Portfolio`;
   const text = `New portfolio message\n\nFrom: ${message.name}\nEmail: ${message.email}\nMessage:\n${message.message}`;
@@ -261,52 +342,19 @@ async function sendContactNotification(message) {
     </html>
   `;
 
-  const mailOptions = {
+  await dispatchEmail({
     from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
     to,
     subject,
     html,
     text,
-  };
-
-  try {
-    await sendMailWithRetry(transporter, mailOptions, 'Contact notification');
-    console.log(`[EMAIL] Notification sent to ${to} for message from ${message.name}`);
-  } catch (err) {
-    console.error(
-      '[EMAIL] Failed to send notification:',
-      err.message,
-      `code=${err.code || 'UNKNOWN'}`,
-      `command=${err.command || 'N/A'}`,
-    );
-
-    try {
-      const resendSent = await sendViaResend({
-        to,
-        subject,
-        html,
-        text,
-        tag: 'Contact notification fallback',
-      });
-
-      if (resendSent) {
-        return;
-      }
-    } catch (resendErr) {
-      console.error('[EMAIL] Resend fallback failed:', resendErr.message);
-    }
-
-    throw err;
-  }
+    tag: 'Contact notification',
+  });
+  console.log(`[EMAIL] Contact notification sent to ${to} for message from ${message.name}`);
 }
 
 // ─── Send password reset email ────────────────────────────────────────────────
 async function sendResetEmail(toEmail, resetToken) {
-  const transporter = getTransporter();
-  if (!transporter) {
-    console.warn('[EMAIL] Reset email not sent — Gmail not configured.');
-    return;
-  }
 
   const resetUrl =
     env.siteUrl +
@@ -342,20 +390,19 @@ async function sendResetEmail(toEmail, resetToken) {
       <div class="footer">anandraj.asr@gmail.com · Anand Rajput Portfolio</div>
     </div></body></html>`;
 
-  await transporter.sendMail({
+  await dispatchEmail({
     from: `"Portfolio Admin" <${process.env.GMAIL_USER}>`,
     to: toEmail,
     subject: '🔐 Password Reset — Portfolio Admin',
     html,
     text: `Password reset requested.\n\nReset link (expires in 1 hour):\n${resetUrl}\n\nIgnore this if you didn't request it.`,
+    tag: 'Password reset',
   });
   console.log(`[EMAIL] Reset email sent to ${toEmail}`);
 }
 
 // ─── Send notification when a public testimonial is submitted ────────────────
 async function sendTestimonialNotification(t) {
-  const transporter = getTransporter();
-  if (!transporter) return;
   const to = process.env.NOTIFY_EMAIL || process.env.GMAIL_USER;
   const html = `
     <!DOCTYPE html><html><head>
@@ -382,24 +429,19 @@ async function sendTestimonialNotification(t) {
       </div>
       <div class="footer">anandraj.asr@gmail.com · Anand Rajput Portfolio</div>
     </div></body></html>`;
-  try {
-    await transporter.sendMail({
-      from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
-      to,
-      subject: `⭐ New testimonial from ${t.name} — needs your review`,
-      html,
-      text: `New testimonial from ${t.name}\nEmail: ${t.email}\nRating: ${t.rating}/5\n\n"${t.quote}"`,
-    });
-    console.log(`[EMAIL] Testimonial notification sent for ${t.name}`);
-  } catch (err) {
-    console.error('[EMAIL] Testimonial notification failed:', err.message);
-  }
+  await dispatchEmail({
+    from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
+    to,
+    subject: `⭐ New testimonial from ${t.name} — needs your review`,
+    html,
+    text: `New testimonial from ${t.name}\nEmail: ${t.email}\nRating: ${t.rating}/5\n\n"${t.quote}"`,
+    tag: 'Testimonial notification',
+  });
+  console.log(`[EMAIL] Testimonial notification sent for ${t.name}`);
 }
 
 // ─── Send notification when someone downloads the resume ─────────────────────
 async function sendResumeLeadNotification(lead) {
-  const transporter = getTransporter();
-  if (!transporter) return;
   const to = process.env.NOTIFY_EMAIL || process.env.GMAIL_USER;
   const when = new Date(lead.downloadedAt).toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata', dateStyle: 'full', timeStyle: 'short',
@@ -435,18 +477,15 @@ async function sendResumeLeadNotification(lead) {
       </div>
       <div class="footer">anandraj.asr@gmail.com · Anand Rajput Portfolio</div>
     </div></body></html>`;
-  try {
-    await transporter.sendMail({
-      from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
-      to,
-      subject: `📄 Resume downloaded by ${lead.email}`,
-      html,
-      text: `Resume downloaded\n\nEmail: ${lead.email}\nWhen: ${when}${lead.ipAddress ? '\nIP: ' + lead.ipAddress : ''}`,
-    });
-    console.log(`[EMAIL] Resume lead notification sent for ${lead.email}`);
-  } catch (err) {
-    console.error('[EMAIL] Resume lead notification failed:', err.message);
-  }
+  await dispatchEmail({
+    from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
+    to,
+    subject: `📄 Resume downloaded by ${lead.email}`,
+    html,
+    text: `Resume downloaded\n\nEmail: ${lead.email}\nWhen: ${when}${lead.ipAddress ? '\nIP: ' + lead.ipAddress : ''}`,
+    tag: 'Resume lead notification',
+  });
+  console.log(`[EMAIL] Resume lead notification sent for ${lead.email}`);
 }
 
 module.exports = { sendContactNotification, sendResetEmail, sendTestimonialNotification, sendResumeLeadNotification };
