@@ -1,9 +1,48 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
 const { escapeHtml } = require('../utils/sanitize');
 const env = require('../configs/env.config');
 
 // ─── Lazy-create transporter so missing config doesn't crash the server ────────
 let _transporter = null;
+let _smtpConfigLogged = false;
+let _dnsOrderConfigured = false;
+
+function asNumber(raw, fallback) {
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function ensureIpv4FirstDns() {
+  if (_dnsOrderConfigured) return;
+
+  try {
+    if (typeof dns.setDefaultResultOrder === 'function') {
+      dns.setDefaultResultOrder('ipv4first');
+      console.log('[EMAIL] DNS result order set to ipv4first');
+    }
+    _dnsOrderConfigured = true;
+  } catch (err) {
+    console.warn('[EMAIL] Could not set DNS result order:', err.message);
+  }
+}
+
+function getSmtpConfig() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = asNumber(process.env.SMTP_PORT, 587);
+  const secure = process.env.SMTP_SECURE
+    ? process.env.SMTP_SECURE === 'true'
+    : port === 465;
+
+  return {
+    host,
+    port,
+    secure,
+    connectionTimeout: asNumber(process.env.SMTP_CONNECTION_TIMEOUT, 30000),
+    greetingTimeout: asNumber(process.env.SMTP_GREETING_TIMEOUT, 30000),
+    socketTimeout: asNumber(process.env.SMTP_SOCKET_TIMEOUT, 60000),
+  };
+}
 
 function getTransporter() {
   if (_transporter) return _transporter;
@@ -16,12 +55,58 @@ function getTransporter() {
     return null;
   }
 
+  ensureIpv4FirstDns();
+  const smtp = getSmtpConfig();
+
   _transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.secure,
+    requireTLS: !smtp.secure,
+    connectionTimeout: smtp.connectionTimeout,
+    greetingTimeout: smtp.greetingTimeout,
+    socketTimeout: smtp.socketTimeout,
+    tls: {
+      minVersion: 'TLSv1.2',
+      servername: smtp.host,
+    },
     auth: { user, pass },
   });
 
+  if (!_smtpConfigLogged) {
+    console.log(
+      `[EMAIL] SMTP transport configured host=${smtp.host} port=${smtp.port} secure=${smtp.secure}`,
+    );
+    _smtpConfigLogged = true;
+  }
+
   return _transporter;
+}
+
+async function sendMailWithRetry(transporter, options, tag) {
+  const maxAttempts = 2;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      await transporter.sendMail(options);
+      return;
+    } catch (err) {
+      const isRetryable =
+        err?.code === 'ETIMEDOUT' ||
+        err?.code === 'ESOCKET' ||
+        err?.code === 'ECONNECTION' ||
+        /timeout/i.test(String(err?.message || ''));
+
+      if (!isRetryable || attempt === maxAttempts) {
+        throw err;
+      }
+
+      console.warn(
+        `[EMAIL] ${tag} attempt ${attempt} failed (${err.code || 'UNKNOWN'}: ${err.message}) — retrying once`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+  }
 }
 
 // ─── Send notification when a contact form message arrives ────────────────────
@@ -85,16 +170,21 @@ async function sendContactNotification(message) {
   `;
 
   try {
-    await transporter.sendMail({
+    await sendMailWithRetry(transporter, {
       from: `"Portfolio Bot" <${process.env.GMAIL_USER}>`,
       to,
       subject: `📬 New message from ${message.name} — Portfolio`,
       html,
       text: `New portfolio message\n\nFrom: ${message.name}\nEmail: ${message.email}\nMessage:\n${message.message}`,
-    });
+    }, 'Contact notification');
     console.log(`[EMAIL] Notification sent to ${to} for message from ${message.name}`);
   } catch (err) {
-    console.error('[EMAIL] Failed to send notification:', err.message);
+    console.error(
+      '[EMAIL] Failed to send notification:',
+      err.message,
+      `code=${err.code || 'UNKNOWN'}`,
+      `command=${err.command || 'N/A'}`,
+    );
     throw err;
   }
 }
