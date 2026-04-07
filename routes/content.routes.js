@@ -56,6 +56,18 @@ router.post('/upload-image', auth, (req, res) => {
   return res.json({ url: '/uploads/' + safeName });
 });
 
+router.delete('/upload-image', auth, (req, res) => {
+  const { url } = req.body || {};
+  if (!url || typeof url !== 'string' || !url.startsWith('/uploads/')) {
+    return res.status(400).json({ message: 'A valid upload URL is required.' });
+  }
+
+  const filePath = path.join(UPLOADS_DIR, path.basename(url));
+  if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+  return res.status(204).send();
+});
+
 // ─── SERVE uploaded images ─────────────────────────────────────────────────────
 router.get('/uploads/:file', (req, res) => {
   const filePath = path.join(UPLOADS_DIR, path.basename(req.params.file));
