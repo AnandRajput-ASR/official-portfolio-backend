@@ -144,41 +144,58 @@ async function deleteSkillById(id) {
 async function putCompanies(companies) {
   return await sql.begin(async tx => {
     for (const company of companies) {
-      const { id, name, role, period, location, logo, accentColor, description, displayOrder, projects } = company;
+      const {
+        id, name, role, period, location, logo, accentColor,
+        description, displayOrder, current,
+        website = null, teamSize = null, startDate = null, endDate = null,
+        projects,
+      } = company;
 
       // update company
       await tx`
-                UPDATE portfolio.companies
-                SET
-                    name = ${name},
-                    role = ${role},
-                    period = ${period},
-                    location = ${location},
-                    logo = ${logo},
-                    brand_color = ${accentColor},
-                    description = ${description},
-                    display_order = ${displayOrder},
-                    updated_at = now()
-                WHERE id = ${id}
-            `;
+        UPDATE portfolio.companies
+        SET
+          name              = ${name},
+          role              = ${role},
+          period            = ${period},
+          location          = ${location},
+          logo              = ${logo},
+          brand_color       = ${accentColor},
+          description       = ${description},
+          display_order     = ${displayOrder},
+          currently_working = ${current ?? false},
+          website           = ${website},
+          team_size         = ${teamSize},
+          start_date        = ${startDate},
+          end_date          = ${endDate},
+          updated_at        = now()
+        WHERE id = ${id}
+      `;
 
       // update projects
       if (projects?.length) {
         for (const project of projects) {
-          const { id: projectId, title, description: projectDescription, tech, link, displayOrder: projectOrder, number } = project;
+          const {
+            id: projectId, title,
+            description: projectDescription,
+            tech, link, displayOrder: projectOrder, number,
+            status = null, impact = null,
+          } = project;
 
           await tx`
-                        UPDATE portfolio.company_projects
-                        SET
-                            title = ${title},
-                            description = ${projectDescription},
-                            technologies = ${tech}::text[],
-                            link = ${link},
-                            display_order = ${projectOrder},
-                            number = ${number},
-                            updated_at = now()
-                        WHERE id = ${projectId}
-                    `;
+            UPDATE portfolio.company_projects
+            SET
+              title         = ${title},
+              description   = ${projectDescription},
+              technologies  = ${tech}::text[],
+              link          = ${link},
+              display_order = ${projectOrder},
+              number        = ${number},
+              status        = ${status},
+              impact        = ${impact},
+              updated_at    = now()
+            WHERE id = ${projectId}
+          `;
         }
       }
     }

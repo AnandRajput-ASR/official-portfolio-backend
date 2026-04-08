@@ -98,6 +98,10 @@ CREATE TABLE IF NOT EXISTS portfolio.companies (
   description       TEXT,
   display_order     INTEGER     NOT NULL DEFAULT 0,
   is_active         BOOLEAN     NOT NULL DEFAULT true,
+  website           TEXT,
+  team_size         VARCHAR(50),
+  start_date        VARCHAR(7),             -- YYYY-MM
+  end_date          VARCHAR(7),             -- YYYY-MM
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
 
@@ -115,6 +119,8 @@ CREATE TABLE IF NOT EXISTS portfolio.company_projects (
   link          TEXT        DEFAULT '#',
   display_order INTEGER     NOT NULL DEFAULT 0,
   is_active     BOOLEAN     NOT NULL DEFAULT true,
+  status        VARCHAR(20) DEFAULT NULL,   -- completed | in-progress | planned | archived
+  impact        TEXT        DEFAULT NULL,   -- e.g. "Reduced load time by 40%"
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
 

@@ -44,19 +44,26 @@ async function getCompanies() {
     comp.period,
     comp.location,
     comp.logo,
-    comp.brand_color AS "accentColor",
+    comp.brand_color     AS "accentColor",
     comp.description,
-    comp.display_order AS "displayOrder",
+    comp.display_order   AS "displayOrder",
+    comp.currently_working AS "current",
+    comp.website,
+    comp.team_size       AS "teamSize",
+    comp.start_date      AS "startDate",
+    comp.end_date        AS "endDate",
     COALESCE(
       json_agg(
         json_build_object(
-          'id', proj.id,
-          'number', proj.number,
-          'title', proj.title,
-          'description', proj.description,
-          'link', proj.link,
+          'id',           proj.id,
+          'number',       proj.number,
+          'title',        proj.title,
+          'description',  proj.description,
+          'link',         proj.link,
           'displayOrder', proj.display_order,
-          'tech', proj.technologies
+          'tech',         proj.technologies,
+          'status',       proj.status,
+          'impact',       proj.impact
         )
         ORDER BY proj.display_order
       ) FILTER (WHERE proj.id IS NOT NULL),

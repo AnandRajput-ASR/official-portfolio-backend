@@ -138,11 +138,31 @@ module.exports = {
       blogPosts: 'portfolio.blog_posts',
     };
 
+    const companyProjectsPrefix = 'company-projects-';
+    const isCompanyProjects = section.startsWith(companyProjectsPrefix);
+
+    if (isCompanyProjects) {
+      const companyId = section.slice(companyProjectsPrefix.length);
+      if (!companyId) throw new Error(`Unknown section: ${section}`);
+
+      await sql.begin(async tx => {
+        for (const { id, displayOrder } of items) {
+          await tx`
+            UPDATE portfolio.company_projects
+            SET display_order = ${displayOrder}
+            WHERE id = ${id}::uuid AND company_id = ${companyId}::uuid
+          `;
+        }
+      });
+
+      return { section, updated: items.length };
+    }
+
     const table = tableMap[section];
     if (!table) throw new Error(`Unknown section: ${section}`);
 
     // Run all updates inside a transaction
-    await sql.begin(async (tx) => {
+    await sql.begin(async tx => {
       for (const { id, displayOrder } of items) {
         await tx`UPDATE ${sql(table)} SET display_order = ${displayOrder} WHERE id = ${id}::uuid`;
       }
