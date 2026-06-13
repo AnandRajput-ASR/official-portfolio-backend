@@ -27,17 +27,28 @@ async function getMeta() {
   return fallback[0] || null;
 }
 
-async function upsertMeta({ originalName, storedName, size }) {
+async function upsertMeta({ originalName, storedName, size, createdBy = null, updatedBy = null }) {
   const rows = await sql`
-    INSERT INTO portfolio.resume_meta (original_name, stored_name, size, uploaded_at, single_row_lock, singleton_key)
-    VALUES (${originalName}, ${storedName}, ${size}, now(), true, 'default')
+    INSERT INTO portfolio.resume_meta (
+      original_name,
+      stored_name,
+      size,
+      uploaded_at,
+      single_row_lock,
+      singleton_key,
+      created_by,
+      updated_by
+    )
+    VALUES (${originalName}, ${storedName}, ${size}, now(), true, 'default', ${createdBy}, ${updatedBy})
     ON CONFLICT (single_row_lock)
     DO UPDATE SET
       original_name = EXCLUDED.original_name,
       stored_name   = EXCLUDED.stored_name,
       size          = EXCLUDED.size,
       uploaded_at   = now(),
-      singleton_key = 'default'
+      singleton_key = 'default',
+      updated_by    = EXCLUDED.updated_by,
+      version       = COALESCE(portfolio.resume_meta.version, 1) + 1
     RETURNING
       original_name AS "originalName",
       stored_name   AS "storedName",
@@ -48,10 +59,12 @@ async function upsertMeta({ originalName, storedName, size }) {
   return rows[0];
 }
 
-async function updateDownloadName(downloadName) {
+async function updateDownloadName(downloadName, updatedBy = null) {
   const rows = await sql`
     UPDATE portfolio.resume_meta
-    SET download_name = ${downloadName || null}
+    SET download_name = ${downloadName || null},
+        updated_by = ${updatedBy},
+        version = COALESCE(version, 1) + 1
     WHERE singleton_key = 'default'
     RETURNING
       original_name AS "originalName",
@@ -64,7 +77,9 @@ async function updateDownloadName(downloadName) {
 
   const fallback = await sql`
     UPDATE portfolio.resume_meta
-    SET download_name = ${downloadName || null}
+    SET download_name = ${downloadName || null},
+        updated_by = ${updatedBy},
+        version = COALESCE(version, 1) + 1
     WHERE single_row_lock = true
     RETURNING
       original_name AS "originalName",

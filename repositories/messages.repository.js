@@ -17,10 +17,12 @@ async function createMessage({ name, email, message }) {
   return result[0];
 }
 
-async function markNotified(id) {
+async function markNotified(id, updatedBy = null) {
   await sql`
         UPDATE portfolio.messages
-        SET notified_at = now()
+        SET notified_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
     `;
 }
@@ -50,10 +52,12 @@ async function getMessages() {
   };
 }
 
-async function markRead(id) {
+async function markRead(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.messages
-        SET read = true
+        SET read = true,
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING *
     `;
@@ -61,10 +65,12 @@ async function markRead(id) {
   return result[0];
 }
 
-async function toggleStar(id) {
+async function toggleStar(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.messages
-        SET starred = NOT starred
+        SET starred = NOT starred,
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING *
     `;
@@ -72,20 +78,24 @@ async function toggleStar(id) {
   return result[0];
 }
 
-async function deleteMessage(id) {
+async function deleteMessage(id, updatedBy = null) {
   await sql`
         UPDATE portfolio.messages
         SET
             is_deleted = true,
-            deleted_at = now()
+            deleted_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
     `;
 }
 
-async function markAllRead() {
+async function markAllRead(updatedBy = null) {
   await sql`
         UPDATE portfolio.messages
-        SET read = true
+        SET read = true,
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE is_deleted = false
     `;
 }

@@ -8,28 +8,57 @@ const sharedRepo = require('./shared.repository');
 module.exports = {
   ...sharedRepo,
 
-  async putHero({ id, name, title, subtitle }) {
-    const result = await sql`
+  async putHero({ id, name, title, subtitle, updatedBy = null }) {
+    let result = await sql`
       UPDATE portfolio.hero
       SET name = ${name},
           title = ${title},
-          subtitle = ${subtitle}
+          subtitle = ${subtitle},
+          updated_by = ${updatedBy},
+          version = COALESCE(version, 1) + 1
+      WHERE singleton_key = 'default'
+      RETURNING id, name, title, subtitle
+    `;
+    if (!result[0]) {
+      result = await sql`
+      UPDATE portfolio.hero
+      SET name = ${name},
+          title = ${title},
+          subtitle = ${subtitle},
+          updated_by = ${updatedBy},
+          version = COALESCE(version, 1) + 1
       WHERE id = ${id}
       RETURNING id, name, title, subtitle
     `;
+    }
     return result[0] || null;
   },
 
-  async putContactInfo({ id, email, linkedin, github, location }) {
-    const result = await sql`
+  async putContactInfo({ id, email, linkedin, github, location, updatedBy = null }) {
+    let result = await sql`
       UPDATE portfolio.contact_information
       SET email = ${email},
           linkedin_url = ${linkedin},
           github_url = ${github},
-          location = ${location}
+          location = ${location},
+          updated_by = ${updatedBy},
+          version = COALESCE(version, 1) + 1
+      WHERE singleton_key = 'default'
+      RETURNING id, email, linkedin_url AS "linkedin", github_url AS "github", location
+    `;
+    if (!result[0]) {
+      result = await sql`
+      UPDATE portfolio.contact_information
+      SET email = ${email},
+          linkedin_url = ${linkedin},
+          github_url = ${github},
+          location = ${location},
+          updated_by = ${updatedBy},
+          version = COALESCE(version, 1) + 1
       WHERE id = ${id}
       RETURNING id, email, linkedin_url AS "linkedin", github_url AS "github", location
     `;
+    }
     return result[0] || null;
   },
 
@@ -39,7 +68,7 @@ module.exports = {
    * When tracking a projectClick, also upserts into project_clicks if projectName is provided.
    * When tracking a pageView, also inserts into page_visit_log for time-series charts.
    */
-  async trackAnalyticsEvent(eventName, { projectName, ipHash } = {}) {
+  async trackAnalyticsEvent(eventName, { projectName, ipHash, updatedBy = null } = {}) {
     const normalised = eventName.replace(/([A-Z])/g, '_$1').toLowerCase();
 
     const columnMap = {
@@ -57,14 +86,18 @@ module.exports = {
 
     let result = await sql`
       UPDATE portfolio.analytics
-      SET ${sql(column)} = ${sql(column)} + 1
+      SET ${sql(column)} = ${sql(column)} + 1,
+          updated_by = ${updatedBy},
+          version = COALESCE(version, 1) + 1
       WHERE singleton_key = 'default'
       RETURNING *`;
 
     if (!result[0]) {
       result = await sql`
       UPDATE portfolio.analytics
-      SET ${sql(column)} = ${sql(column)} + 1
+      SET ${sql(column)} = ${sql(column)} + 1,
+          updated_by = ${updatedBy},
+          version = COALESCE(version, 1) + 1
       WHERE single_row_lock = true
       RETURNING *`;
     }
@@ -135,7 +168,7 @@ module.exports = {
    * @param {string} section  - e.g. 'skills', 'experience', 'certifications'
    * @param {{ id: string, displayOrder: number }[]} items
    */
-  async reorderSection(section, items) {
+  async reorderSection(section, items, { updatedBy = null } = {}) {
     const tableMap = {
       skills: 'portfolio.skills',
       companies: 'portfolio.companies',
@@ -157,7 +190,9 @@ module.exports = {
         for (const { id, displayOrder } of items) {
           await tx`
             UPDATE portfolio.company_projects
-            SET display_order = ${displayOrder}
+            SET display_order = ${displayOrder},
+                updated_by = ${updatedBy},
+                version = COALESCE(version, 1) + 1
             WHERE id = ${id}::uuid AND company_id = ${companyId}::uuid
           `;
         }
@@ -172,7 +207,13 @@ module.exports = {
     // Run all updates inside a transaction
     await sql.begin(async tx => {
       for (const { id, displayOrder } of items) {
-        await tx`UPDATE ${sql(table)} SET display_order = ${displayOrder} WHERE id = ${id}::uuid`;
+        await tx`
+          UPDATE ${sql(table)}
+          SET display_order = ${displayOrder},
+              updated_by = ${updatedBy},
+              version = COALESCE(version, 1) + 1
+          WHERE id = ${id}::uuid
+        `;
       }
     });
 
