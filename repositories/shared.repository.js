@@ -54,6 +54,7 @@ async function getSkills() {
     years_experience AS "yearsExp"
   FROM portfolio.skills
   WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false
   ORDER BY display_order, name;`;
 }
 
@@ -71,8 +72,8 @@ async function getCompanies() {
     comp.currently_working AS "current",
     comp.website,
     comp.team_size       AS "teamSize",
-    comp.start_date      AS "startDate",
-    comp.end_date        AS "endDate",
+    COALESCE(comp.start_date_d::text, comp.start_date) AS "startDate",
+    COALESCE(comp.end_date_d::text, comp.end_date) AS "endDate",
     COALESCE(
       json_agg(
         json_build_object(
@@ -83,7 +84,7 @@ async function getCompanies() {
           'link',         proj.link,
           'displayOrder', proj.display_order,
           'tech',         proj.technologies,
-          'status',       proj.status,
+          'status',       COALESCE(proj.status_v2::text, proj.status),
           'impact',       proj.impact
         )
         ORDER BY proj.display_order
@@ -94,7 +95,9 @@ async function getCompanies() {
   LEFT JOIN portfolio.company_projects proj
     ON comp.id = proj.company_id
     AND proj.is_active = true
+    AND COALESCE(proj.is_deleted, false) = false
   WHERE comp.is_active = true
+    AND COALESCE(comp.is_deleted, false) = false
   GROUP BY comp.id
   ORDER BY comp.display_order;`;
 }
@@ -107,20 +110,28 @@ async function getPersonalProjects() {
     technologies AS "tech",
     github_link AS "githubUrl",
     live_link AS "liveUrl",
-    status,
-    type,
+    COALESCE(status_v2::text, status) AS status,
+    COALESCE(type_v2::text, type) AS type,
     featured,
     year,
     display_order AS "displayOrder"
   FROM portfolio.personal_projects
   WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false
   ORDER BY featured DESC, display_order;`;
 }
 
 async function getExperience() {
   return await sql`SELECT
     id,
-    period,
+    COALESCE(
+      period,
+      CONCAT_WS(
+        ' - ',
+        COALESCE(start_date_d::text, start_date),
+        COALESCE(end_date_d::text, end_date)
+      )
+    ) AS period,
     location,
     role,
     organisation AS "company",
@@ -128,6 +139,7 @@ async function getExperience() {
     display_order AS "displayOrder"
   FROM portfolio.experience
   WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false
   ORDER BY display_order, organisation;`;
 }
 
@@ -138,7 +150,8 @@ async function getStats() {
     suffix,
     label
   FROM portfolio.stats
-  WHERE is_active = true;`;
+  WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false;`;
 }
 
 async function getCertifications() {
@@ -157,6 +170,7 @@ async function getCertifications() {
     display_order AS "displayOrder"
   FROM portfolio.certifications
   WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false
   ORDER BY display_order, issue_year DESC;`;
 }
 
@@ -177,11 +191,13 @@ async function getTestimonials() {
     avatar,
     quote,
     rating,
-    status,
+    COALESCE(status_v2::text, status) AS status,
     visible,
     display_order AS "displayOrder"
   FROM portfolio.testimonials
-  WHERE is_active = true AND status = 'Approved'
+  WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false
+    AND COALESCE(status_v2::text, status) = 'Approved'
   ORDER BY display_order, rating DESC;`;
 }
 
@@ -201,6 +217,7 @@ async function getBlogPosts() {
     display_order AS "displayOrder"
   FROM portfolio.blog_posts
   WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false
   ORDER BY display_order, published_at DESC;`;
 }
 
@@ -244,12 +261,14 @@ async function getPendingTestimonials() {
     avatar,
     quote,
     rating,
-    status,
+    COALESCE(status_v2::text, status) AS status,
     visible,
     display_order AS "displayOrder",
     created_at AS "createdAt"
   FROM portfolio.testimonials
-  WHERE is_active = true AND status = 'Pending'
+  WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false
+    AND COALESCE(status_v2::text, status) = 'Pending'
   ORDER BY created_at DESC;`;
 }
 
