@@ -35,8 +35,8 @@ async function getPageContent() {
     sharedRepo.getPendingTestimonials(),
   ]);
 
-  const { id: heroId, ...heroRest } = heroData[0];
-  const { id: contactInfoId, ...contactRest } = contactInfo[0];
+  const { id: heroId, ...heroRest } = heroData || {};
+  const { id: contactInfoId, ...contactRest } = contactInfo || {};
 
   const hero = {
     heroId,

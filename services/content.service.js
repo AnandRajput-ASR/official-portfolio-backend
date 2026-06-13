@@ -34,8 +34,8 @@ async function getPageContent() {
     contentRepository.getPendingTestimonials(),
   ]);
 
-  const { id: heroId, ...heroRest } = heroData[0];
-  const { id: contactInfoId, ...contactRest } = contactInfo[0];
+  const { id: heroId, ...heroRest } = heroData || {};
+  const { id: contactInfoId, ...contactRest } = contactInfo || {};
 
   const hero = {
     heroId,
@@ -62,7 +62,7 @@ async function getPageContent() {
 
 async function getHero() {
   const heroData = await contentRepository.getHero();
-  return heroData[0] || null;
+  return heroData || null;
 }
 
 async function putHero(heroContent) {
@@ -71,7 +71,7 @@ async function putHero(heroContent) {
 
 async function getContactInfo() {
   const contactInfo = await contentRepository.getContactInfo();
-  return contactInfo[0] || null;
+  return contactInfo || null;
 }
 
 async function putContactInfo(contactInfo) {

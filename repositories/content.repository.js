@@ -55,11 +55,19 @@ module.exports = {
     const column = columnMap[normalised];
     if (!column) throw new Error(`Invalid analytics event: ${eventName}`);
 
-    const result = await sql`
+    let result = await sql`
+      UPDATE portfolio.analytics
+      SET ${sql(column)} = ${sql(column)} + 1
+      WHERE singleton_key = 'default'
+      RETURNING *`;
+
+    if (!result[0]) {
+      result = await sql`
       UPDATE portfolio.analytics
       SET ${sql(column)} = ${sql(column)} + 1
       WHERE single_row_lock = true
       RETURNING *`;
+    }
 
     // Log page views to time-series table
     if (normalised === 'page_view') {

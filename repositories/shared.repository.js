@@ -6,11 +6,31 @@
 const sql = require('../configs/database.config');
 
 async function getHero() {
-  return await sql`SELECT id, name, title, subtitle, bio FROM portfolio.hero LIMIT 1`;
+  const rows = await sql`
+    SELECT id, name, title, subtitle, bio
+    FROM portfolio.hero
+    WHERE singleton_key = 'default'
+    LIMIT 1
+  `;
+  if (rows[0]) return rows[0];
+
+  const fallback = await sql`SELECT id, name, title, subtitle, bio FROM portfolio.hero LIMIT 1`;
+  return fallback[0] || null;
 }
 
 async function getContactInfo() {
-  return await sql`SELECT
+  const rows = await sql`SELECT
+    id,
+    email,
+    linkedin_url AS "linkedin",
+    github_url AS "github",
+    location
+  FROM portfolio.contact_information
+  WHERE singleton_key = 'default'
+  LIMIT 1`;
+  if (rows[0]) return rows[0];
+
+  const fallback = await sql`SELECT
     id,
     email,
     linkedin_url AS "linkedin",
@@ -18,6 +38,7 @@ async function getContactInfo() {
     location
   FROM portfolio.contact_information
   LIMIT 1`;
+  return fallback[0] || null;
 }
 
 async function getSkills() {
@@ -184,7 +205,22 @@ async function getBlogPosts() {
 }
 
 async function getAnalytics() {
-  return await sql`SELECT
+  const rows = await sql`SELECT
+    id,
+    page_views AS "pageViews",
+    resume_downloads AS "resumeDownloads",
+    contact_form_submissions AS "contactFormSubmissions",
+    contact_form_views AS "contactFormViews",
+    blog_post_views AS "blogPostViews",
+    project_link_clicks AS "projectClicks",
+    social_link_clicks AS "socialLinkClicks",
+    last_reset AS "lastReset"
+  FROM portfolio.analytics
+  WHERE singleton_key = 'default'
+  LIMIT 1;`;
+  if (rows[0]) return rows[0];
+
+  const fallback = await sql`SELECT
     id,
     page_views AS "pageViews",
     resume_downloads AS "resumeDownloads",
@@ -196,6 +232,7 @@ async function getAnalytics() {
     last_reset AS "lastReset"
   FROM portfolio.analytics
   LIMIT 1;`;
+  return fallback[0] || null;
 }
 
 async function getPendingTestimonials() {
