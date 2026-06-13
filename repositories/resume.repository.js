@@ -12,7 +12,7 @@ async function getMeta() {
     WHERE singleton_key = 'default'
     LIMIT 1
   `;
-  if (rows[0]) return rows[0];
+  if (rows[0]) return rows[0].storedName ? rows[0] : null;
 
   const fallback = await sql`
     SELECT
@@ -24,7 +24,7 @@ async function getMeta() {
     FROM portfolio.resume_meta
     LIMIT 1
   `;
-  return fallback[0] || null;
+  return fallback[0]?.storedName ? fallback[0] : null;
 }
 
 async function upsertMeta({ originalName, storedName, size, createdBy = null, updatedBy = null }) {
@@ -91,16 +91,30 @@ async function updateDownloadName(downloadName, updatedBy = null) {
   return fallback[0] || null;
 }
 
-async function deleteMeta() {
-  const deleted = await sql`
-    DELETE FROM portfolio.resume_meta
+async function deleteMeta(updatedBy = null) {
+  const reset = await sql`
+    UPDATE portfolio.resume_meta
+    SET original_name = '',
+        stored_name = '',
+        download_name = NULL,
+        size = 0,
+        uploaded_at = now(),
+        updated_by = ${updatedBy},
+        version = COALESCE(version, 1) + 1
     WHERE singleton_key = 'default'
     RETURNING id
   `;
-  if (deleted.length > 0) return;
+  if (reset.length > 0) return;
 
   await sql`
-    DELETE FROM portfolio.resume_meta
+    UPDATE portfolio.resume_meta
+    SET original_name = '',
+        stored_name = '',
+        download_name = NULL,
+        size = 0,
+        uploaded_at = now(),
+        updated_by = ${updatedBy},
+        version = COALESCE(version, 1) + 1
     WHERE single_row_lock = true
   `;
 }

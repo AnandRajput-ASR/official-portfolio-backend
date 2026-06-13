@@ -134,6 +134,8 @@ async function deleteSkillById(id, updatedBy = null) {
         UPDATE portfolio.skills
         SET
             is_active = false,
+            is_deleted = true,
+            deleted_at = now(),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
@@ -302,6 +304,8 @@ async function deleteCompanyById(companyId, updatedBy = null) {
             UPDATE portfolio.companies
             SET
                 is_active = false,
+                is_deleted = true,
+                deleted_at = now(),
                 updated_at = now(),
                 updated_by = ${updatedBy},
                 version = COALESCE(version, 1) + 1
@@ -321,6 +325,8 @@ async function deleteCompanyById(companyId, updatedBy = null) {
             UPDATE portfolio.company_projects
             SET
                 is_active = false,
+                is_deleted = true,
+                deleted_at = now(),
                 updated_at = now(),
                 updated_by = ${updatedBy},
                 version = COALESCE(version, 1) + 1
@@ -384,6 +390,8 @@ async function deleteProjectById(projectId, updatedBy = null) {
         UPDATE portfolio.company_projects
         SET
             is_active = false,
+            is_deleted = true,
+            deleted_at = now(),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
@@ -511,6 +519,8 @@ async function deletePersonalProjectById(id, updatedBy = null) {
         UPDATE portfolio.personal_projects
         SET
             is_active = false,
+            is_deleted = true,
+            deleted_at = now(),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
@@ -619,6 +629,8 @@ async function deleteExperienceById(id, updatedBy = null) {
         UPDATE portfolio.experience
         SET
             is_active = false,
+            is_deleted = true,
+            deleted_at = now(),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
@@ -689,6 +701,8 @@ async function syncStats(stats, updatedBy = null) {
             UPDATE portfolio.stats
             SET
                 is_active = false,
+                is_deleted = true,
+                deleted_at = now(),
                 updated_at = now(),
                 updated_by = ${updatedBy},
                 version = COALESCE(version, 1) + 1
@@ -801,6 +815,8 @@ async function deleteCertificationById(id, updatedBy = null) {
         UPDATE portfolio.certifications
         SET
             is_active = false,
+            is_deleted = true,
+            deleted_at = now(),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
@@ -966,6 +982,8 @@ async function deleteTestimonial(id, updatedBy = null) {
         UPDATE portfolio.testimonials
         SET
             is_active = false,
+            is_deleted = true,
+            deleted_at = now(),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
@@ -1075,6 +1093,8 @@ async function deletePendingTestimonial(id, updatedBy = null) {
         UPDATE portfolio.testimonials
         SET
             is_active = false,
+            is_deleted = true,
+            deleted_at = now(),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
@@ -1209,6 +1229,8 @@ async function deleteBlogPost(id, updatedBy = null) {
         UPDATE portfolio.blog_posts
         SET
             is_active = false,
+            is_deleted = true,
+            deleted_at = now(),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
