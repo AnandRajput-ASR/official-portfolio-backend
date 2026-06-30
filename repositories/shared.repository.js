@@ -4,6 +4,7 @@
  * to avoid duplicating identical SQL queries.
  */
 const sql = require('../configs/database.config');
+const { normaliseCompanyBadge } = require('../utils/siteSettings');
 
 async function getHero() {
   const rows = await sql`
@@ -179,7 +180,7 @@ async function getSiteSettings() {
     FROM portfolio.site_config
     WHERE key = 'site_settings'`;
 
-  return result[0]?.config;
+  return normaliseCompanyBadge(result[0]?.config, { stripLegacy: true });
 }
 
 async function getTestimonials() {
