@@ -1242,28 +1242,42 @@ async function deleteBlogPost(id, updatedBy = null) {
 }
 
 async function getBlogCommentsBySlug(slug, status = 'all') {
-  const filters = [sql`post_slug = ${slug}`];
-  if (status !== 'all') {
-    filters.push(sql`COALESCE(moderation_status, 'visible') = ${status}`);
-  }
-
-  const comments = await sql`
-    SELECT
-      id::text AS id,
-      post_slug AS slug,
-      COALESCE(name, 'Anonymous') AS "authorName",
-      COALESCE(message, '') AS content,
-      created_at AS "createdAt",
-      COALESCE(moderation_status, 'visible') AS "moderationStatus",
-      moderation_reason AS "moderationReason",
-      moderated_by AS "moderatedBy",
-      moderated_at AS "moderatedAt",
-      hidden_at AS "hiddenAt",
-      deleted_at AS "deletedAt"
-    FROM portfolio.blog_post_comments
-    WHERE ${sql.join(filters, sql` AND `)}
-    ORDER BY created_at DESC, id DESC
-  `;
+  const comments = status === 'all'
+    ? await sql`
+      SELECT
+        id::text AS id,
+        post_slug AS slug,
+        COALESCE(name, 'Anonymous') AS "authorName",
+        COALESCE(message, '') AS content,
+        created_at AS "createdAt",
+        COALESCE(moderation_status, 'visible') AS "moderationStatus",
+        moderation_reason AS "moderationReason",
+        moderated_by AS "moderatedBy",
+        moderated_at AS "moderatedAt",
+        hidden_at AS "hiddenAt",
+        deleted_at AS "deletedAt"
+      FROM portfolio.blog_post_comments
+      WHERE post_slug = ${slug}
+      ORDER BY created_at DESC, id DESC
+    `
+    : await sql`
+      SELECT
+        id::text AS id,
+        post_slug AS slug,
+        COALESCE(name, 'Anonymous') AS "authorName",
+        COALESCE(message, '') AS content,
+        created_at AS "createdAt",
+        COALESCE(moderation_status, 'visible') AS "moderationStatus",
+        moderation_reason AS "moderationReason",
+        moderated_by AS "moderatedBy",
+        moderated_at AS "moderatedAt",
+        hidden_at AS "hiddenAt",
+        deleted_at AS "deletedAt"
+      FROM portfolio.blog_post_comments
+      WHERE post_slug = ${slug}
+        AND COALESCE(moderation_status, 'visible') = ${status}
+      ORDER BY created_at DESC, id DESC
+    `;
 
   const countRows = await sql`
     SELECT
