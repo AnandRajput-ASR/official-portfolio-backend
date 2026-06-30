@@ -1158,24 +1158,37 @@ async function updateBlogPostById(
   id,
   { title, slug, excerpt, content, tags, coverImage, published, publishedAt, readingTime, author, displayOrder, updatedBy = null }
 ) {
+  const safeId = id;
+  const safeTitle = title ?? '';
+  const safeSlug = slug ?? '';
+  const safeExcerpt = excerpt ?? null;
+  const safeContent = content ?? '';
+  const safeTags = Array.isArray(tags) ? tags : [];
+  const safeCoverImage = coverImage ?? null;
+  const safePublished = Boolean(published);
+  const safePublishedAt = publishedAt ?? null;
+  const safeReadingTime = readingTime ?? null;
+  const safeAuthor = author ?? 'Anand Rajput';
+  const safeDisplayOrder = displayOrder ?? null;
+
   const result = await sql`
         UPDATE portfolio.blog_posts
         SET
-            title = ${title},
-            slug = ${slug},
-            excerpt = ${excerpt},
-            content = ${content},
-            tags = ${tags}::text[],
-            cover_image = ${coverImage},
-            published = ${published},
-            published_at = ${publishedAt},
-            reading_time = ${readingTime},
-            author = ${author},
-            display_order = COALESCE(${displayOrder}, display_order),
+            title = ${safeTitle},
+            slug = ${safeSlug},
+            excerpt = ${safeExcerpt},
+            content = ${safeContent},
+            tags = ${safeTags}::text[],
+            cover_image = ${safeCoverImage},
+            published = ${safePublished},
+            published_at = ${safePublishedAt},
+            reading_time = ${safeReadingTime},
+            author = ${safeAuthor},
+            display_order = COALESCE(${safeDisplayOrder}, display_order),
             updated_at = now(),
             updated_by = ${updatedBy},
             version = COALESCE(version, 1) + 1
-        WHERE id = ${id}
+        WHERE id = ${safeId}
         RETURNING
             id,
             title,
@@ -1198,25 +1211,36 @@ async function updateBlogPosts(posts, updatedBy = null) {
   return await sql.begin(async tx => {
     for (const post of posts) {
       const { id, title, slug, excerpt, content, tags, coverImage, published, readingTime, author, displayOrder } = post;
+      const safeId = id;
+      const safeTitle = title ?? '';
+      const safeSlug = slug ?? '';
+      const safeExcerpt = excerpt ?? null;
+      const safeContent = content ?? '';
+      const safeTags = Array.isArray(tags) ? tags : [];
+      const safeCoverImage = coverImage ?? null;
+      const safePublished = Boolean(published);
+      const safeReadingTime = readingTime ?? null;
+      const safeAuthor = author ?? 'Anand Rajput';
+      const safeDisplayOrder = displayOrder ?? null;
 
       await tx`
                 UPDATE portfolio.blog_posts
                 SET
-                    title = ${title},
-                    slug = ${slug},
-                    excerpt = ${excerpt},
-                    content = ${content},
-                    tags = ${tags}::text[],
-                    cover_image = ${coverImage},
-                    published = ${published},
+                    title = ${safeTitle},
+                    slug = ${safeSlug},
+                    excerpt = ${safeExcerpt},
+                    content = ${safeContent},
+                    tags = ${safeTags}::text[],
+                    cover_image = ${safeCoverImage},
+                    published = ${safePublished},
                     published_at = now(),
-                    reading_time = ${readingTime},
-                    author = ${author},
-                    display_order = COALESCE(${displayOrder}, display_order),
+                    reading_time = ${safeReadingTime},
+                    author = ${safeAuthor},
+                    display_order = COALESCE(${safeDisplayOrder}, display_order),
                     updated_at = now(),
                     updated_by = ${updatedBy},
                     version = COALESCE(version, 1) + 1
-                WHERE id = ${id}
+                WHERE id = ${safeId}
             `;
     }
 
