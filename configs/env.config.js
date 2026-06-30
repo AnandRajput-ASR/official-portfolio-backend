@@ -20,6 +20,7 @@ const env = {
   nodeEnv: process.env.NODE_ENV?.trim() || 'development',
   port: Number(process.env.PORT) || 3000,
   jwtSecret: getRequiredEnv('JWT_SECRET'),
+  visitorTokenSecret: (process.env.VISITOR_TOKEN_SECRET?.trim() || process.env.JWT_SECRET?.trim()),
   adminSecretSlug: getRequiredEnv('ADMIN_SECRET_SLUG'),
   allowedOrigins: parseAllowedOrigins(process.env.ALLOWED_ORIGINS),
   trustProxy: process.env.TRUST_PROXY === 'true' || process.env.NODE_ENV === 'production',

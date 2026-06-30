@@ -2,8 +2,11 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const auth = require('../middleware/auth');
+const rateLimiter = require('../middleware/rateLimiter');
+const { attachVisitorIdentity } = require('../middleware/visitorIdentity');
 const router = express.Router();
 const contentController = require('../controllers/content.controller');
+const blogSocialController = require('../controllers/blogSocial.controller');
 
 const UPLOADS_DIR = path.join(__dirname, '../data/uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -21,6 +24,15 @@ router.get('/stats', contentController.getStats);
 router.get('/certifications', contentController.getCertification);
 router.get('/testimonials', contentController.getTestimonials);
 router.get('/blog', contentController.getBlogPosts);
+router.get('/blogs/:slug/social', attachVisitorIdentity, blogSocialController.getBlogSocial);
+router.post('/blogs/:slug/like', attachVisitorIdentity, blogSocialController.toggleBlogLike);
+router.post(
+  '/blogs/:slug/comments',
+  attachVisitorIdentity,
+  rateLimiter(20, 60 * 60 * 1000, 'Too many comments. Please try again later.'),
+  blogSocialController.createBlogComment,
+);
+router.post('/blogs/:slug/share', attachVisitorIdentity, blogSocialController.incrementBlogShare);
 router.get('/analytics', auth, contentController.getAnalytics);
 router.get('/testimonials/pending', contentController.getPendingTestimonials);
 router.get('/settings', contentController.getSettings);

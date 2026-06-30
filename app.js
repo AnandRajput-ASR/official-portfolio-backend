@@ -72,8 +72,11 @@ app.use('/api/auth', rateLimiter(15, 15 * 60 * 1000), authRoutes);
 // Excludes /page-content — it aggregates all data so it must reflect
 // admin updates immediately (no stale browser cache).
 app.use('/api/content', (req, res, next) => {
-  if (req.method === 'GET' && !req.path.startsWith('/page-content')) {
+  const isBlogSocialRoute = /^\/blogs\/[^/]+\/social$/.test(req.path);
+  if (req.method === 'GET' && !req.path.startsWith('/page-content') && !isBlogSocialRoute) {
     res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+  } else if (req.method === 'GET' && isBlogSocialRoute) {
+    res.set('Cache-Control', 'no-store');
   }
   next();
 });

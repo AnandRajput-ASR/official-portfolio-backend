@@ -244,6 +244,78 @@ CREATE TABLE IF NOT EXISTS portfolio.blog_posts (
   CONSTRAINT blog_posts_slug_key UNIQUE (slug)
 );
 
+-- ─── blog_post_social_stats ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS portfolio.blog_post_social_stats (
+  post_slug    TEXT        NOT NULL,
+  likes_count  INTEGER     NOT NULL DEFAULT 0,
+  shares_count INTEGER     NOT NULL DEFAULT 0,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT blog_post_social_stats_pkey PRIMARY KEY (post_slug),
+  CONSTRAINT blog_post_social_stats_slug_fkey
+    FOREIGN KEY (post_slug) REFERENCES portfolio.blog_posts(slug) ON DELETE CASCADE,
+  CONSTRAINT blog_post_social_stats_likes_check CHECK (likes_count >= 0),
+  CONSTRAINT blog_post_social_stats_shares_check CHECK (shares_count >= 0)
+);
+
+-- ─── blog_post_comments ───────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS portfolio.blog_post_comments (
+  id                UUID         NOT NULL,
+  post_slug         TEXT         NOT NULL,
+  name              VARCHAR(48)  NOT NULL,
+  message           VARCHAR(600) NOT NULL,
+  moderation_status TEXT         NOT NULL DEFAULT 'visible',
+  moderation_reason TEXT,
+  moderated_by      TEXT,
+  moderated_at      TIMESTAMPTZ,
+  hidden_at         TIMESTAMPTZ,
+  deleted_at        TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ  NOT NULL DEFAULT now(),
+
+  CONSTRAINT blog_post_comments_pkey PRIMARY KEY (id),
+  CONSTRAINT blog_post_comments_slug_fkey
+    FOREIGN KEY (post_slug) REFERENCES portfolio.blog_posts(slug) ON DELETE CASCADE,
+  CONSTRAINT blog_post_comments_moderation_status_check
+    CHECK (moderation_status IN ('visible', 'hidden', 'deleted'))
+);
+
+-- ─── blog_post_comment_moderation_audit ───────────────────────────────────
+CREATE TABLE IF NOT EXISTS portfolio.blog_post_comment_moderation_audit (
+  id           UUID        NOT NULL DEFAULT gen_random_uuid(),
+  comment_id   UUID,
+  post_slug    TEXT        NOT NULL,
+  action       TEXT        NOT NULL,
+  from_status  TEXT        NOT NULL,
+  to_status    TEXT        NOT NULL,
+  reason       TEXT,
+  moderated_by TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT blog_post_comment_moderation_audit_pkey PRIMARY KEY (id),
+  CONSTRAINT blog_post_comment_moderation_audit_comment_fkey
+    FOREIGN KEY (comment_id) REFERENCES portfolio.blog_post_comments(id) ON DELETE SET NULL,
+  CONSTRAINT blog_post_comment_moderation_audit_action_check
+    CHECK (action IN ('hide', 'unhide', 'delete', 'restore', 'permanent_delete')),
+  CONSTRAINT blog_post_comment_moderation_audit_from_status_check
+    CHECK (from_status IN ('visible', 'hidden', 'deleted')),
+  CONSTRAINT blog_post_comment_moderation_audit_to_status_check
+    CHECK (to_status IN ('visible', 'hidden', 'deleted'))
+);
+
+-- ─── blog_post_reactions ──────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS portfolio.blog_post_reactions (
+  post_slug   TEXT        NOT NULL,
+  visitor_id  TEXT        NOT NULL,
+  liked       BOOLEAN     NOT NULL DEFAULT true,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT blog_post_reactions_pkey PRIMARY KEY (post_slug, visitor_id),
+  CONSTRAINT blog_post_reactions_slug_fkey
+    FOREIGN KEY (post_slug) REFERENCES portfolio.blog_posts(slug) ON DELETE CASCADE
+);
+
 -- ─── analytics (single-row) ───────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS portfolio.analytics (
   id                        UUID        NOT NULL DEFAULT gen_random_uuid(),
@@ -372,6 +444,18 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_published
 CREATE INDEX IF NOT EXISTS idx_blog_posts_slug
   ON portfolio.blog_posts (slug);
 
+CREATE INDEX IF NOT EXISTS idx_blog_post_comments_slug_created_at
+  ON portfolio.blog_post_comments (post_slug, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_blog_post_comments_slug_status_created_at
+  ON portfolio.blog_post_comments (post_slug, moderation_status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_blog_comment_audit_slug_created_at
+  ON portfolio.blog_post_comment_moderation_audit (post_slug, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_blog_post_reactions_slug_liked
+  ON portfolio.blog_post_reactions (post_slug, liked);
+
 CREATE INDEX IF NOT EXISTS idx_company_projects_company_id
   ON portfolio.company_projects (company_id);
 
@@ -429,6 +513,14 @@ CREATE OR REPLACE TRIGGER blog_posts_updated_at
   BEFORE UPDATE ON portfolio.blog_posts
   FOR EACH ROW EXECUTE FUNCTION portfolio.set_updated_at();
 
+CREATE OR REPLACE TRIGGER blog_post_social_stats_updated_at
+  BEFORE UPDATE ON portfolio.blog_post_social_stats
+  FOR EACH ROW EXECUTE FUNCTION portfolio.set_updated_at();
+
+CREATE OR REPLACE TRIGGER blog_post_reactions_updated_at
+  BEFORE UPDATE ON portfolio.blog_post_reactions
+  FOR EACH ROW EXECUTE FUNCTION portfolio.set_updated_at();
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- 5. ROW LEVEL SECURITY (RLS)
 -- ════════════════════════════════════════════════════════════════════════════
@@ -445,6 +537,10 @@ ALTER TABLE portfolio.stats               ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.certifications      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.testimonials        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.blog_posts          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE portfolio.blog_post_social_stats ENABLE ROW LEVEL SECURITY;
+ALTER TABLE portfolio.blog_post_comments  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE portfolio.blog_post_reactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE portfolio.blog_post_comment_moderation_audit ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.analytics           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.project_clicks      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE portfolio.page_visit_log      ENABLE ROW LEVEL SECURITY;
@@ -487,6 +583,106 @@ CREATE POLICY public_read_testimonials
 CREATE POLICY public_read_blog_posts
   ON portfolio.blog_posts FOR SELECT TO public
   USING (published = true AND is_active = true);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_social_stats' AND policyname = 'public_read_blog_post_social_stats'
+  ) THEN
+    CREATE POLICY public_read_blog_post_social_stats
+      ON portfolio.blog_post_social_stats FOR SELECT TO public
+      USING (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_social_stats' AND policyname = 'public_insert_blog_post_social_stats'
+  ) THEN
+    CREATE POLICY public_insert_blog_post_social_stats
+      ON portfolio.blog_post_social_stats FOR INSERT TO public
+      WITH CHECK (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_social_stats' AND policyname = 'public_update_blog_post_social_stats'
+  ) THEN
+    CREATE POLICY public_update_blog_post_social_stats
+      ON portfolio.blog_post_social_stats FOR UPDATE TO public
+      USING (true)
+      WITH CHECK (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_comments' AND policyname = 'public_read_blog_post_comments'
+  ) THEN
+    CREATE POLICY public_read_blog_post_comments
+      ON portfolio.blog_post_comments FOR SELECT TO public
+      USING (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_comments' AND policyname = 'public_insert_blog_post_comments'
+  ) THEN
+    CREATE POLICY public_insert_blog_post_comments
+      ON portfolio.blog_post_comments FOR INSERT TO public
+      WITH CHECK (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_reactions' AND policyname = 'public_read_blog_post_reactions'
+  ) THEN
+    CREATE POLICY public_read_blog_post_reactions
+      ON portfolio.blog_post_reactions FOR SELECT TO public
+      USING (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_reactions' AND policyname = 'public_upsert_blog_post_reactions'
+  ) THEN
+    CREATE POLICY public_upsert_blog_post_reactions
+      ON portfolio.blog_post_reactions FOR INSERT TO public
+      WITH CHECK (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_reactions' AND policyname = 'public_update_blog_post_reactions'
+  ) THEN
+    CREATE POLICY public_update_blog_post_reactions
+      ON portfolio.blog_post_reactions FOR UPDATE TO public
+      USING (true)
+      WITH CHECK (true);
+  END IF;
+END
+$$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_comment_moderation_audit' AND policyname = 'admin_read_blog_comment_moderation_audit'
+  ) THEN
+    CREATE POLICY admin_read_blog_comment_moderation_audit
+      ON portfolio.blog_post_comment_moderation_audit FOR SELECT TO public
+      USING (true);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'portfolio' AND tablename = 'blog_post_comment_moderation_audit' AND policyname = 'admin_insert_blog_comment_moderation_audit'
+  ) THEN
+    CREATE POLICY admin_insert_blog_comment_moderation_audit
+      ON portfolio.blog_post_comment_moderation_audit FOR INSERT TO public
+      WITH CHECK (true);
+  END IF;
+END
+$$;
 
 CREATE POLICY public_read_analytics
   ON portfolio.analytics FOR SELECT TO public USING (true);

@@ -1241,6 +1241,180 @@ async function deleteBlogPost(id, updatedBy = null) {
   return result[0];
 }
 
+async function getBlogCommentsBySlug(slug, status = 'all') {
+  const filters = [sql`post_slug = ${slug}`];
+  if (status !== 'all') {
+    filters.push(sql`moderation_status = ${status}`);
+  }
+
+  const comments = await sql`
+    SELECT
+      id::text AS id,
+      post_slug AS slug,
+      name AS "authorName",
+      message AS content,
+      created_at AS "createdAt",
+      moderation_status AS "moderationStatus",
+      moderation_reason AS "moderationReason",
+      moderated_by AS "moderatedBy",
+      moderated_at AS "moderatedAt",
+      hidden_at AS "hiddenAt",
+      deleted_at AS "deletedAt"
+    FROM portfolio.blog_post_comments
+    WHERE ${sql.join(filters, sql` AND `)}
+    ORDER BY created_at DESC, id DESC
+  `;
+
+  const countRows = await sql`
+    SELECT
+      COUNT(*)::int AS all,
+      COUNT(*) FILTER (WHERE moderation_status = 'visible')::int AS visible,
+      COUNT(*) FILTER (WHERE moderation_status = 'hidden')::int AS hidden,
+      COUNT(*) FILTER (WHERE moderation_status = 'deleted')::int AS deleted
+    FROM portfolio.blog_post_comments
+    WHERE post_slug = ${slug}
+  `;
+
+  return {
+    comments,
+    counts: countRows[0] || { all: 0, visible: 0, hidden: 0, deleted: 0 },
+  };
+}
+
+async function moderateBlogComment({ slug, commentId, action, nextStatus, reason, moderatedBy }) {
+  return await sql.begin(async tx => {
+    const row = await tx`
+      SELECT
+        id,
+        post_slug,
+        moderation_status,
+        moderation_reason,
+        moderated_by,
+        moderated_at,
+        hidden_at,
+        deleted_at
+      FROM portfolio.blog_post_comments
+      WHERE id = ${commentId}::uuid
+        AND post_slug = ${slug}
+      LIMIT 1
+      FOR UPDATE
+    `;
+
+    if (!row[0]) return null;
+
+    const current = row[0];
+    const updatedRows = await tx`
+      UPDATE portfolio.blog_post_comments
+      SET
+        moderation_status = ${nextStatus},
+        moderation_reason = ${reason || null},
+        moderated_by = ${moderatedBy || null},
+        moderated_at = now(),
+        hidden_at = CASE
+                      WHEN ${nextStatus} = 'hidden' THEN now()
+                      WHEN ${nextStatus} = 'visible' THEN NULL
+                      ELSE hidden_at
+                    END,
+        deleted_at = CASE
+                       WHEN ${nextStatus} = 'deleted' THEN now()
+                       WHEN ${nextStatus} = 'visible' THEN NULL
+                       ELSE deleted_at
+                     END
+      WHERE id = ${commentId}::uuid
+        AND post_slug = ${slug}
+      RETURNING
+        id::text AS id,
+        moderation_status AS "moderationStatus",
+        moderation_reason AS "moderationReason",
+        moderated_by AS "moderatedBy",
+        moderated_at AS "moderatedAt",
+        hidden_at AS "hiddenAt",
+        deleted_at AS "deletedAt"
+    `;
+
+    await tx`
+      INSERT INTO portfolio.blog_post_comment_moderation_audit (
+        comment_id,
+        post_slug,
+        action,
+        from_status,
+        to_status,
+        reason,
+        moderated_by
+      )
+      VALUES (
+        ${commentId}::uuid,
+        ${slug},
+        ${action},
+        ${current.moderation_status},
+        ${nextStatus},
+        ${reason || null},
+        ${moderatedBy || null}
+      )
+    `;
+
+    return {
+      previousStatus: current.moderation_status,
+      comment: updatedRows[0],
+    };
+  });
+}
+
+async function softDeleteBlogComment({ slug, commentId, reason, moderatedBy }) {
+  return await moderateBlogComment({
+    slug,
+    commentId,
+    action: 'delete',
+    nextStatus: 'deleted',
+    reason,
+    moderatedBy,
+  });
+}
+
+async function hardDeleteBlogComment({ slug, commentId, moderatedBy }) {
+  return await sql.begin(async tx => {
+    const row = await tx`
+      SELECT id, post_slug, moderation_status
+      FROM portfolio.blog_post_comments
+      WHERE id = ${commentId}::uuid
+        AND post_slug = ${slug}
+      LIMIT 1
+      FOR UPDATE
+    `;
+
+    if (!row[0]) return null;
+
+    await tx`
+      INSERT INTO portfolio.blog_post_comment_moderation_audit (
+        comment_id,
+        post_slug,
+        action,
+        from_status,
+        to_status,
+        reason,
+        moderated_by
+      )
+      VALUES (
+        ${commentId}::uuid,
+        ${slug},
+        'permanent_delete',
+        ${row[0].moderation_status},
+        'deleted',
+        'Permanent deletion',
+        ${moderatedBy || null}
+      )
+    `;
+
+    await tx`
+      DELETE FROM portfolio.blog_post_comments
+      WHERE id = ${commentId}::uuid
+        AND post_slug = ${slug}
+    `;
+
+    return { success: true };
+  });
+}
+
 async function getAnalytics() {
   const [analyticsResult, clicksResult, dailyVisitsResult, visitorCounts] = await Promise.all([
     sql`
@@ -1395,6 +1569,10 @@ module.exports = {
   updateBlogPostById,
   updateBlogPosts,
   deleteBlogPost,
+  getBlogCommentsBySlug,
+  moderateBlogComment,
+  softDeleteBlogComment,
+  hardDeleteBlogComment,
   getAnalytics,
   resetAnalytics,
   trackAnalyticsEvent,

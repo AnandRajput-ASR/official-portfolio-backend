@@ -60,6 +60,10 @@ router.put('/blog', adminController.updateBlogPost);
 router.post('/blog', adminController.createBlogPost);
 router.put('/blog/:id', adminController.updateBlogPostById);
 router.delete('/blog/:id', adminController.deleteBlogPost);
+router.get('/blog/:slug/comments', adminController.getBlogComments);
+router.patch('/blog/:slug/comments/:commentId/moderation', adminController.moderateBlogComment);
+router.delete('/blog/:slug/comments/:commentId', adminController.deleteBlogComment);
+router.delete('/blog/:slug/comments/:commentId/permanent', adminController.permanentlyDeleteBlogComment);
 
 router.get('/analytics', adminController.getAnalytics);
 router.delete('/analytics/reset', adminController.resetAnalytics);

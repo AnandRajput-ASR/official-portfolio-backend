@@ -192,6 +192,96 @@ async function deleteBlogPost(id) {
   return await repository.deleteBlogPost(id);
 }
 
+function getTargetStatus(action) {
+  const map = {
+    hide: 'hidden',
+    unhide: 'visible',
+    delete: 'deleted',
+    restore: 'visible',
+  };
+  return map[action] || null;
+}
+
+function assertValidTransition(action, currentStatus) {
+  const allowed = {
+    hide: new Set(['visible']),
+    unhide: new Set(['hidden']),
+    delete: new Set(['visible', 'hidden']),
+    restore: new Set(['deleted']),
+  };
+
+  if (!allowed[action] || !allowed[action].has(currentStatus)) {
+    const err = new Error(`Invalid moderation transition: cannot ${action} from ${currentStatus}.`);
+    err.statusCode = 409;
+    throw err;
+  }
+}
+
+async function getBlogComments(slug, status = 'all') {
+  return await repository.getBlogCommentsBySlug(slug, status);
+}
+
+async function moderateComment(slug, commentId, action, adminUser, reason) {
+  const nextStatus = getTargetStatus(action);
+  if (!nextStatus) {
+    const err = new Error('Invalid moderation action. Allowed actions: hide, unhide, delete, restore.');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const moderationReason = typeof reason === 'string' ? reason.trim() : '';
+  if (moderationReason.length > 300) {
+    const err = new Error('Reason is too long (max 300 characters).');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const moderatedBy = adminUser?.username || adminUser?.sub || adminUser?.id || null;
+
+  const existing = await repository.getBlogCommentsBySlug(slug, 'all');
+  const current = existing.comments.find((comment) => comment.id === commentId);
+
+  if (!current) {
+    const err = new Error('Comment not found for this slug.');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  assertValidTransition(action, current.moderationStatus);
+
+  const updated = await repository.moderateBlogComment({
+    slug,
+    commentId,
+    action,
+    nextStatus,
+    reason: moderationReason || null,
+    moderatedBy,
+  });
+
+  if (!updated) {
+    const err = new Error('Comment not found for this slug.');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  return updated.comment;
+}
+
+async function softDeleteBlogComment(slug, commentId, adminUser, reason) {
+  return await moderateComment(slug, commentId, 'delete', adminUser, reason);
+}
+
+async function hardDeleteBlogComment(slug, commentId, adminUser) {
+  const moderatedBy = adminUser?.username || adminUser?.sub || adminUser?.id || null;
+  const deleted = await repository.hardDeleteBlogComment({ slug, commentId, moderatedBy });
+  if (!deleted) {
+    const err = new Error('Comment not found for this slug.');
+    err.statusCode = 404;
+    throw err;
+  }
+  return deleted;
+}
+
 async function getAnalytics() {
   return await repository.getAnalytics();
 }
@@ -238,6 +328,10 @@ module.exports = {
   createBlogPost,
   updateBlogPostById,
   deleteBlogPost,
+  getBlogComments,
+  moderateComment,
+  softDeleteBlogComment,
+  hardDeleteBlogComment,
   getAnalytics,
   resetAnalytics,
   trackAnalyticsEvent,

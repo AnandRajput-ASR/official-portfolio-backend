@@ -244,6 +244,54 @@ exports.deleteBlogPost = asyncHandler(async (req, res) => {
   return ok(res, deleted, 'Blog post deleted');
 });
 
+exports.getBlogComments = asyncHandler(async (req, res) => {
+  const allowed = new Set(['all', 'visible', 'hidden', 'deleted']);
+  const status = String(req.query.status || 'all').toLowerCase();
+
+  if (!allowed.has(status)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid status filter. Allowed values: all, visible, hidden, deleted.',
+    });
+  }
+
+  const data = await adminService.getBlogComments(req.params.slug, status);
+  return res.json({ success: true, data });
+});
+
+exports.moderateBlogComment = asyncHandler(async (req, res) => {
+  const { action, reason } = req.body || {};
+  const result = await adminService.moderateComment(
+    req.params.slug,
+    req.params.commentId,
+    action,
+    req.user,
+    reason,
+  );
+
+  return res.json({ success: true, data: result });
+});
+
+exports.deleteBlogComment = asyncHandler(async (req, res) => {
+  const result = await adminService.softDeleteBlogComment(
+    req.params.slug,
+    req.params.commentId,
+    req.user,
+    req.body?.reason,
+  );
+
+  return res.json({ success: true, data: result });
+});
+
+exports.permanentlyDeleteBlogComment = asyncHandler(async (req, res) => {
+  if (req.user?.role !== 'superadmin') {
+    return res.status(403).json({ success: false, message: 'Superadmin role required for permanent delete.' });
+  }
+
+  await adminService.hardDeleteBlogComment(req.params.slug, req.params.commentId, req.user);
+  return res.json({ success: true });
+});
+
 exports.getAnalytics = asyncHandler(async (_, res) => {
   const analytics = await adminService.getAnalytics();
   return ok(res, analytics);
