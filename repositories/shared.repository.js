@@ -222,6 +222,55 @@ async function getBlogPosts() {
   ORDER BY display_order, published_at DESC;`;
 }
 
+async function getPublicLiveBlogPosts() {
+  return await sql`SELECT
+    id,
+    title,
+    slug,
+    excerpt,
+    content,
+    tags,
+    cover_image AS "coverImage",
+    published,
+    published_at AS "publishedAt",
+    unpublished_at AS "unpublishedAt",
+    reading_time AS "readingTime",
+    display_order AS "displayOrder"
+  FROM portfolio.blog_posts
+  WHERE is_active = true
+    AND COALESCE(is_deleted, false) = false
+    AND published = true
+    AND (published_at IS NULL OR published_at <= now())
+    AND (unpublished_at IS NULL OR unpublished_at > now())
+  ORDER BY published_at DESC NULLS LAST, display_order ASC, created_at DESC;`;
+}
+
+async function getPublicLiveBlogPostBySlug(slug) {
+  const rows = await sql`SELECT
+    id,
+    title,
+    slug,
+    excerpt,
+    content,
+    tags,
+    cover_image AS "coverImage",
+    published,
+    published_at AS "publishedAt",
+    unpublished_at AS "unpublishedAt",
+    reading_time AS "readingTime",
+    display_order AS "displayOrder"
+  FROM portfolio.blog_posts
+  WHERE slug = ${slug}
+    AND is_active = true
+    AND COALESCE(is_deleted, false) = false
+    AND published = true
+    AND (published_at IS NULL OR published_at <= now())
+    AND (unpublished_at IS NULL OR unpublished_at > now())
+  LIMIT 1;`;
+
+  return rows[0] || null;
+}
+
 async function getAnalytics() {
   const rows = await sql`SELECT
     id,
@@ -285,6 +334,8 @@ module.exports = {
   getSiteSettings,
   getTestimonials,
   getBlogPosts,
+  getPublicLiveBlogPosts,
+  getPublicLiveBlogPostBySlug,
   getAnalytics,
   getPendingTestimonials,
 };

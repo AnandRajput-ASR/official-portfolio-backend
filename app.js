@@ -73,7 +73,10 @@ app.use('/api/auth', rateLimiter(15, 15 * 60 * 1000), authRoutes);
 // admin updates immediately (no stale browser cache).
 app.use('/api/content', (req, res, next) => {
   const isBlogSocialRoute = /^\/blogs\/[^/]+\/social$/.test(req.path);
-  if (req.method === 'GET' && !req.path.startsWith('/page-content') && !isBlogSocialRoute) {
+  const isPublicBlogListOrDetail = req.path === '/blogs' || /^\/blogs\/[^/]+$/.test(req.path);
+  if (req.method === 'GET' && isPublicBlogListOrDetail) {
+    res.set('Cache-Control', 'public, s-maxage=120, max-age=60, stale-while-revalidate=300');
+  } else if (req.method === 'GET' && !req.path.startsWith('/page-content') && !isBlogSocialRoute) {
     res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
   } else if (req.method === 'GET' && isBlogSocialRoute) {
     res.set('Cache-Control', 'no-store');

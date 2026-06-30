@@ -3,6 +3,35 @@
  */
 const contentRepository = require('../repositories/content.repository');
 
+function toPublicBlogPostDTO(post) {
+  return {
+    id: post.id,
+    title: post.title,
+    slug: post.slug,
+    excerpt: post.excerpt || null,
+    content: post.content || '',
+    tags: Array.isArray(post.tags) ? post.tags : [],
+    coverImage: post.coverImage || null,
+    published: Boolean(post.published),
+    publishedAt: post.publishedAt || null,
+    unpublishedAt: post.unpublishedAt || null,
+    readingTime: Number.isFinite(Number(post.readingTime)) ? Number(post.readingTime) : null,
+    displayOrder: Number.isFinite(Number(post.displayOrder)) ? Number(post.displayOrder) : 0,
+  };
+}
+
+function isLivePublicPost(post, now = new Date()) {
+  if (!post || post.published !== true) return false;
+
+  const publishedAt = post.publishedAt ? new Date(post.publishedAt) : null;
+  const unpublishedAt = post.unpublishedAt ? new Date(post.unpublishedAt) : null;
+
+  if (publishedAt && publishedAt > now) return false;
+  if (unpublishedAt && unpublishedAt <= now) return false;
+
+  return true;
+}
+
 async function getPageContent() {
   const [
     heroData,
@@ -110,6 +139,29 @@ async function getBlogPosts() {
   return await contentRepository.getBlogPosts();
 }
 
+async function getPublicLiveBlogPosts() {
+  const now = new Date();
+  const posts = await contentRepository.getPublicLiveBlogPosts();
+
+  return posts
+    .filter((post) => isLivePublicPost(post, now))
+    .sort((a, b) => {
+      const aPublishedAt = a.publishedAt ? new Date(a.publishedAt).getTime() : Number.NEGATIVE_INFINITY;
+      const bPublishedAt = b.publishedAt ? new Date(b.publishedAt).getTime() : Number.NEGATIVE_INFINITY;
+
+      if (bPublishedAt !== aPublishedAt) return bPublishedAt - aPublishedAt;
+      return (Number(a.displayOrder) || 0) - (Number(b.displayOrder) || 0);
+    })
+    .map(toPublicBlogPostDTO);
+}
+
+async function getPublicLiveBlogPostBySlug(slug) {
+  const now = new Date();
+  const post = await contentRepository.getPublicLiveBlogPostBySlug(slug);
+  if (!post || !isLivePublicPost(post, now)) return null;
+  return toPublicBlogPostDTO(post);
+}
+
 async function getAnalytics() {
   return await contentRepository.getAnalytics();
 }
@@ -150,6 +202,8 @@ module.exports = {
   getCertification,
   getTestimonials,
   getBlogPosts,
+  getPublicLiveBlogPosts,
+  getPublicLiveBlogPostBySlug,
   getAnalytics,
   getPendingTestimonials,
   putHero,

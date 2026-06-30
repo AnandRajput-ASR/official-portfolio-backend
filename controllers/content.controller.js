@@ -43,6 +43,19 @@ exports.getBlogPosts = asyncHandler(async (_, res) => {
   return res.json(await contentService.getBlogPosts());
 });
 
+exports.getPublicLiveBlogs = asyncHandler(async (_, res) => {
+  const posts = await contentService.getPublicLiveBlogPosts();
+  return res.json({ success: true, data: { posts } });
+});
+
+exports.getPublicLiveBlogBySlug = asyncHandler(async (req, res) => {
+  const post = await contentService.getPublicLiveBlogPostBySlug(req.params.slug);
+  if (!post) {
+    return res.status(404).json({ success: false, message: 'Blog post not found.' });
+  }
+  return res.json({ success: true, data: { post } });
+});
+
 exports.getAnalytics = asyncHandler(async (_, res) => {
   return res.json(await contentService.getAnalytics());
 });

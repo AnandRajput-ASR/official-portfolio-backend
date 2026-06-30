@@ -24,6 +24,8 @@ router.get('/stats', contentController.getStats);
 router.get('/certifications', contentController.getCertification);
 router.get('/testimonials', contentController.getTestimonials);
 router.get('/blog', contentController.getBlogPosts);
+router.get('/blogs', contentController.getPublicLiveBlogs);
+router.get('/blogs/:slug', contentController.getPublicLiveBlogBySlug);
 router.get('/blogs/:slug/social', attachVisitorIdentity, blogSocialController.getBlogSocial);
 router.post('/blogs/:slug/like', attachVisitorIdentity, blogSocialController.toggleBlogLike);
 router.post(

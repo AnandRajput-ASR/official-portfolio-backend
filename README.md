@@ -134,6 +134,8 @@ Full DDL with indexes, triggers, RLS policies, and seed data is in [`scripts/sch
 | `GET` | `/api/content/certifications` | Certifications |
 | `GET` | `/api/content/testimonials` | Approved testimonials |
 | `GET` | `/api/content/blog` | Published blog posts |
+| `GET` | `/api/content/blogs` | Lightweight live public blog list (frontend listing/article data only) |
+| `GET` | `/api/content/blogs/:slug` | Lightweight single live public blog post by slug |
 | `GET` | `/api/content/blogs/:slug/social` | Blog social state (counts + viewer like + comments) |
 | `POST` | `/api/content/blogs/:slug/like` | Toggle current visitor like state |
 | `POST` | `/api/content/blogs/:slug/comments` | Create a blog comment |
@@ -311,6 +313,97 @@ You should see:
 ---
 
 ## Changelog
+
+### v1.10.0 — Lightweight Public Blog Listing API
+
+| Area | Change | Details |
+|---|---|---|
+| API | Added lightweight public blog list endpoint | Added `GET /api/content/blogs` returning only frontend-required fields for listing/article pages |
+| API | Added lightweight public slug detail endpoint | Added `GET /api/content/blogs/:slug` with same live visibility rules and `404` for missing/non-live posts |
+| Visibility | Enforced live public filtering | Returns only rows where `is_deleted=false`, `published=true`, publish window is active, and post is active |
+| Performance | Narrow column selection + cache strategy | Query selects only required columns and route now serves short CDN cache with stale-while-revalidate |
+| Database | Added live-window compatibility/index support | Added `unpublished_at` column and `idx_blog_posts_live_public_window` partial index for listing/detail filters |
+| Quality | Added tests for contract behaviors | Added service/controller/repository tests for visibility, sorting, field exposure, and slug `404` |
+
+### Public blog API contract
+
+#### GET /api/content/blogs
+
+Returns only these fields per post:
+
+- `id`
+- `title`
+- `slug`
+- `excerpt`
+- `content`
+- `tags`
+- `coverImage`
+- `published`
+- `publishedAt`
+- `unpublishedAt`
+- `readingTime`
+- `displayOrder`
+
+Response shape:
+
+```json
+{
+    "success": true,
+    "data": {
+        "posts": [
+            {
+                "id": "uuid",
+                "title": "How I Built My Portfolio API",
+                "slug": "how-i-built-my-portfolio-api",
+                "excerpt": "A practical backend architecture walk-through...",
+                "content": "# Full markdown body...",
+                "tags": ["nodejs", "express", "postgresql"],
+                "coverImage": "https://cdn.example.com/blog/cover.jpg",
+                "published": true,
+                "publishedAt": "2026-06-01T09:00:00.000Z",
+                "unpublishedAt": null,
+                "readingTime": 8,
+                "displayOrder": 1
+            }
+        ]
+    }
+}
+```
+
+Sorting:
+- `publishedAt DESC`
+- tie-breaker: `displayOrder ASC`
+
+Live visibility rules:
+- `is_deleted = false`
+- `published = true`
+- `publishedAt IS NULL OR publishedAt <= now()`
+- `unpublishedAt IS NULL OR unpublishedAt > now()`
+
+#### GET /api/content/blogs/:slug
+
+Returns one post with the same fields and live visibility filters.
+
+If the slug does not exist or is not currently live:
+
+```json
+{
+    "success": false,
+    "message": "Blog post not found."
+}
+```
+
+### Usage workflow
+
+1. Fetch `/api/content/blogs` for your blog listing page cards.
+2. Route to `/blog/:slug` in frontend.
+3. Fetch `/api/content/blogs/:slug` for article rendering.
+4. Fetch `/api/content/blogs/:slug/social` separately for viewer-specific interactions.
+
+### Cache behavior
+
+- `GET /api/content/blogs` and `GET /api/content/blogs/:slug`: `Cache-Control: public, s-maxage=120, max-age=60, stale-while-revalidate=300`
+- `GET /api/content/blogs/:slug/social`: `Cache-Control: no-store`
 
 ### v1.8.0 — Blog Social Interactions API
 

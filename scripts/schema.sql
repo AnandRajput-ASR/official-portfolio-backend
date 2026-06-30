@@ -233,6 +233,7 @@ CREATE TABLE IF NOT EXISTS portfolio.blog_posts (
   cover_image   TEXT,
   published     BOOLEAN     NOT NULL DEFAULT false,
   published_at  TIMESTAMPTZ,
+  unpublished_at TIMESTAMPTZ,
   reading_time  INTEGER,
   author        TEXT        NOT NULL DEFAULT 'Anand Rajput',
   display_order INTEGER     NOT NULL DEFAULT 0,
@@ -440,6 +441,11 @@ CREATE INDEX IF NOT EXISTS idx_page_visit_log_visited_at
 
 CREATE INDEX IF NOT EXISTS idx_blog_posts_published
   ON portfolio.blog_posts (published, published_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_blog_posts_live_public_window
+  ON portfolio.blog_posts (published_at DESC, display_order ASC, unpublished_at)
+  WHERE published = true
+    AND COALESCE(is_deleted, false) = false;
 
 CREATE INDEX IF NOT EXISTS idx_blog_posts_slug
   ON portfolio.blog_posts (slug);
