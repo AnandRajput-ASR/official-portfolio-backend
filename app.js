@@ -82,6 +82,16 @@ app.use('/api/messages', messagesRoutes); // rate-limit applied per-method insid
 app.use('/api/resume', resumeRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Compatibility endpoint for frontend client-error telemetry.
+app.post('/api/track/error', (req, res) => {
+  console.warn('[CLIENT ERROR TRACK]', {
+    source: req.body?.source || 'frontend',
+    message: req.body?.message || null,
+    context: req.body?.context || null,
+  });
+  return res.status(204).send();
+});
+
 app.get('/api/health', healthHandler);
 
 // ─── Dynamic SEO files ─────────────────────────────────────────────────────────────────

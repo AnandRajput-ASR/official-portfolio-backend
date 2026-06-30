@@ -42,6 +42,18 @@ async function markAllRead() {
   return await repository.markAllRead();
 }
 
+async function updateLabels(id, labels) {
+  return await repository.updateLabels(id, labels);
+}
+
+async function updateArchived(id, archived) {
+  return await repository.updateArchived(id, archived);
+}
+
+async function updateReplied(id, repliedAt) {
+  return await repository.updateReplied(id, repliedAt);
+}
+
 module.exports = {
   sendMessage,
   getMessages,
@@ -49,4 +61,7 @@ module.exports = {
   toggleStar,
   deleteMessage,
   markAllRead,
+  updateLabels,
+  updateArchived,
+  updateReplied,
 };

@@ -34,7 +34,13 @@ async function login({ username, password }) {
   if (!valid) return null;
 
   // Update last login timestamp
-  await sql`UPDATE portfolio.admin_users SET last_login_at = now() WHERE id = ${admin.id}`;
+  await sql`
+    UPDATE portfolio.admin_users
+    SET last_login_at = now(),
+        updated_by = ${admin.id},
+        version = COALESCE(version, 1) + 1
+    WHERE id = ${admin.id}
+  `;
 
   const token = signToken({ username, role: 'admin' });
   return { token, username, role: 'admin' };
@@ -53,7 +59,9 @@ async function changePassword({ currentPassword, newPassword, newUsername }) {
   await sql`
     UPDATE portfolio.admin_users
     SET password_hash = ${newHash},
-        username = ${updatedUsername}
+        username = ${updatedUsername},
+        updated_by = ${admin.id},
+        version = COALESCE(version, 1) + 1
     WHERE id = ${admin.id}
   `;
 
@@ -71,7 +79,9 @@ async function generateResetToken() {
   await sql`
     UPDATE portfolio.admin_users
     SET reset_token = ${token},
-        reset_token_expiry = ${expiry}
+        reset_token_expiry = ${expiry},
+        updated_by = ${admin.id},
+        version = COALESCE(version, 1) + 1
     WHERE id = ${admin.id}
   `;
 
@@ -96,7 +106,9 @@ async function resetPassword({ token, newPassword }) {
     UPDATE portfolio.admin_users
     SET password_hash = ${newHash},
         reset_token = NULL,
-        reset_token_expiry = NULL
+        reset_token_expiry = NULL,
+        updated_by = ${admin.id},
+        version = COALESCE(version, 1) + 1
     WHERE id = ${admin.id}
   `;
 

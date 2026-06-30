@@ -1,6 +1,6 @@
 const sql = require('../configs/database.config');
 
-async function putHeroSection({ name, title, subtitle, bio, email, linkedin, github, location }) {
+async function putHeroSection({ name, title, subtitle, bio, email, linkedin, github, location, updatedBy = null }) {
   const result = await sql`
     WITH hero_update AS (
       UPDATE portfolio.hero
@@ -9,7 +9,9 @@ async function putHeroSection({ name, title, subtitle, bio, email, linkedin, git
         title = ${title},
         subtitle = ${subtitle},
         bio = ${bio},
-        updated_at = now()
+        updated_at = now(),
+        updated_by = ${updatedBy},
+        version = COALESCE(version, 1) + 1
       WHERE single_row_lock = true
       RETURNING
         id AS "heroId",
@@ -25,7 +27,9 @@ async function putHeroSection({ name, title, subtitle, bio, email, linkedin, git
         linkedin_url = ${linkedin},
         github_url = ${github},
         location = ${location},
-        updated_at = now()
+        updated_at = now(),
+        updated_by = ${updatedBy},
+        version = COALESCE(version, 1) + 1
       WHERE single_row_lock = true
       RETURNING
         id AS "contactInfoId",
@@ -42,7 +46,7 @@ async function putHeroSection({ name, title, subtitle, bio, email, linkedin, git
   return result[0] || null;
 }
 
-async function putSkills(skills) {
+async function putSkills(skills, updatedBy = null) {
   const result = await sql`
     UPDATE portfolio.skills s
     SET
@@ -54,7 +58,9 @@ async function putSkills(skills) {
         years_experience = data."yearsExp",
         tags = data.tags,
         display_order = data."displayOrder",
-        updated_at = now()
+        updated_at = now(),
+        updated_by = ${updatedBy},
+        version = COALESCE(s.version, 1) + 1
     FROM json_to_recordset(${skills})
     AS data(
         id uuid,
@@ -82,7 +88,7 @@ async function putSkills(skills) {
   return result;
 }
 
-async function postSkill({ name, icon, accentColor, description, tags, proficiency, yearsExp, displayOrder }) {
+async function postSkill({ name, icon, accentColor, description, tags, proficiency, yearsExp, displayOrder, createdBy = null, updatedBy = null }) {
   const result = await sql`
         INSERT INTO portfolio.skills (
             name,
@@ -92,7 +98,9 @@ async function postSkill({ name, icon, accentColor, description, tags, proficien
             proficiency,
             years_experience,
             tags,
-            display_order
+            display_order,
+            created_by,
+            updated_by
         )
         VALUES (
             ${name},
@@ -102,7 +110,9 @@ async function postSkill({ name, icon, accentColor, description, tags, proficien
             ${proficiency},
             ${yearsExp},
             ${tags}::text[],
-            ${displayOrder}
+            ${displayOrder},
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -119,12 +129,16 @@ async function postSkill({ name, icon, accentColor, description, tags, proficien
   return result[0];
 }
 
-async function deleteSkillById(id) {
+async function deleteSkillById(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.skills
         SET
             is_active = false,
-            updated_at = now()
+            is_deleted = true,
+            deleted_at = now(),
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING
             id,
@@ -141,7 +155,7 @@ async function deleteSkillById(id) {
   return result[0] || null;
 }
 
-async function putCompanies(companies) {
+async function putCompanies(companies, updatedBy = null) {
   return await sql.begin(async tx => {
     for (const company of companies) {
       const {
@@ -168,7 +182,17 @@ async function putCompanies(companies) {
           team_size         = ${teamSize},
           start_date        = ${startDate},
           end_date          = ${endDate},
-          updated_at        = now()
+          start_date_d      = CASE
+                                WHEN ${startDate} ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN ${startDate}::date
+                                ELSE NULL
+                              END,
+          end_date_d        = CASE
+                                WHEN ${endDate} ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN ${endDate}::date
+                                ELSE NULL
+                              END,
+          updated_at        = now(),
+          updated_by        = ${updatedBy},
+          version           = COALESCE(version, 1) + 1
         WHERE id = ${id}
       `;
 
@@ -192,8 +216,16 @@ async function putCompanies(companies) {
               display_order = ${projectOrder},
               number        = ${number},
               status        = ${status},
+              status_v2     = CASE
+                                WHEN ${status} IS NULL THEN NULL
+                                WHEN lower(replace(${status}, ' ', '_')) IN ('completed', 'in_progress', 'planned', 'archived')
+                                  THEN lower(replace(${status}, ' ', '_'))::portfolio.enum_company_project_status_v2
+                                ELSE NULL
+                              END,
               impact        = ${impact},
-              updated_at    = now()
+              updated_at    = now(),
+              updated_by    = ${updatedBy},
+              version       = COALESCE(version, 1) + 1
             WHERE id = ${projectId}
           `;
         }
@@ -204,7 +236,10 @@ async function putCompanies(companies) {
   });
 }
 
-async function postCompany({ name, role, period, location, logo, accentColor, current, description }) {
+async function postCompany({
+  name, role, period, location, logo, accentColor, current, description,
+  startDate = null, endDate = null, createdBy = null, updatedBy = null
+}) {
   const result = await sql`
         INSERT INTO portfolio.companies (
             name,
@@ -215,7 +250,13 @@ async function postCompany({ name, role, period, location, logo, accentColor, cu
             brand_color,
             currently_working,
             description,
-            display_order
+            display_order,
+            start_date,
+            end_date,
+            start_date_d,
+            end_date_d,
+            created_by,
+            updated_by
         )
         VALUES (
             ${name},
@@ -226,7 +267,19 @@ async function postCompany({ name, role, period, location, logo, accentColor, cu
             ${accentColor},
             ${current},
             ${description},
-            (SELECT COALESCE(MAX(display_order), -1) + 1 FROM portfolio.companies)
+            (SELECT COALESCE(MAX(display_order), -1) + 1 FROM portfolio.companies),
+            ${startDate},
+            ${endDate},
+            CASE
+              WHEN ${startDate} ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN ${startDate}::date
+              ELSE NULL
+            END,
+            CASE
+              WHEN ${endDate} ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN ${endDate}::date
+              ELSE NULL
+            END,
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -244,14 +297,18 @@ async function postCompany({ name, role, period, location, logo, accentColor, cu
   return result[0];
 }
 
-async function deleteCompanyById(companyId) {
+async function deleteCompanyById(companyId, updatedBy = null) {
   return await sql.begin(async tx => {
     // soft delete company
     const company = await tx`
             UPDATE portfolio.companies
             SET
                 is_active = false,
-                updated_at = now()
+                is_deleted = true,
+                deleted_at = now(),
+                updated_at = now(),
+                updated_by = ${updatedBy},
+                version = COALESCE(version, 1) + 1
             WHERE id = ${companyId}
             RETURNING
                 id,
@@ -268,7 +325,11 @@ async function deleteCompanyById(companyId) {
             UPDATE portfolio.company_projects
             SET
                 is_active = false,
-                updated_at = now()
+                is_deleted = true,
+                deleted_at = now(),
+                updated_at = now(),
+                updated_by = ${updatedBy},
+                version = COALESCE(version, 1) + 1
             WHERE company_id = ${companyId}
         `;
 
@@ -276,7 +337,7 @@ async function deleteCompanyById(companyId) {
   });
 }
 
-async function postCompanyProject({ companyId, title, description, tech, link }) {
+async function postCompanyProject({ companyId, title, description, tech, link, status = null, createdBy = null, updatedBy = null }) {
   const result = await sql`
         INSERT INTO portfolio.company_projects (
             company_id,
@@ -284,7 +345,11 @@ async function postCompanyProject({ companyId, title, description, tech, link })
             description,
             technologies,
             link,
-            display_order
+            display_order,
+            status,
+            status_v2,
+            created_by,
+            updated_by
         )
         VALUES (
             ${companyId},
@@ -296,7 +361,16 @@ async function postCompanyProject({ companyId, title, description, tech, link })
                 SELECT COALESCE(MAX(display_order), -1) + 1
                 FROM portfolio.company_projects
                 WHERE company_id = ${companyId}
-            )
+            ),
+            ${status},
+            CASE
+              WHEN ${status} IS NULL THEN NULL
+              WHEN lower(replace(${status}, ' ', '_')) IN ('completed', 'in_progress', 'planned', 'archived')
+                THEN lower(replace(${status}, ' ', '_'))::portfolio.enum_company_project_status_v2
+              ELSE NULL
+            END,
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -311,12 +385,16 @@ async function postCompanyProject({ companyId, title, description, tech, link })
   return result[0];
 }
 
-async function deleteProjectById(projectId) {
+async function deleteProjectById(projectId, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.company_projects
         SET
             is_active = false,
-            updated_at = now()
+            is_deleted = true,
+            deleted_at = now(),
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${projectId}
         RETURNING
             id,
@@ -328,7 +406,7 @@ async function deleteProjectById(projectId) {
   return result[0] || null;
 }
 
-async function putPersonalProjects(projects) {
+async function putPersonalProjects(projects, updatedBy = null) {
   return await sql.begin(async tx => {
     for (const project of projects) {
       const { id, title, description, tech, githubUrl, liveUrl, status, type, featured, year, displayOrder } = project;
@@ -342,11 +420,25 @@ async function putPersonalProjects(projects) {
                     github_link = ${githubUrl},
                     live_link = ${liveUrl},
                     status = ${status},
+                    status_v2 = CASE
+                                  WHEN ${status} IS NULL THEN NULL
+                                  WHEN lower(replace(${status}, ' ', '_')) IN ('live', 'wip', 'archived')
+                                    THEN lower(replace(${status}, ' ', '_'))::portfolio.enum_personal_project_status_v2
+                                  ELSE NULL
+                                END,
                     type = ${type},
+                    type_v2 = CASE
+                                WHEN ${type} IS NULL THEN NULL
+                                WHEN lower(replace(${type}, ' ', '')) IN ('personal', 'freelance', 'opensource')
+                                  THEN lower(replace(${type}, ' ', ''))::portfolio.enum_personal_project_type_v2
+                                ELSE NULL
+                              END,
                     featured = ${featured},
                     year = ${year},
                     display_order = ${displayOrder},
-                    updated_at = now()
+                    updated_at = now(),
+                    updated_by = ${updatedBy},
+                    version = COALESCE(version, 1) + 1
                 WHERE id = ${id}
             `;
     }
@@ -355,7 +447,9 @@ async function putPersonalProjects(projects) {
   });
 }
 
-async function postPersonalProject({ title, description, tech, githubUrl, liveUrl, status, type, featured, year }) {
+async function postPersonalProject({
+  title, description, tech, githubUrl, liveUrl, status, type, featured, year, createdBy = null, updatedBy = null
+}) {
   const result = await sql`
         INSERT INTO portfolio.personal_projects (
             title,
@@ -364,10 +458,14 @@ async function postPersonalProject({ title, description, tech, githubUrl, liveUr
             github_link,
             live_link,
             status,
+            status_v2,
             type,
+            type_v2,
             featured,
             year,
-            display_order
+            display_order,
+            created_by,
+            updated_by
         )
         VALUES (
             ${title},
@@ -376,14 +474,28 @@ async function postPersonalProject({ title, description, tech, githubUrl, liveUr
             ${githubUrl},
             ${liveUrl},
             ${status},
+            CASE
+              WHEN ${status} IS NULL THEN NULL
+              WHEN lower(replace(${status}, ' ', '_')) IN ('live', 'wip', 'archived')
+                THEN lower(replace(${status}, ' ', '_'))::portfolio.enum_personal_project_status_v2
+              ELSE NULL
+            END,
             ${type},
+            CASE
+              WHEN ${type} IS NULL THEN NULL
+              WHEN lower(replace(${type}, ' ', '')) IN ('personal', 'freelance', 'opensource')
+                THEN lower(replace(${type}, ' ', ''))::portfolio.enum_personal_project_type_v2
+              ELSE NULL
+            END,
             ${featured},
             ${year},
             (
                 SELECT COALESCE(MAX(display_order), -1) + 1
                 FROM portfolio.personal_projects
                 WHERE is_active = true
-            )
+            ),
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -402,12 +514,16 @@ async function postPersonalProject({ title, description, tech, githubUrl, liveUr
   return result[0];
 }
 
-async function deletePersonalProjectById(id) {
+async function deletePersonalProjectById(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.personal_projects
         SET
             is_active = false,
-            updated_at = now()
+            is_deleted = true,
+            deleted_at = now(),
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING
             id,
@@ -418,10 +534,10 @@ async function deletePersonalProjectById(id) {
   return result[0] || null;
 }
 
-async function putExperience(experiences) {
+async function putExperience(experiences, updatedBy = null) {
   return await sql.begin(async tx => {
     for (const exp of experiences) {
-      const { id, period, location, role, company, description, displayOrder } = exp;
+      const { id, period, location, role, company, description, displayOrder, startDate = null, endDate = null } = exp;
 
       await tx`
                 UPDATE portfolio.experience
@@ -431,8 +547,20 @@ async function putExperience(experiences) {
                     role = ${role},
                     organisation = ${company},
                     description = ${description},
+                    start_date = ${startDate},
+                    end_date = ${endDate},
+                    start_date_d = CASE
+                                    WHEN ${startDate} ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN ${startDate}::date
+                                    ELSE NULL
+                                   END,
+                    end_date_d = CASE
+                                  WHEN ${endDate} ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN ${endDate}::date
+                                  ELSE NULL
+                                 END,
                     display_order = ${displayOrder},
-                    updated_at = now()
+                    updated_at = now(),
+                    updated_by = ${updatedBy},
+                    version = COALESCE(version, 1) + 1
                 WHERE id = ${id}
             `;
     }
@@ -441,7 +569,9 @@ async function putExperience(experiences) {
   });
 }
 
-async function postExperience({ period, location, role, company, description }) {
+async function postExperience({
+  period, location, role, company, description, startDate = null, endDate = null, createdBy = null, updatedBy = null
+}) {
   const result = await sql`
         INSERT INTO portfolio.experience (
             period,
@@ -449,7 +579,13 @@ async function postExperience({ period, location, role, company, description }) 
             role,
             organisation,
             description,
-            display_order
+            display_order,
+            start_date,
+            end_date,
+            start_date_d,
+            end_date_d,
+            created_by,
+            updated_by
         )
         VALUES (
             ${period},
@@ -461,7 +597,19 @@ async function postExperience({ period, location, role, company, description }) 
                 SELECT COALESCE(MAX(display_order), -1) + 1
                 FROM portfolio.experience
                 WHERE is_active = true
-            )
+            ),
+            ${startDate},
+            ${endDate},
+            CASE
+              WHEN ${startDate} ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN ${startDate}::date
+              ELSE NULL
+            END,
+            CASE
+              WHEN ${endDate} ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN ${endDate}::date
+              ELSE NULL
+            END,
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -476,12 +624,16 @@ async function postExperience({ period, location, role, company, description }) 
   return result[0];
 }
 
-async function deleteExperienceById(id) {
+async function deleteExperienceById(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.experience
         SET
             is_active = false,
-            updated_at = now()
+            is_deleted = true,
+            deleted_at = now(),
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING
             id,
@@ -493,7 +645,7 @@ async function deleteExperienceById(id) {
   return result[0] || null;
 }
 
-async function syncStats(stats) {
+async function syncStats(stats, updatedBy = null) {
   return await sql.begin(async tx => {
     const payloadIds = [];
 
@@ -509,7 +661,9 @@ async function syncStats(stats) {
                         value = ${value},
                         suffix = ${suffix},
                         label = ${label},
-                        updated_at = now()
+                        updated_at = now(),
+                        updated_by = ${updatedBy},
+                        version = COALESCE(version, 1) + 1
                     WHERE id = ${id}
                     RETURNING id
                 `;
@@ -525,12 +679,16 @@ async function syncStats(stats) {
                 INSERT INTO portfolio.stats (
                     value,
                     suffix,
-                    label
+                    label,
+                    created_by,
+                    updated_by
                 )
                 VALUES (
                     ${value},
                     ${suffix},
-                    ${label}
+                    ${label},
+                    ${updatedBy},
+                    ${updatedBy}
                 )
                 RETURNING id
             `;
@@ -543,7 +701,11 @@ async function syncStats(stats) {
             UPDATE portfolio.stats
             SET
                 is_active = false,
-                updated_at = now()
+                is_deleted = true,
+                deleted_at = now(),
+                updated_at = now(),
+                updated_by = ${updatedBy},
+                version = COALESCE(version, 1) + 1
             WHERE id NOT IN ${tx(payloadIds)}
         `;
 
@@ -563,7 +725,7 @@ async function syncStats(stats) {
   });
 }
 
-async function putCertification(certifications) {
+async function putCertification(certifications, updatedBy = null) {
   return await sql.begin(async tx => {
     for (const cert of certifications) {
       const { id, name, code, issuer, level, issueYear, expirationYear, credlyLink, accentColor, badgeLink, badgeType, displayOrder } =
@@ -583,7 +745,9 @@ async function putCertification(certifications) {
                     badge_link = ${badgeLink},
                     badge_type = ${badgeType},
                     display_order = ${displayOrder},
-                    updated_at = now()
+                    updated_at = now(),
+                    updated_by = ${updatedBy},
+                    version = COALESCE(version, 1) + 1
                 WHERE id = ${id}
             `;
     }
@@ -592,7 +756,9 @@ async function putCertification(certifications) {
   });
 }
 
-async function postCertification({ name, code, issuer, level, issueYear, credlyLink, accentColor, badgeLink, badgeType }) {
+async function postCertification({
+  name, code, issuer, level, issueYear, credlyLink, accentColor, badgeLink, badgeType, createdBy = null, updatedBy = null
+}) {
   const result = await sql`
         INSERT INTO portfolio.certifications (
             name,
@@ -604,7 +770,9 @@ async function postCertification({ name, code, issuer, level, issueYear, credlyL
             accent_color,
             badge_link,
             badge_type,
-            display_order
+            display_order,
+            created_by,
+            updated_by
         )
         VALUES (
             ${name},
@@ -620,7 +788,9 @@ async function postCertification({ name, code, issuer, level, issueYear, credlyL
                 SELECT COALESCE(MAX(display_order), -1) + 1
                 FROM portfolio.certifications
                 WHERE is_active = true
-            )
+            ),
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -640,12 +810,16 @@ async function postCertification({ name, code, issuer, level, issueYear, credlyL
   return result[0];
 }
 
-async function deleteCertificationById(id) {
+async function deleteCertificationById(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.certifications
         SET
             is_active = false,
-            updated_at = now()
+            is_deleted = true,
+            deleted_at = now(),
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING
             id,
@@ -700,7 +874,7 @@ async function getAllTestimonials() {
   };
 }
 
-async function updateTestimonials(testimonials) {
+async function updateTestimonials(testimonials, updatedBy = null) {
   return await sql.begin(async tx => {
     for (const t of testimonials) {
       const id = t.id;
@@ -722,7 +896,9 @@ async function updateTestimonials(testimonials) {
                     quote = ${quote},
                     rating = ${rating},
                     display_order = ${displayOrder},
-                    updated_at = now()
+                    updated_at = now(),
+                    updated_by = ${updatedBy},
+                    version = COALESCE(version, 1) + 1
                 WHERE id = ${id}
             `;
     }
@@ -731,7 +907,7 @@ async function updateTestimonials(testimonials) {
   });
 }
 
-async function createTestimonial({ name, role, company, avatar, quote, rating }) {
+async function createTestimonial({ name, role, company, avatar, quote, rating, createdBy = null, updatedBy = null }) {
   const result = await sql`
         INSERT INTO portfolio.testimonials (
             name,
@@ -741,7 +917,10 @@ async function createTestimonial({ name, role, company, avatar, quote, rating })
             quote,
             rating,
             status,
-            display_order
+            status_v2,
+            display_order,
+            created_by,
+            updated_by
         )
         VALUES (
             ${name},
@@ -751,11 +930,14 @@ async function createTestimonial({ name, role, company, avatar, quote, rating })
             ${quote},
             ${rating},
             'Approved',
+            'approved',
             (
                 SELECT COALESCE(MAX(display_order), -1) + 1
                 FROM portfolio.testimonials
                 WHERE status = 'Approved'
-            )
+            ),
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -772,12 +954,14 @@ async function createTestimonial({ name, role, company, avatar, quote, rating })
   return result[0];
 }
 
-async function enableTestimonialById(id, { visible }) {
+async function enableTestimonialById(id, { visible, updatedBy = null }) {
   const result = await sql`
         UPDATE portfolio.testimonials
         SET
             visible = ${visible},
-            updated_at = now()
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING
             id,
@@ -793,12 +977,16 @@ async function enableTestimonialById(id, { visible }) {
   return result[0];
 }
 
-async function deleteTestimonial(id) {
+async function deleteTestimonial(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.testimonials
         SET
             is_active = false,
-            updated_at = now()
+            is_deleted = true,
+            deleted_at = now(),
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING id
     `;
@@ -806,7 +994,7 @@ async function deleteTestimonial(id) {
   return result[0];
 }
 
-async function submitTestimonial({ name, role, company, quote, rating, avatar, email }) {
+async function submitTestimonial({ name, role, company, quote, rating, avatar, email, createdBy = null, updatedBy = null }) {
   const result = await sql`
         INSERT INTO portfolio.testimonials (
             name,
@@ -816,8 +1004,11 @@ async function submitTestimonial({ name, role, company, quote, rating, avatar, e
             quote,
             rating,
             status,
+            status_v2,
             visible,
-            submitter_email
+            submitter_email,
+            created_by,
+            updated_by
         )
         VALUES (
             ${name},
@@ -827,8 +1018,11 @@ async function submitTestimonial({ name, role, company, quote, rating, avatar, e
             ${quote},
             ${rating},
             'Pending',
+            'pending',
             False,
-            ${email || null}
+            ${email || null},
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -846,13 +1040,16 @@ async function submitTestimonial({ name, role, company, quote, rating, avatar, e
   return result[0];
 }
 
-async function approveTestimonial(id) {
+async function approveTestimonial(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.testimonials
         SET
             status = 'Approved',
+            status_v2 = 'approved',
             visible = True,
             updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1,
             display_order = (
                 SELECT COALESCE(MAX(display_order), -1) + 1
                 FROM portfolio.testimonials
@@ -875,12 +1072,15 @@ async function approveTestimonial(id) {
   return result[0];
 }
 
-async function rejectTestimonial(id) {
+async function rejectTestimonial(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.testimonials
         SET
             status = 'Rejected',
-            updated_at = now()
+            status_v2 = 'rejected',
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING id, status
     `;
@@ -888,12 +1088,16 @@ async function rejectTestimonial(id) {
   return result[0];
 }
 
-async function deletePendingTestimonial(id) {
+async function deletePendingTestimonial(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.testimonials
         SET
             is_active = false,
-            updated_at = now()
+            is_deleted = true,
+            deleted_at = now(),
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING id
     `;
@@ -901,7 +1105,9 @@ async function deletePendingTestimonial(id) {
   return result[0];
 }
 
-async function createBlogPost({ title, slug, excerpt, content, tags, coverImage, published, readingTime, displayOrder }) {
+async function createBlogPost({
+  title, slug, excerpt, content, tags, coverImage, published, readingTime, displayOrder, createdBy = null, updatedBy = null
+}) {
   const result = await sql`
         INSERT INTO portfolio.blog_posts (
             title,
@@ -913,7 +1119,9 @@ async function createBlogPost({ title, slug, excerpt, content, tags, coverImage,
             published,
             published_at,
             reading_time,
-            display_order
+            display_order,
+            created_by,
+            updated_by
         )
         VALUES (
             ${title},
@@ -925,7 +1133,9 @@ async function createBlogPost({ title, slug, excerpt, content, tags, coverImage,
             ${published},
             CASE WHEN ${published} = true THEN now() ELSE NULL END,
             ${readingTime},
-            COALESCE(${displayOrder}, 0)
+            COALESCE(${displayOrder}, 0),
+            ${createdBy},
+            ${updatedBy}
         )
         RETURNING
             id,
@@ -946,7 +1156,7 @@ async function createBlogPost({ title, slug, excerpt, content, tags, coverImage,
 
 async function updateBlogPostById(
   id,
-  { title, slug, excerpt, content, tags, coverImage, published, publishedAt, readingTime, author, displayOrder }
+  { title, slug, excerpt, content, tags, coverImage, published, publishedAt, readingTime, author, displayOrder, updatedBy = null }
 ) {
   const result = await sql`
         UPDATE portfolio.blog_posts
@@ -962,7 +1172,9 @@ async function updateBlogPostById(
             reading_time = ${readingTime},
             author = ${author},
             display_order = COALESCE(${displayOrder}, display_order),
-            updated_at = now()
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING
             id,
@@ -982,7 +1194,7 @@ async function updateBlogPostById(
   return result[0];
 }
 
-async function updateBlogPosts(posts) {
+async function updateBlogPosts(posts, updatedBy = null) {
   return await sql.begin(async tx => {
     for (const post of posts) {
       const { id, title, slug, excerpt, content, tags, coverImage, published, readingTime, author, displayOrder } = post;
@@ -1001,7 +1213,9 @@ async function updateBlogPosts(posts) {
                     reading_time = ${readingTime},
                     author = ${author},
                     display_order = COALESCE(${displayOrder}, display_order),
-                    updated_at = now()
+                    updated_at = now(),
+                    updated_by = ${updatedBy},
+                    version = COALESCE(version, 1) + 1
                 WHERE id = ${id}
             `;
     }
@@ -1010,12 +1224,16 @@ async function updateBlogPosts(posts) {
   });
 }
 
-async function deleteBlogPost(id) {
+async function deleteBlogPost(id, updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.blog_posts
         SET
             is_active = false,
-            updated_at = now()
+            is_deleted = true,
+            deleted_at = now(),
+            updated_at = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE id = ${id}
         RETURNING id
     `;
@@ -1077,7 +1295,7 @@ async function getAnalytics() {
   return analytics;
 }
 
-async function resetAnalytics() {
+async function resetAnalytics(updatedBy = null) {
   const result = await sql`
         UPDATE portfolio.analytics
         SET
@@ -1088,7 +1306,9 @@ async function resetAnalytics() {
             blog_post_views = 0,
             project_link_clicks = 0,
             social_link_clicks = 0,
-            last_reset = now()
+            last_reset = now(),
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE single_row_lock = true
         RETURNING *
     `;
@@ -1099,7 +1319,7 @@ async function resetAnalytics() {
   return result[0];
 }
 
-async function trackAnalyticsEvent(type, { projectName } = {}) {
+async function trackAnalyticsEvent(type, { projectName, updatedBy = null } = {}) {
   // Normalise camelCase (frontend) → snake_case (DB column map)
   const normalised = type.replace(/([A-Z])/g, '_$1').toLowerCase();
 
@@ -1121,7 +1341,9 @@ async function trackAnalyticsEvent(type, { projectName } = {}) {
 
   const result = await sql`
         UPDATE portfolio.analytics
-        SET ${sql(column)} = ${sql(column)} + 1
+        SET ${sql(column)} = ${sql(column)} + 1,
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
         WHERE single_row_lock = true
         RETURNING *
     `;
