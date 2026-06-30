@@ -291,11 +291,16 @@ CREATE TABLE IF NOT EXISTS portfolio.messages (
   message     TEXT        NOT NULL,
   read        BOOLEAN     NOT NULL DEFAULT false,
   starred     BOOLEAN     NOT NULL DEFAULT false,
+  archived    BOOLEAN     NOT NULL DEFAULT false,
+  labels      TEXT[]      NOT NULL DEFAULT '{}',
   replied_at  TIMESTAMPTZ,
   notified_at TIMESTAMPTZ,
   received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   is_deleted  BOOLEAN     NOT NULL DEFAULT false,
   deleted_at  TIMESTAMPTZ,
+  updated_by  UUID,
+  version     INTEGER     DEFAULT 1,
+  updated_at  TIMESTAMPTZ DEFAULT now(),
 
   CONSTRAINT messages_pkey PRIMARY KEY (id)
 );
@@ -544,7 +549,7 @@ INSERT INTO portfolio.site_config (key, config) VALUES
     "about": {
       "heading": "About Me",
       "paragraphs": ["Tell your story here."],
-      "accentureBadge": { "company": "", "role": "", "period": "", "award": "" }
+      "companyBadge": { "company": "", "role": "", "period": "", "award": "" }
     },
     "ticker": { "items": [] },
     "contact": { "heading": "Get In Touch", "successMessage": "Message sent!" },

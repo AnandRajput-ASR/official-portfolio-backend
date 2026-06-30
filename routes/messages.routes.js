@@ -13,6 +13,9 @@ router.get('/', auth, messagesController.getMessages);
 router.patch('/mark-all-read', auth, messagesController.markAllRead);
 router.patch('/:id/read', auth, messagesController.markRead);
 router.patch('/:id/star', auth, messagesController.toggleStar);
+router.patch('/:id/labels', auth, messagesController.updateLabels);
+router.patch('/:id/archive', auth, messagesController.updateArchived);
+router.patch('/:id/replied', auth, messagesController.updateReplied);
 router.delete('/:id', auth, messagesController.deleteMessage);
 
 module.exports = router;

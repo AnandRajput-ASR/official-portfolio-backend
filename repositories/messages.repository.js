@@ -36,6 +36,8 @@ async function getMessages() {
             message,
             read,
             starred,
+            archived,
+            labels,
             replied_at AS "repliedAt",
             notified_at AS "notifiedAt",
             received_at AS "receivedAt"
@@ -100,6 +102,48 @@ async function markAllRead(updatedBy = null) {
     `;
 }
 
+async function updateLabels(id, labels, updatedBy = null) {
+  const result = await sql`
+        UPDATE portfolio.messages
+        SET labels = ${labels},
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1,
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING *
+    `;
+
+  return result[0];
+}
+
+async function updateArchived(id, archived, updatedBy = null) {
+  const result = await sql`
+        UPDATE portfolio.messages
+        SET archived = ${archived},
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1,
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING *
+    `;
+
+  return result[0];
+}
+
+async function updateReplied(id, repliedAt, updatedBy = null) {
+  const result = await sql`
+        UPDATE portfolio.messages
+        SET replied_at = ${repliedAt},
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1,
+            updated_at = now()
+        WHERE id = ${id}
+        RETURNING *
+    `;
+
+  return result[0];
+}
+
 module.exports = {
   createMessage,
   getMessages,
@@ -108,4 +152,7 @@ module.exports = {
   toggleStar,
   deleteMessage,
   markAllRead,
+  updateLabels,
+  updateArchived,
+  updateReplied,
 };

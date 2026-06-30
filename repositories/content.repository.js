@@ -69,7 +69,11 @@ module.exports = {
    * When tracking a pageView, also inserts into page_visit_log for time-series charts.
    */
   async trackAnalyticsEvent(eventName, { projectName, ipHash, updatedBy = null } = {}) {
-    const normalised = eventName.replace(/([A-Z])/g, '_$1').toLowerCase();
+    const rawName = String(eventName || '').trim();
+    if (!rawName) {
+      return { ignored: true, reason: 'missing_event' };
+    }
+    const normalised = rawName.replace(/([A-Z])/g, '_$1').toLowerCase();
 
     const columnMap = {
       page_view: 'page_views',
@@ -82,7 +86,9 @@ module.exports = {
     };
 
     const column = columnMap[normalised];
-    if (!column) throw new Error(`Invalid analytics event: ${eventName}`);
+    if (!column) {
+      return { ignored: true, reason: 'unsupported_event', event: rawName };
+    }
 
     let result = await sql`
       UPDATE portfolio.analytics
@@ -94,17 +100,30 @@ module.exports = {
 
     if (!result[0]) {
       result = await sql`
-      UPDATE portfolio.analytics
-      SET ${sql(column)} = ${sql(column)} + 1,
-          updated_by = ${updatedBy},
-          version = COALESCE(version, 1) + 1
-      WHERE single_row_lock = true
-      RETURNING *`;
+        UPDATE portfolio.analytics
+        SET ${sql(column)} = ${sql(column)} + 1,
+            updated_by = ${updatedBy},
+            version = COALESCE(version, 1) + 1
+        WHERE single_row_lock = true
+        RETURNING *`;
+    }
+
+    // Backward-compatible fallback for older DBs that don't yet have wave-1 columns.
+    if (!result[0]) {
+      result = await sql`
+        UPDATE portfolio.analytics
+        SET ${sql(column)} = ${sql(column)} + 1
+        WHERE single_row_lock = true
+        RETURNING *`;
     }
 
     // Log page views to time-series table
     if (normalised === 'page_view') {
-      await sql`INSERT INTO portfolio.page_visit_log (ip_hash) VALUES (${ipHash || null})`;
+      try {
+        await sql`INSERT INTO portfolio.page_visit_log (ip_hash) VALUES (${ipHash || null})`;
+      } catch (_err) {
+        // Keep analytics tracking non-blocking when optional telemetry table is absent.
+      }
     }
 
     // Track per-project click when project name is provided
