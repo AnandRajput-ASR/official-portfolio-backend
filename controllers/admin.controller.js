@@ -244,20 +244,42 @@ exports.deleteBlogPost = asyncHandler(async (req, res) => {
   return ok(res, deleted, 'Blog post deleted');
 });
 
-exports.getBlogComments = asyncHandler(async (req, res) => {
-  const allowed = new Set(['all', 'visible', 'hidden', 'deleted']);
-  const status = String(req.query.status || 'all').toLowerCase();
+exports.getBlogComments = async (req, res) => {
+  const status = String(req.query.status || 'all').trim().toLowerCase();
 
-  if (!allowed.has(status)) {
-    return res.status(400).json({
+  try {
+    const data = await adminService.getBlogComments(req.params.slug, status);
+    return res.status(200).json({
+      success: true,
+      data: {
+        comments: Array.isArray(data.comments) ? data.comments : [],
+        counts: {
+          all: Number.isFinite(Number(data?.counts?.all)) ? Number(data.counts.all) : 0,
+          visible: Number.isFinite(Number(data?.counts?.visible)) ? Number(data.counts.visible) : 0,
+          hidden: Number.isFinite(Number(data?.counts?.hidden)) ? Number(data.counts.hidden) : 0,
+          deleted: Number.isFinite(Number(data?.counts?.deleted)) ? Number(data.counts.deleted) : 0,
+        },
+      },
+    });
+  } catch (err) {
+    if (err.statusCode === 400 || err.statusCode === 404) {
+      return res.status(err.statusCode).json({ success: false, message: err.message });
+    }
+
+    console.error('[ADMIN_BLOG_COMMENTS_LIST_ERROR]', {
+      endpoint: 'GET /api/admin/blog/:slug/comments',
+      slug: req.params?.slug || null,
+      status,
+      userId: req.user?.id || req.user?.sub || req.user?.username || null,
+      message: err.message,
+    });
+
+    return res.status(500).json({
       success: false,
-      message: 'Invalid status filter. Allowed values: all, visible, hidden, deleted.',
+      message: 'Could not load comments for this post.',
     });
   }
-
-  const data = await adminService.getBlogComments(req.params.slug, status);
-  return res.json({ success: true, data });
-});
+};
 
 exports.moderateBlogComment = asyncHandler(async (req, res) => {
   const { action, reason } = req.body || {};

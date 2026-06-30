@@ -84,3 +84,43 @@ test('moderateComment returns 409 for invalid transition', async () => {
     },
   );
 });
+
+test('getBlogComments returns safe empty payload for no rows', async () => {
+  const adminService = loadServiceWithMocks({
+    getBlogCommentsBySlug: async () => ({ comments: [], counts: null }),
+  });
+
+  const result = await adminService.getBlogComments('post-a', 'all');
+
+  assert.deepEqual(result.comments, []);
+  assert.deepEqual(result.counts, { all: 0, visible: 0, hidden: 0, deleted: 0 });
+});
+
+test('getBlogComments rejects invalid status filter with 400', async () => {
+  const adminService = loadServiceWithMocks({
+    getBlogCommentsBySlug: async () => ({ comments: [], counts: {} }),
+  });
+
+  await assert.rejects(
+    adminService.getBlogComments('post-a', 'invalid-status'),
+    (err) => {
+      assert.equal(err.statusCode, 400);
+      return true;
+    },
+  );
+});
+
+test('getBlogComments normalizes legacy null moderation_status rows', async () => {
+  const adminService = loadServiceWithMocks({
+    getBlogCommentsBySlug: async () => ({
+      comments: [{ id: 'c1', moderationStatus: null }],
+      counts: { all: 1, visible: 1, hidden: 0, deleted: 0 },
+    }),
+  });
+
+  const result = await adminService.getBlogComments('post-a', 'all');
+
+  assert.equal(result.comments.length, 1);
+  assert.equal(result.comments[0].moderationStatus, 'visible');
+  assert.equal(result.counts.all, 1);
+});

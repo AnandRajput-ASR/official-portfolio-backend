@@ -1244,17 +1244,17 @@ async function deleteBlogPost(id, updatedBy = null) {
 async function getBlogCommentsBySlug(slug, status = 'all') {
   const filters = [sql`post_slug = ${slug}`];
   if (status !== 'all') {
-    filters.push(sql`moderation_status = ${status}`);
+    filters.push(sql`COALESCE(moderation_status, 'visible') = ${status}`);
   }
 
   const comments = await sql`
     SELECT
       id::text AS id,
       post_slug AS slug,
-      name AS "authorName",
-      message AS content,
+      COALESCE(name, 'Anonymous') AS "authorName",
+      COALESCE(message, '') AS content,
       created_at AS "createdAt",
-      moderation_status AS "moderationStatus",
+      COALESCE(moderation_status, 'visible') AS "moderationStatus",
       moderation_reason AS "moderationReason",
       moderated_by AS "moderatedBy",
       moderated_at AS "moderatedAt",
@@ -1267,10 +1267,10 @@ async function getBlogCommentsBySlug(slug, status = 'all') {
 
   const countRows = await sql`
     SELECT
-      COUNT(*)::int AS all,
-      COUNT(*) FILTER (WHERE moderation_status = 'visible')::int AS visible,
-      COUNT(*) FILTER (WHERE moderation_status = 'hidden')::int AS hidden,
-      COUNT(*) FILTER (WHERE moderation_status = 'deleted')::int AS deleted
+      COALESCE(COUNT(*), 0)::int AS "all",
+      COALESCE(COUNT(*) FILTER (WHERE COALESCE(moderation_status, 'visible') = 'visible'), 0)::int AS visible,
+      COALESCE(COUNT(*) FILTER (WHERE COALESCE(moderation_status, 'visible') = 'hidden'), 0)::int AS hidden,
+      COALESCE(COUNT(*) FILTER (WHERE COALESCE(moderation_status, 'visible') = 'deleted'), 0)::int AS deleted
     FROM portfolio.blog_post_comments
     WHERE post_slug = ${slug}
   `;

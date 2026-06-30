@@ -60,6 +60,44 @@ test('getBlogComments supports status filter and returns counts payload', async 
   assert.equal(res.payload.data.counts.hidden, 2);
 });
 
+test('getBlogComments returns empty payload when no rows exist', async () => {
+  const controller = loadControllerWithServiceMock({
+    getBlogComments: async () => ({
+      comments: [],
+      counts: { all: 0, visible: 0, hidden: 0, deleted: 0 },
+    }),
+  });
+
+  const req = { params: { slug: 'post-a' }, query: { status: 'all' }, user: { username: 'admin' } };
+  const res = createResponseCollector();
+
+  await controller.getBlogComments(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.success, true);
+  assert.deepEqual(res.payload.data.comments, []);
+  assert.deepEqual(res.payload.data.counts, { all: 0, visible: 0, hidden: 0, deleted: 0 });
+});
+
+test('getBlogComments returns 400 for invalid status', async () => {
+  const controller = loadControllerWithServiceMock({
+    getBlogComments: async () => {
+      const err = new Error('Invalid status filter. Allowed values: all, visible, hidden, deleted.');
+      err.statusCode = 400;
+      throw err;
+    },
+  });
+
+  const req = { params: { slug: 'post-a' }, query: { status: 'oops' }, user: { username: 'admin' } };
+  const res = createResponseCollector();
+
+  await controller.getBlogComments(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.payload.success, false);
+  assert.match(res.payload.message, /Invalid status filter/i);
+});
+
 test('DELETE compatibility endpoint maps to soft delete moderation action', async () => {
   let called = false;
   const controller = loadControllerWithServiceMock({

@@ -192,6 +192,42 @@ async function deleteBlogPost(id) {
   return await repository.deleteBlogPost(id);
 }
 
+function normalizeCommentStatus(status) {
+  const normalized = String(status || 'all').trim().toLowerCase();
+  const allowed = new Set(['all', 'visible', 'hidden', 'deleted']);
+
+  if (!allowed.has(normalized)) {
+    const err = new Error('Invalid status filter. Allowed values: all, visible, hidden, deleted.');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  return normalized;
+}
+
+function normalizeCommentsResponse(data) {
+  const source = data || {};
+  const comments = Array.isArray(source.comments)
+    ? source.comments.map((comment) => ({
+      ...comment,
+      authorName: comment?.authorName || 'Anonymous',
+      content: comment?.content || '',
+      moderationStatus: comment?.moderationStatus || 'visible',
+    }))
+    : [];
+  const counts = source.counts || {};
+
+  return {
+    comments,
+    counts: {
+      all: Number.isFinite(Number(counts.all)) ? Number(counts.all) : 0,
+      visible: Number.isFinite(Number(counts.visible)) ? Number(counts.visible) : 0,
+      hidden: Number.isFinite(Number(counts.hidden)) ? Number(counts.hidden) : 0,
+      deleted: Number.isFinite(Number(counts.deleted)) ? Number(counts.deleted) : 0,
+    },
+  };
+}
+
 function getTargetStatus(action) {
   const map = {
     hide: 'hidden',
@@ -218,7 +254,15 @@ function assertValidTransition(action, currentStatus) {
 }
 
 async function getBlogComments(slug, status = 'all') {
-  return await repository.getBlogCommentsBySlug(slug, status);
+  if (!slug || !String(slug).trim()) {
+    const err = new Error('Blog slug not found.');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  const normalizedStatus = normalizeCommentStatus(status);
+  const data = await repository.getBlogCommentsBySlug(slug, normalizedStatus);
+  return normalizeCommentsResponse(data);
 }
 
 async function moderateComment(slug, commentId, action, adminUser, reason) {
